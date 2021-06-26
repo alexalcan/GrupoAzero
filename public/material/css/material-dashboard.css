@@ -16786,7 +16786,7 @@ label {
 .card.bg-info,
 .card.card-rotate.bg-info .front,
 .card.card-rotate.bg-info .back {
-  background: linear-gradient(60deg, #26c6da, #00acc1);
+  background: #9C9C9D;
 }
 
 .card .card-header-success .card-icon,
@@ -16795,7 +16795,7 @@ label {
 .card.bg-success,
 .card.card-rotate.bg-success .front,
 .card.card-rotate.bg-success .back {
-  background: linear-gradient(60deg, #66bb6a, #43a047);
+  background: #C72029;
 }
 
 .card .card-header-warning .card-icon,
@@ -16804,7 +16804,7 @@ label {
 .card.bg-warning,
 .card.card-rotate.bg-warning .front,
 .card.card-rotate.bg-warning .back {
-  background: linear-gradient(60deg, #ffa726, #fb8c00);
+  background: #545759;
 }
 
 .card .card-header-danger .card-icon,

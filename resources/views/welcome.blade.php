@@ -64,17 +64,21 @@
                     </div>
                 </div>
             </div>
-            @if ( isset($order->picture) )
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="card" style="width: 100%;">
-                            <img class="card-img-top" src="{{ asset('storage') }}/{{ $order->picture->picture }}" alt="Card image cap">
-                            <div class="card-body">
-                                <p class="card-text">Foto subida el {{ $order->picture->created_at->isoFormat('MMM Do YY') }}</p>
+            @if ( isset($order->cancelation) )
+                @if ( $order->status_id == 7 )
+                    <div class="row">
+                        @foreach ($order->cancelation->files as $file)
+                            <div class="col-sm-12">
+                                <div class="card" style="width: 100%;">
+                                    <img class="card-img-top" src="{{ asset('storage') }}/{{ $file->file }}" alt="Card image cap">
+                                    <div class="card-body">
+                                        <p class="card-text">Foto subida el {{ $file->cancelation->created_at->isoFormat('MMM Do YY') }}</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        @endforeach
                     </div>
-                </div>
+                @endif
             @endif
         </div>
     </div>

@@ -44,6 +44,21 @@
                             </div>
                             <div class="card-body ">
                                 <div class="row">
+                                    <label class="col-sm-2 col-form-label">Favorito</label>
+                                    <div class="col-sm-7">
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input name="credit" class="form-check-input" type="checkbox" {{ $order->credit ? 'checked' : '' }} >
+                                                Pedido a crédito
+                                                <span class="form-check-sign">
+                                                    <span class="check"></span>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
                                     <label class="col-sm-2 col-form-label">No. de facturo a folio</label>
                                     <div class="col-sm-7">
                                         <div class="form-group bmd-form-group is-filled">

@@ -18,11 +18,11 @@ class CreatePicturesTable extends Migration
 
             $table->string('picture');
 
-            $table->unsignedBigInteger('user_id')->default(2);
+            $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade');
 
-            $table->unsignedBigInteger('order_id')->default(2);
-            $table->foreign('order_id')->references('id')->on('orders')->onUpdate('cascade');
+            $table->unsignedBigInteger('deliveries_id');
+            $table->foreign('deliveries_id')->references('id')->on('deliveries')->onUpdate('cascade');
 
             $table->timestamps();
         });

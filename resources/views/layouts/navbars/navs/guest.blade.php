@@ -4,7 +4,7 @@
   <div class="container">
     <div class="navbar-wrapper">
       {{-- <a class="navbar-brand" href="{{ route('home') }}">{{ $title }}</a> --}}
-      <a class="navbar-brand" href="{{ route('home') }}"><img src="{{ asset('img/logo.png') }}" alt="" style="width: 50px; margin-top: -10px;"></a>
+      <a class="navbar-brand" href="{{ route('welcome') }}"><img src="{{ asset('img/logo.png') }}" alt="" style="width: 50px; margin-top: -10px;"></a>
     </div>
     <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
       <span class="sr-only">Toggle navigation</span>

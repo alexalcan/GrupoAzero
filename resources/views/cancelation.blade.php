@@ -23,17 +23,23 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <label class="col-sm-2 col-form-label">Razón</label>
-                                <div class="col-sm-7">
-                                    <select name="reason_id" id="reason_id" class="form-control" >
-                                        <option value="1" selected><b>Selecciona una razón...</b></option>
-                                        @foreach ($reasons as $reason)
-                                            <option value="{{ $reason->id }}">{{ $reason->reason }}</option>
-                                        @endforeach
-                                    </select>
+                            @if ( isset($order->cancelation) )
+                                <input type="hidden" name="oldCancelation" value="true" class="form-control">
+                                <input type="hidden" name="cancelationId" value="{{ $order->cancelation->id }}" class="form-control">
+                            @else
+                                <div class="row">
+                                    <label class="col-sm-2 col-form-label">Razón</label>
+                                    <div class="col-sm-7">
+                                        <select name="reason_id" id="reason_id" class="form-control" >
+                                            <option value="1" selected><b>Selecciona una razón...</b></option>
+                                            @foreach ($reasons as $reason)
+                                                <option value="{{ $reason->id }}">{{ $reason->reason }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
+
                         </div>
                         <div class="card-footer ml-auto mr-auto">
                             <button type="submit" class="btn btn-primary">Guardar</button>

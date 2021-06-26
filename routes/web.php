@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -72,3 +73,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('cancelation','HomeController@cancelation')->name('cancelation');
 });
 
+// Para generar el storage link
+// Route::get('storage-link', function(){
+//     Artisan::call('storage:link');
+// });

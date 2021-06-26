@@ -3,7 +3,77 @@
 @section('content')
     <div class="content">
         <div class="container-fluid">
-            @if ( auth()->user()->role->name != "Cliente" )
+
+            @if ( auth()->user()->role->name == "Empleado" )
+                <div class="row">
+                    {{-- <div class="col-lg-4 col-md-6 col-sm-6">
+                        <div class="card card-stats">
+                        <div class="card-header card-header-warning card-header-icon">
+                            <div class="card-icon">
+                            <i class="material-icons">group</i>
+                            </div>
+                            <p class="card-category">Usuarios</p>
+                            <h3 class="card-title">{{ $users }}
+                            </h3>
+                        </div>
+                        <div class="card-footer">
+                            <div class="stats">
+                            <a href="#pablo">Usuarios activos en plataforma</a>
+                            </div>
+                        </div>
+                        </div>
+                    </div> --}}
+                    <div class="col-lg-4 col-md-6 col-sm-6">
+                        <div class="card card-stats">
+                        <div class="card-header card-header-success card-header-icon">
+                            <div class="card-icon">
+                            <i class="material-icons">receipt</i>
+                            </div>
+                            <p class="card-category">Pedidos por departamento</p>
+                            <h3 class="card-title">{{ $orders->count() }}</h3>
+                        </div>
+                        <div class="card-footer">
+                            <div class="stats">
+                            {{-- <i class="material-icons">date_range</i>  --}}
+                            Todos los pedidos del departamento de {{ auth()->user()->department->name }}
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    {{-- <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="card card-stats">
+                        <div class="card-header card-header-danger card-header-icon">
+                            <div class="card-icon">
+                            <i class="material-icons">info_outline</i>
+                            </div>
+                            <p class="card-category">Fixed Issues</p>
+                            <h3 class="card-title">75</h3>
+                        </div>
+                        <div class="card-footer">
+                            <div class="stats">
+                            <i class="material-icons">local_offer</i> Tracked from Github
+                            </div>
+                        </div>
+                        </div>
+                    </div> --}}
+                    {{-- <div class="col-lg-4 col-md-6 col-sm-6">
+                        <div class="card card-stats">
+                        <div class="card-header card-header-info card-header-icon">
+                            <div class="card-icon">
+                                <i class="material-icons">manage_search</i>
+                            </div>
+                            <p class="card-category">Transacciones</p>
+                            <h3 class="card-title">{{ $logs->count() }}</h3>
+                        </div>
+                        <div class="card-footer">
+                            <div class="stats">
+                            Bitácora de transaciones
+                            </div>
+                        </div>
+                        </div>
+                    </div> --}}
+                </div>
+            @elseif( auth()->user()->role->name == "Administrador" )
                 <div class="row">
                     <div class="col-lg-4 col-md-6 col-sm-6">
                         <div class="card card-stats">
@@ -11,7 +81,7 @@
                             <div class="card-icon">
                             <i class="material-icons">group</i>
                             </div>
-                            <p class="card-category">Usuarios</p>
+                            <p class="card-category">Grupo</p>
                             <h3 class="card-title">{{ $users }}
                             {{-- <small>GB</small> --}}
                             </h3>
@@ -75,6 +145,7 @@
                         </div>
                     </div>
                 </div>
+
             @endif
 
             <div class="row">
@@ -108,6 +179,7 @@
                                             <div class="row">
                                                 <div class="col-12">
                                                     <div class="input-group no-border">
+                                                        <input type="hidden" name="user" value="client">
                                                         <input type="text" name="client" value="" class="form-control" placeholder="Identificador del cliente...">
                                                         <button type="submit" class="btn btn-white btn-round btn-just-icon">
                                                         <i class="material-icons">search</i>
@@ -182,6 +254,46 @@
                                         </tbody>
                                     </table>
                                 @endif
+                                @if ( $plural == 1 )
+                                    <table class="table">
+                                        <thead>
+                                            <th>Factura</th>
+                                            <th>Estatus actual</th>
+                                            {{-- <th>&nbsp;</th> --}}
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($orders as $order)
+                                                <tr>
+                                                    <td>
+                                                        <a href="{{ route('orders.show', $order->id) }}">{{ $order->invoice }}</a>
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ route('orders.show', $order->id) }}">{{ $order->status->name }}</a>
+                                                    </td>
+                                                    {{-- <td>
+                                                        @if ( isset($follow) )
+                                                            <a href="{{ route('orders.show', $order->id) }}">
+                                                                <input type="hidden" name="action" value="unfollow">
+                                                                <button type="submit" class="btn btn-primary btn-link btn-fab btn-fab-mini btn-round">
+                                                                    <i class="material-icons">favorite</i>
+                                                                </button>
+                                                            </a>
+                                                        @else
+                                                            <form method="post" action="{{ route('follows.update', $order->id) }}">
+                                                                @csrf
+                                                                @method('put')
+                                                                <input type="hidden" name="action" value="follow">
+                                                                <button type="submit" class="btn btn-primary btn-link btn-fab btn-fab-mini btn-round">
+                                                                    <i class="material-icons">favorite_border</i>
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    </td> --}}
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -245,10 +357,10 @@
                                     <table class="table" id="bitacora">
                                         <thead>
                                             <tr>
-                                                <th width="200px">Fecha</th>
-                                                <th width="200px">Usuario</th>
-                                                <th width="200px">Factura</th>
-                                                <th>Departamento</th>
+                                                <th width="150px">Fecha</th>
+                                                <th width="150px">Usuario</th>
+                                                <th width="120px">Factura</th>
+                                                <th width="150px">Departamento</th>
                                                 <th>Acción</th>
                                             </tr>
                                         </thead>

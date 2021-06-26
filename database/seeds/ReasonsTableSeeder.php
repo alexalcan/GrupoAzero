@@ -13,13 +13,13 @@ class ReasonsTableSeeder extends Seeder
     public function run()
     {
         DB::table('reasons')->insert([
-            'reason' => 'Razóon 1'
+            'reason' => 'Equivocación en captura'
         ]);
         DB::table('reasons')->insert([
-            'reason' => 'Razóon 2'
+            'reason' => 'Razones del cliente'
         ]);
         DB::table('reasons')->insert([
-            'reason' => 'Razóon 3'
+            'reason' => 'No existe material'
         ]);
     }
 }

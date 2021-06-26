@@ -15,8 +15,8 @@ class Picture extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function order()
+    public function delivery()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Delivery::class);
     }
 }

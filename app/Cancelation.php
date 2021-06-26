@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Cancelation extends Model
 {
     protected $fillable = [
-        'file', 'order_id', 'reason_id'
+        'order_id', 'reason_id'
     ];
 
     public function order()
@@ -18,5 +18,10 @@ class Cancelation extends Model
     public function reason()
     {
         return $this->belongsTo(Reason::class);
+    }
+
+    public function files()
+    {
+        return $this->hasMany(File::class);
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOrdersTable extends Migration
+class CreateFilesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,13 @@ class CreateOrdersTable extends Migration
      */
     public function up()
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('files', function (Blueprint $table) {
             $table->id();
 
-            $table->string('invoice');
-            $table->string('client')->nullable();
-            $table->string('credit');
+            $table->string('file');
 
-            $table->unsignedBigInteger('status_id')->default(3);
-            $table->foreign('status_id')->references('id')->on('statuses')->onUpdate('cascade');
+            $table->unsignedBigInteger('cancelation_id');
+            $table->foreign('cancelation_id')->references('id')->on('cancelations')->onUpdate('cascade');
 
             $table->timestamps();
         });
@@ -34,6 +32,6 @@ class CreateOrdersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('files');
     }
 }

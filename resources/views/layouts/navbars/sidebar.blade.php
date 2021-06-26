@@ -6,7 +6,8 @@
     -->
     <div class="logo">
     <a href="/" class="simple-text logo-normal">
-        {{ __('Grupo Azero') }}
+        <img src="{{ asset('img/logo.png') }}" alt="" style="width: 50px;">
+        {{-- {{ __('Grupo Azero') }} --}}
     </a>
     </div>
     <div class="sidebar-wrapper">

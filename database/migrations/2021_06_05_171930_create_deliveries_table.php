@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCancelationsTable extends Migration
+class CreateDeliveriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,16 @@ class CreateCancelationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('cancelations', function (Blueprint $table) {
+        Schema::create('deliveries', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('order_id');
+            $table->string('address')->nullable();
+            $table->string('contact')->nullable();
+            $table->string('phone')->nullable();
+
+            $table->unsignedBigInteger('order_id')->default(2);
             $table->foreign('order_id')->references('id')->on('orders')->onUpdate('cascade');
 
-            $table->unsignedBigInteger('reason_id');
-            $table->foreign('reason_id')->references('id')->on('reasons')->onUpdate('cascade');
 
             $table->timestamps();
         });
@@ -33,6 +35,6 @@ class CreateCancelationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cancelations');
+        Schema::dropIfExists('deliveries');
     }
 }

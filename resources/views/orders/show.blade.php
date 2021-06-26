@@ -32,6 +32,21 @@
             </div>
             <div class="card-body ">
                 <div class="row">
+                    <label class="col-sm-2 col-form-label">Favorito</label>
+                    <div class="col-sm-7">
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input name="credit" class="form-check-input" type="checkbox" {{ $order->credit ? 'checked' : '' }} disabled="true">
+                                Pedido a crédito
+                                <span class="form-check-sign">
+                                    <span class="check"></span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
                     <label class="col-sm-2 col-form-label">Folio</label>
                     <div class="col-sm-7">
                         <div class="form-group bmd-form-group is-filled">
@@ -98,12 +113,14 @@
                     <div class="row">
                         <label class="col-sm-2 col-form-label">Cancelación</label>
                         <div class="col-sm-10">
-                            <div class="card" style="width: 100%;">
-                                <embed src="{{ asset('storage') }}/{{ $order->cancelation->file }}" type="application/pdf" width="100%" " />
-                                <div class="card-body">
-                                  <p class="card-text">Archivo: <a href="{{ asset('storage') }}/{{ $order->cancelation->file }}" target="_blank">{{ $order->cancelation->file }}</a> cancelado por: {{ $order->cancelation->reason->reason }}</p>
+                            @foreach ($order->cancelation->files as $file)
+                                <div class="card" style="width: 100%;">
+                                    <embed src="{{ asset('storage') }}/{{ $file->file }}" type="application/pdf" width="100%" height="100%" />
+                                    <div class="card-body">
+                                    <p class="card-text">Archivo: <a href="{{ asset('storage') }}/{{ $file->file }}" target="_blank">{{ $file->file }}</a> cancelado por: {{ $order->cancelation->reason->reason }}</p>
+                                    </div>
                                 </div>
-                              </div>
+                            @endforeach
                         </div>
                     </div>
                 @endif
@@ -124,7 +141,8 @@
                         </div>
                     </div>
                 @endif
-                @if ( $order->status_id == 7 && $role->name == "Administrador" && !isset($order->cancelation) )
+                {{-- @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" && !isset($order->cancelation) ) --}}
+                @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" )
                     <form method="POST" action="{{ route('cancelation') }}">
                     @csrf
                     @method('get')
@@ -132,6 +150,9 @@
                         <label class="col-sm-2 col-form-label"></label>
                         <div class="col-sm-7">
                             <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
+                            @if ( isset($order->cancelation) )
+                                <input type="hidden" name="oldCancelation" value="true" class="form-control">
+                            @endif
                             <button type="submit" class="btn btn-sm btn-primary">
                                 <span class="material-icons">
                                     description

@@ -19,9 +19,41 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders = Order::all();
-        $role = auth()->user()->role;
-        $department = auth()->user()->department;
+        if( auth()->user()->department->name == 'Administrador' ){
+            $orders = Order::all();
+            $role = auth()->user()->role;
+            $department = auth()->user()->department;
+        }
+
+        if( auth()->user()->department->name == 'Ventas' ){
+            $orders = Order::where('status_id', 1)->get();
+            $role = auth()->user()->role;
+            $department = auth()->user()->department;
+        }
+        if( auth()->user()->department->name == 'Embarques' ){
+            $orders = Order::where('status_id', 1)
+                            ->orWhere('status_id', 2)
+                            ->orWhere('status_id', 3)
+                            ->orWhere('status_id', 4)
+                            ->orWhere('status_id', 5)
+                            ->get();
+            $role = auth()->user()->role;
+            $department = auth()->user()->department;
+        }
+        if( auth()->user()->department->name == 'Fabricación' ){
+            $orders = Order::where('status_id', 2)
+                            ->orWhere('status_id', 3)
+                            ->get();
+            $role = auth()->user()->role;
+            $department = auth()->user()->department;
+        }
+        if( auth()->user()->department->name == 'Flotilla' ){
+            $orders = Order::where('status_id', 5)->get();
+            $role = auth()->user()->role;
+            $department = auth()->user()->department;
+        }
+
+
 
         return view('orders.index', compact('orders', 'role', 'department'));
     }
@@ -49,13 +81,22 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $status = Status::find($request->status_id);
         $user = User::find(auth()->user()->id);
         $action = 'Creación de orden';
 
+        if($request->credit){
+            $credit = 1;
+            $action = $action . ' a credito';
+        }else{
+            $credit = 0;
+        }
+
         $order = Order::create([
             'invoice' => $request->invoice,
             'client' => $request->client,
+            'credit' => $credit,
             'status_id' => $request->status_id,
             'created_at' => now(),
         ]);
@@ -66,7 +107,7 @@ class OrderController extends Controller
                 'user_id' => $user->id,
                 'created_at' => now()
             ]);
-            $action = $action . ' más una nota';
+            $action = $action . ',  se añadió una nota';
         }
         Log::create([
             'status' => $status->name,
@@ -132,8 +173,26 @@ class OrderController extends Controller
     {
         // dd($request->all());
         $order = Order::find($id);
-        $order->update($request->all());
+        $status = Status::find($request->status_id);
+        $user = User::find(auth()->user()->id);
+
         $action = 'Actualización de orden';
+        if($request->credit){
+            $credit = 1;
+        }else{
+            $credit = 0;
+        }
+        if( $order->credit != $credit){
+            if($request->credit){
+                $credit = 1;
+                $action = $action . ', orden a credito';
+            }else{
+                $credit = 0;
+                $action = $action . ', orden sin credito';
+            }
+            // dd('Cambio a: '. $action);
+        }
+        $order->update($request->all());
 
         if($request->favorite){
             Follow::create([
@@ -155,12 +214,15 @@ class OrderController extends Controller
             $status = Status::find($request->status_id);
             $user = User::find(auth()->user()->id);
             $action = $action . ', se actualizó estatus a "'. $status->name . '"';
-            if($request->status_id == 7){
-
+            Note::create([
+                'note' => $user->name . ' cambió el estatus a '. $status->name,
+                'order_id' => $order->id,
+                'user_id' => auth()->user()->id
+            ]);
+            if( $request->status_id == 7 || $request->status_id == 8 ){
+                // dd('cancelar para refacturación.');
             }
         }
-
-
         Log::create([
             'status' => $status->name,
             'action' => $action,
@@ -169,7 +231,6 @@ class OrderController extends Controller
             'department_id' => $user->department->id,
             'created_at' => now()
         ]);
-
 
         return redirect()->route('orders.index');
     }

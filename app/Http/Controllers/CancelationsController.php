@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Cancelation;
+use App\File;
 use App\Log;
 use App\Order;
 use App\User;
@@ -43,29 +44,58 @@ class CancelationsController extends Controller
         $order = Order::find($request->order_id);
         $user = User::find(auth()->user()->id);
         $action = 'Cancelación de orden';
-
         $request->file;
         $file = $request->file('file');
-        $name = $order->invoice;
-        $path = 'Files/' . $name;
-        if(Storage::putFileAs('/public/' . 'Files/', $file, $name )){
-            Cancelation::create([
-                'file' => $path,
-                'order_id' => $request->order_id,
-                'reason_id' => $request->reason_id,
-                'created_at' => now(),
-            ]);
-            $action = $action . ', se subió evidencia';
-        }
 
-        Log::create([
-            'status' => 'Cancelado',
-            'action' => $action,
-            'order_id' => $order->id,
-            'user_id' => $user->id,
-            'department_id' => $user->department->id,
-            'created_at' => now()
-        ]);
+        if( $request->oldCancelation == false){
+            // dd('Nueva evicencia'); str_replace(' ','-', $hoy.'-'.$file->getClientOriginalName())
+            // $name = $order->invoice;
+            $name = str_replace(' ','-', $order->invoice .'-'.$file->getClientOriginalName());
+            $path = 'Files/' . $name;
+            if(Storage::putFileAs('/public/' . 'Files/', $file, $name )){
+                $cancelation = Cancelation::create([
+                    'file' => $path,
+                    'order_id' => $request->order_id,
+                    'reason_id' => $request->reason_id,
+                    'created_at' => now(),
+                ]);
+                File::create([
+                    'file' => $path,
+                    'cancelation_id' => $cancelation->id
+                ]);
+                $action = $action . ', se subió evidencia';
+            }
+
+            Log::create([
+                'status' => 'Cancelado',
+                'action' => $action,
+                'order_id' => $order->id,
+                'user_id' => $user->id,
+                'department_id' => $user->department->id,
+                'created_at' => now()
+            ]);
+
+        }else{
+            // dd($request->all());
+            $cancelation = Cancelation::find($request->cancelationId);
+            $name = str_replace(' ','-', $order->invoice .'-'.$file->getClientOriginalName());
+            $path = 'Files/' . $name;
+            if(Storage::putFileAs('/public/' . 'Files/', $file, $name )){
+                File::create([
+                    'file' => $path,
+                    'cancelation_id' => $cancelation->id
+                ]);
+                $action = $action . ', se subió nueva evidencia';
+            }
+            Log::create([
+                'status' => 'Cancelado',
+                'action' => $action,
+                'order_id' => $order->id,
+                'user_id' => $user->id,
+                'department_id' => $user->department->id,
+                'created_at' => now()
+            ]);
+        }
 
         $orders = Order::all();
         $role = auth()->user()->role;
