@@ -19,7 +19,7 @@
 
                             Regresar
                         </a>
-                        @if ( !isset($order->cancelation) && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Fabricación") )
+                        @if ( !isset($order->cancelation) && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Fabricación" || $department->name == "Flotilla") )
                             <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-sm btn-primary">
                                 <span class="material-icons">
                                     upgrade
@@ -96,17 +96,19 @@
                     </div>
                 @endif
 
-                @if ( $order->picture )
+                @if ( $order->pictures )
                     <div class="row">
-                        <label class="col-sm-2 col-form-label">Evidencia</label>
-                        <div class="col-sm-10">
-                            <div class="card" style="width: 100%;">
-                                <img class="card-img-top" src="{{ asset('storage') }}/{{ $order->picture->picture }}" alt="Card image cap">
-                                <div class="card-body">
-                                  <p class="card-text">Foto subida el {{ $order->picture->created_at->isoFormat('MMM Do YY') }} por {{ $order->picture->user->name }}</p>
+                        @foreach ($order->pictures as $picture)
+                            <label class="col-sm-2 col-form-label">Evidencia</label>
+                            <div class="col-sm-10">
+                                <div class="card" style="width: 100%;">
+                                    <img class="card-img-top" src="{{ asset('storage') }}/{{ $picture->picture }}" alt="Card image cap">
+                                    <div class="card-body">
+                                    <p class="card-text">Foto subida el {{ $picture->created_at->isoFormat('MMM Do YY') }} por {{ $picture->user->name }}</p>
+                                    </div>
                                 </div>
-                              </div>
-                        </div>
+                            </div>
+                        @endforeach
                     </div>
                 @endif
                 @if ( $order->cancelation )

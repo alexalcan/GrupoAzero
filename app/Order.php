@@ -25,6 +25,11 @@ class Order extends Model
         return $this->hasMany(Log::class);
     }
 
+    public function pictures()
+    {
+        return $this->hasMany(Picture::class);
+    }
+
     public function deliveries()
     {
         return $this->hasMany(Delivery::class);

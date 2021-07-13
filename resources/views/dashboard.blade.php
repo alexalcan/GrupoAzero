@@ -166,7 +166,7 @@
                                         <div class="row">
                                             <div class="col-12">
                                                 <div class="input-group no-border">
-                                                    <input type="text" name="invoice" value="" class="form-control" placeholder="Factura...">
+                                                    <input type="text" name="invoice" value="" class="form-control" placeholder="Factura..." style="color: white">
                                                     @if ( auth()->user()->role->name != "Cliente" )
                                                         <button type="submit" class="btn btn-white btn-round btn-just-icon">
                                                             <i class="material-icons">search</i>
@@ -179,8 +179,8 @@
                                             <div class="row">
                                                 <div class="col-12">
                                                     <div class="input-group no-border">
-                                                        <input type="hidden" name="user" value="client">
-                                                        <input type="text" name="client" value="" class="form-control" placeholder="Identificador del cliente...">
+                                                        <input type="hidden" name="user" value="client" style="color: white">
+                                                        <input type="text" name="client" value="" class="form-control" placeholder="Identificador del cliente..." style="color: white">
                                                         <button type="submit" class="btn btn-white btn-round btn-just-icon">
                                                         <i class="material-icons">search</i>
                                                         </button>

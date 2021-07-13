@@ -43,21 +43,25 @@ class PictureController extends Controller
         // dd($request->all());
 
         $order = Order::find($request->order_id);
+        $hoy = date("Y-m-d H:i:s");
 
         $request->picture;
         $file = $request->file('picture');
-        $name = $order->invoice;
+        $name = $hoy . '-' . $order->invoice;
         $path = 'Images/' . $name;
         Storage::putFileAs('/public/' . 'Images/', $file, $name );
 
         Picture::create([
             'picture' => $path,
             'user_id' => auth()->user()->id,
+            'deliveries_id' => NULL,
             'order_id' => $request->order_id
         ]);
+
         $order->update([
             'status_id' => 6,
         ]);
+
         if($request->note){
             Note::create([
                 'note' => $request->note,
@@ -75,11 +79,11 @@ class PictureController extends Controller
             'created_at' => now()
         ]);
 
-        $orders = Order::all()->count();
-        $users = User::all()->count();
-        $logs = Log::all();
+        // $orders = Order::all()->count();
+        // $users = User::all()->count();
+        // $logs = Log::all();
 
-        return view('dashboard', compact('orders', 'users', 'logs'));
+        return redirect()->route('orders.index');
     }
 
     /**
