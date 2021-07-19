@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     protected $fillable = [
-        'invoice', 'client', 'credit', 'status_id'
+        'invoice', 'invoice_number', 'client', 'credit', 'status_id'
     ];
 
     public function status()
@@ -30,9 +30,9 @@ class Order extends Model
         return $this->hasMany(Picture::class);
     }
 
-    public function deliveries()
+    public function partials()
     {
-        return $this->hasMany(Delivery::class);
+        return $this->hasMany(Partial::class);
     }
 
     public function follow()

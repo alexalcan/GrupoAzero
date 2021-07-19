@@ -21,9 +21,6 @@ class CreatePicturesTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade');
 
-            $table->unsignedBigInteger('deliveries_id')->nullable();
-            $table->foreign('deliveries_id')->references('id')->on('deliveries')->onUpdate('cascade');
-
             $table->unsignedBigInteger('order_id');
             $table->foreign('order_id')->references('id')->on('orders')->onUpdate('cascade');
 

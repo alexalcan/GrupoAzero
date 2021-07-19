@@ -30,7 +30,7 @@
                                 <div class="row">
                                     <label class="col-sm-2 col-form-label">Razón</label>
                                     <div class="col-sm-7">
-                                        <select name="reason_id" id="reason_id" class="form-control" >
+                                        <select name="reason_id" id="reason_id" class="form-control" required>
                                             <option value="1" selected><b>Selecciona una razón...</b></option>
                                             @foreach ($reasons as $reason)
                                                 <option value="{{ $reason->id }}">{{ $reason->reason }}</option>

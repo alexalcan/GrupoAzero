@@ -47,7 +47,7 @@ class StatusTableSeeder extends Seeder
             'name' => 'Cancelado',
             'description' => 'El pedido se cancela'
         ]);
-        // 8.- cancelacion
+        // 8.- Refacturación
         DB::table('statuses')->insert([
             'name' => 'Refacturación',
             'description' => 'El pedido se cancela para su posterior facturación.'

@@ -64,6 +64,20 @@
                     </div>
                 </div>
             </div>
+            @if ( isset($order->pictures) )
+                <div class="row">
+                    @foreach ($order->pictures as $picture)
+                        <div class="col-sm-12">
+                            <div class="card" style="width: 100%;">
+                                <img class="card-img-top" src="{{ asset('storage') }}/{{ $picture->picture }}" alt="Card image cap">
+                                <div class="card-body">
+                                    <p class="card-text">Foto subida el {{ $picture->created_at->isoFormat('MMM Do YY') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
             @if ( isset($order->cancelation) )
                 @if ( $order->status_id == 7 )
                     <div class="row">

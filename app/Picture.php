@@ -20,8 +20,8 @@ class Picture extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function delivery()
+    public function partials()
     {
-        return $this->belongsTo(Delivery::class);
+        return $this->belongsTo(Partial::class);
     }
 }

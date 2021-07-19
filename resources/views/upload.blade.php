@@ -10,14 +10,14 @@
                     <input type="hidden" name="order_id" value="{{ $order->id }}">
                     <div class="card">
                         <div class="card-header card-header-primary">
-                            <h4 class="card-title">Subir evidencia de entregado</h4>
+                            <h4 class="card-title">Subir evidencia</h4>
                             <p class="card-category">Pedido {{ $order->invoice }}</p>
                         </div>
                         <div class="card-body ">
                             <div class="row">
                                 <label class="col-sm-2 col-form-label">Foto</label>
                                 <div class="col-sm-7">
-                                    <div class="form-group">
+                                    <div class="">
                                         <label for="picture">Click para subir o tomar foto</label>
                                         <input type="file" name="picture" class="form-control-file" id="picture" accept="image/*" capture="camera" required>
                                     </div>

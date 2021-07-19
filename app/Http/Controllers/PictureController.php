@@ -44,6 +44,7 @@ class PictureController extends Controller
 
         $order = Order::find($request->order_id);
         $hoy = date("Y-m-d H:i:s");
+        $status = 6;
 
         $request->picture;
         $file = $request->file('picture');
@@ -54,12 +55,18 @@ class PictureController extends Controller
         Picture::create([
             'picture' => $path,
             'user_id' => auth()->user()->id,
-            'deliveries_id' => NULL,
             'order_id' => $request->order_id
         ]);
 
+        if( $order->status->id == 7){
+            $status = 7;
+        }
+        if( $order->status->id == 8 ){
+            $status = 8;
+        }
+
         $order->update([
-            'status_id' => 6,
+            'status_id' => $status,
         ]);
 
         if($request->note){

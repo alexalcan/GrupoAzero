@@ -43,6 +43,12 @@
                                 </div>
                             </div>
                             <div class="card-body ">
+                                @if (session('status'))
+                                    <div class="alert alert-success">
+                                        {{ session('status') }}
+                                    </div>
+                                @endif
+
                                 <div class="row">
                                     <label class="col-sm-2 col-form-label">Favorito</label>
                                     <div class="col-sm-7">
@@ -59,13 +65,28 @@
                                 </div>
 
                                 <div class="row">
-                                    <label class="col-sm-2 col-form-label">No. de facturo a folio</label>
+                                    <label class="col-sm-2 col-form-label">No. de folio</label>
                                     <div class="col-sm-7">
                                         <div class="form-group bmd-form-group is-filled">
-                                            <input class="form-control" name="invoice" id="input-name" type="text" placeholder="Factura/folio" value="{{ $order->invoice }}" required="true" aria-required="true">
+                                            <input class="form-control" name="invoice" id="invoice" type="text" placeholder="Folio" value="{{ $order->invoice }}" required="true" aria-required="true">
                                         </div>
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <label class="col-sm-2 col-form-label">Factura</label>
+                                    <div class="col-sm-7">
+                                        <div class="form-group bmd-form-group is-filled form-group{{ $errors->has('color') ? ' has-danger' : '' }}">
+                                            <input class="form-control" name="invoice_number" id="invoice_number" type="text" placeholder="Factura" value="{{ isset($order->invoice_number) ? $order->invoice_number : NULL }}" requiered="true">
+
+                                            @if ($errors->has('invoice_number'))
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $errors->first('invoice_number') }}</strong>
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="row">
                                     <label class="col-sm-2 col-form-label">Clave de cliente</label>
                                     <div class="col-sm-7">
@@ -78,7 +99,7 @@
                                 <div class="row" {{ $department->name == "Ventas" ? 'hidden' : ''}}>
                                     <label class="col-sm-2 col-form-label">Estatus</label>
                                     <div class="col-sm-7">
-                                        <select name="status_id" id="status_id" class="form-control" onchange="actualizar(this)"" >
+                                        <select name="status_id" id="status_id" class="form-control" onchange="ShowSelected(this)"" >
                                             <option value="1" selected><b>{{ $order->status->name }}</b></option>
                                             @foreach ($statuses as $status)
                                                 <option value="{{ $status->id }}">{{ $status->name }}</option>
@@ -150,6 +171,26 @@
 @endsection
 
 @push('js')
+
+<script type="text/javascript">
+    function ShowSelected(){
+        /* Para obtener el valor */
+        var status_id = document.getElementById("status_id").value;
+        console.log(status_id);
+
+        if(status_id == 5){
+            alert('Para pedidos con crédito, es necesario ligar una factura');
+            document.getElementById("invoice_number").placeholder = "Para pedidos a crédito se requiere un número de factura!";
+            document.getElementById("invoice_number").requiered = true;
+            document.getElementById("invoice_number").focus();
+        }
+        /* Para obtener el texto */
+        var combo = document.getElementById("status_id");
+        var selected = combo.options[combo.selectedIndex].text;
+        console.log(selected);
+
+    }
+    </script>
 
 @endpush
 

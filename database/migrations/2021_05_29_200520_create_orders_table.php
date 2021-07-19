@@ -17,6 +17,7 @@ class CreateOrdersTable extends Migration
             $table->id();
 
             $table->string('invoice');
+            $table->string('invoice_number')->nullable();
             $table->string('client')->nullable();
             $table->string('credit');
 

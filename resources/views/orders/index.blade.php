@@ -44,8 +44,9 @@
                                 <tr>
                                     <td>
                                         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm">
-                                            {{ $order->created_at->toFormattedDateString() }}</td>
+                                            {{ $order->created_at->toFormattedDateString() }}
                                         </a>
+                                    </td>
                                     <td>
                                         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm">
                                             <p style="font-size: 1.3em">{{ $order->invoice }}</p>
@@ -62,39 +63,79 @@
                                         </a>
                                     </td>
                                     <td class="text-right">
+                                        {{-- Pedido a crédito --}}
+                                        @if ( $order->credit == true )
+                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Pedido a crédito">
+                                                <span class="material-icons">
+                                                    credit_card
+                                                </span>
+                                            </a>
+                                        @endif
+                                        {{-- Fin de pedido a crédito --}}
+                                        {{-- Subir foto en ruta --}}
                                         @if ( $order->status_id == 5 && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla") )
-                                            <form method="POST" action="{{ route('picture') }}">
-                                            @csrf
-                                            @method('get')
-                                            <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
-                                            <button type="submit" class="btn btn-sm btn-primary btn-link btn-sm">
+                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir foto">
                                                 <span class="material-icons">
                                                     photo_camera
                                                 </span>
-                                            </button>
+                                            </a>
                                         @endif
-                                        @if ( $order->status_id == 7 && $role->name == "Administrador" && !isset($order->cancelation) )
-                                            <form method="POST" action="{{ route('cancelation') }}">
-                                            @csrf
-                                            @method('get')
-                                            <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
-                                            <button type="submit" class="btn btn-sm btn-primary btn-link btn-sm">
+                                        @if ( $order->status_id == 6 && ($order->pictures->count() > 0) )
+                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="{{ $order->pictures->count() }} fotos">
+                                                <span class="material-icons">
+                                                    photo_camera
+                                                </span>
+                                                {{ $order->pictures->count() }}
+                                            </a>
+                                        @endif
+                                        {{-- Fin subir foto  en ruta--}}
+                                        {{-- Subir foto cancelación o refacturación --}}
+                                        @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" && ($order->pictures->count() == 0) )
+                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir foto cancelación">
+                                                <span class="material-icons">
+                                                    photo_camera
+                                                </span>
+                                            </a>
+                                        @endif
+                                        @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" && ($order->pictures->count() > 0) )
+                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="{{$order->pictures->count()}} Fotos">
+                                                <span class="material-icons">
+                                                    photo_camera
+                                                </span>
+                                                {{ $order->pictures->count() }}
+                                            </a>
+                                        @endif
+                                        {{-- fin subir foto cancelación o refacturación --}}
+                                        {{-- Evidencia de Cancelación --}}
+                                        @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" && !isset($order->cancelation) )
+                                            <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir evicencia cancelación">
                                                 <span class="material-icons">
                                                     description
                                                 </span>
-                                            </button>
+                                            </a>
                                         @endif
-                                        <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm">
+                                        @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" && isset($order->cancelation) )
+                                            <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Existe evicencia">
+                                                <span class="material-icons">
+                                                    description
+                                                </span>
+                                                {{ $order->cancelation->count() }}
+                                            </a>
+                                        @endif
+                                        {{-- Fin evidencia de cancelación --}}
+                                        {{-- Ver y editar --}}
+                                        <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Notas">
                                             <span class="material-icons">note</span>
                                             {{ $order->notes->count() }}
                                         </a>
                                         @if ( $role->name == "Administrador" || $department->name == "Ventas" || $department->name == "Embarques" || $department->name == "Fabricación")
-                                            <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-primary btn-link btn-sm">
+                                            <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Editar">
                                                 <span class="material-icons">
                                                     edit
                                                 </span>
                                             </a>
                                         @endif
+                                        {{-- Fin de ver y editar --}}
                                     </td>
                                     {{-- @if ( $role->name == "Administrador" || $department->name == "Ventas" || $department->name == "Embarques" || $department->name == "Fabricación")
                                         <td>
@@ -153,6 +194,12 @@
             },
         });
     });
+</script>
+
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
 </script>
 
 

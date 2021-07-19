@@ -6,9 +6,11 @@ use App\Follow;
 use App\Log;
 use App\Note;
 use App\Order;
+use App\Partial;
 use App\Status;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
@@ -95,6 +97,7 @@ class OrderController extends Controller
 
         $order = Order::create([
             'invoice' => $request->invoice,
+            'invoice_number' => $request->invoice_number,
             'client' => $request->client,
             'credit' => $credit,
             'status_id' => $request->status_id,
@@ -109,6 +112,52 @@ class OrderController extends Controller
             ]);
             $action = $action . ',  se añadió una nota';
         }
+
+        $folios = 0;
+        if($request->folio1){
+            Partial::create([
+                'invoice' => $request->folio1,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status1
+            ]);
+            $folios++;
+        }
+        if($request->folio2){
+            Partial::create([
+                'invoice' => $request->folio2,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status2
+            ]);
+            $folios++;
+        }
+        if($request->folio3){
+            Partial::create([
+                'invoice' => $request->folio3,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status3
+            ]);
+            $folios++;
+        }
+        if($request->folio4){
+            Partial::create([
+                'invoice' => $request->folio4,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status4
+            ]);
+            $folios++;
+        }
+        if($request->folio5){
+            Partial::create([
+                'invoice' => $request->folio5,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status5
+            ]);
+            $folios++;
+        }
+        if($request->folio1){
+            $action = $action . ', se añadieron ' . $folios . ' parciales';
+        }
+
         Log::create([
             'status' => $status->name,
             'action' => $action,
@@ -176,23 +225,39 @@ class OrderController extends Controller
         $status = Status::find($request->status_id);
         $user = User::find(auth()->user()->id);
 
+        if($request->status_id == 5 && $request->credit == true && !isset($request->invoice_number) ){
+            return redirect()->back();
+        }
+
         $action = 'Actualización de orden';
         if($request->credit){
             $credit = 1;
         }else{
             $credit = 0;
         }
+
+        // dd($order->credit, $credit);
         if( $order->credit != $credit){
-            if($request->credit){
+            if($request->credit == true){
                 $credit = 1;
                 $action = $action . ', orden a credito';
+                // dd($order->credit, $credit);
             }else{
                 $credit = 0;
                 $action = $action . ', orden sin credito';
+                // dd($order->credit, $credit);
             }
             // dd('Cambio a: '. $action);
         }
-        $order->update($request->all());
+        // dd($order->credit, $credit);
+        $order->update([
+            'invoice' => $request->invoice,
+            'invoice_number' => $request->invoice_number,
+            'client' => $request->client,
+            'credit' => $credit,
+            'status_id' => $request->status_id,
+            'updated_at' => now()
+        ]);
 
         if($request->favorite){
             Follow::create([
@@ -219,9 +284,7 @@ class OrderController extends Controller
                 'order_id' => $order->id,
                 'user_id' => auth()->user()->id
             ]);
-            if( $request->status_id == 7 || $request->status_id == 8 ){
-                // dd('cancelar para refacturación.');
-            }
+
         }
         Log::create([
             'status' => $status->name,
@@ -231,6 +294,10 @@ class OrderController extends Controller
             'department_id' => $user->department->id,
             'created_at' => now()
         ]);
+
+        if( $request->status_id == 7 || $request->status_id == 8 ){
+            // dd('cancelar para refacturación.');
+        }
 
         return redirect()->route('orders.index');
     }

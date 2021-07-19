@@ -13,13 +13,10 @@ class ReasonsTableSeeder extends Seeder
     public function run()
     {
         DB::table('reasons')->insert([
-            'reason' => 'Equivocación en captura'
+            'reason' => 'Error externo'
         ]);
         DB::table('reasons')->insert([
-            'reason' => 'Razones del cliente'
-        ]);
-        DB::table('reasons')->insert([
-            'reason' => 'No existe material'
+            'reason' => 'Error interno'
         ]);
     }
 }
