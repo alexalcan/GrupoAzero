@@ -41,5 +41,10 @@ class DepartmenTableSeeder extends Seeder
             'name' => 'Flotilla',
             'description' => 'Entregas a los clientes'
         ]);
+        // Pueden subir archivos de órden de compra que solo compras y admin pueden ver
+        DB::table('departments')->insert([
+            'name' => 'Compras',
+            'description' => 'Entregas a los clientes'
+        ]);
     }
 }

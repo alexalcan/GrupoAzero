@@ -44,4 +44,9 @@ class Order extends Model
     {
         return $this->hasOne(Cancelation::class);
     }
+
+    public function purchaseorder()
+    {
+        return $this->hasOne(PurchaseOrder::class);
+    }
 }

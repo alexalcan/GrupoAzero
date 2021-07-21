@@ -68,7 +68,12 @@
                                     <label class="col-sm-2 col-form-label">No. de folio</label>
                                     <div class="col-sm-7">
                                         <div class="form-group bmd-form-group is-filled">
-                                            <input class="form-control" name="invoice" id="invoice" type="text" placeholder="Folio" value="{{ $order->invoice }}" required="true" aria-required="true">
+                                            @if ( $role->name == "Administrador" )
+                                                <input class="form-control" name="invoice" id="invoice" type="text" placeholder="Folio" value="{{ $order->invoice }}" required="true" aria-required="true">
+                                            @else
+                                                <input class="form-control" name="invoice" id="invoice" type="text" placeholder="Folio" value="{{ $order->invoice }}" required="true" aria-required="true" disabled="true">
+                                                <input class="form-control" name="invoice" id="invoice" type="hidden" placeholder="Folio" value="{{ $order->invoice }}" required="true" aria-required="true">
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -86,20 +91,37 @@
                                         </div>
                                     </div>
                                 </div>
+                                @if ( $role->name == "Administrador" || $department->name == "Compras" )
+                                    <div class="row">
+                                        <label class="col-sm-2 col-form-label">Orden de compra</label>
+                                        <div class="col-sm-7">
+                                            <div class="form-group bmd-form-group is-filled">
+                                                <input class="form-control" name="purchaseorder" id="purchaseorder" type="text" placeholder="Factura/folio" value="{{ $order->purchaseorder ? $order->purchaseorder->number : 'N/A' }}" >
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
 
                                 <div class="row">
                                     <label class="col-sm-2 col-form-label">Clave de cliente</label>
                                     <div class="col-sm-7">
                                         <div class="form-group bmd-form-group is-filled">
-                                            <input class="form-control" name="client" id="input-name" type="text" placeholder="Identificador del cliente" value="{{ $order->client }}" required="true" aria-required="true">
+                                            @if ( $role->name == "Administrador" )
+                                                <input class="form-control" name="client" id="input-name" type="text" placeholder="Identificador del cliente" value="{{ $order->client }}" required="true" aria-required="true">
+                                            @else
+                                                <input class="form-control" name="client" id="input-name" type="text" placeholder="Identificador del cliente" value="{{ $order->client }}" required="true" aria-required="true" disabled="true">
+                                                <input class="form-control" name="client" id="input-name" type="hidden" placeholder="Identificador del cliente" value="{{ $order->client }}" required="true" aria-required="true">
+                                            @endif
+
                                         </div>
                                     </div>
                                 </div>
-                                <input type="hidden" name="statAnt" value="{{ $order->status->id }}">
+                                {{-- Estatus --}}
                                 <div class="row" {{ $department->name == "Ventas" ? 'hidden' : ''}}>
+                                    <input type="hidden" name="statAnt" value="{{ $order->status->id }}">
                                     <label class="col-sm-2 col-form-label">Estatus</label>
                                     <div class="col-sm-7">
-                                        <select name="status_id" id="status_id" class="form-control" onchange="ShowSelected(this)"" >
+                                        <select name="status_id" id="status_id" class="form-control" onchange="ShowSelected(this)"" {{ ($order->status->id == 7 || $order->status->id == 8) ? 'disabled="true"' : '' }} >
                                             <option value="1" selected><b>{{ $order->status->name }}</b></option>
                                             @foreach ($statuses as $status)
                                                 <option value="{{ $status->id }}">{{ $status->name }}</option>
@@ -107,6 +129,29 @@
                                         </select>
                                     </div>
                                 </div>
+                                {{-- Fin de estatus --}}
+                                {{-- Opcional al cancelar --}}
+                                <div class="row" id="cancelReason" style="display: none">
+                                    <div class="row col-sm-12">
+                                        <label class="col-sm-2 col-form-label">
+                                            <span class="material-icons">
+                                                warning
+                                            </span>
+                                            Razón de cancelación
+                                        </label>
+                                        <div class="col-sm-7">
+                                            <div class="form-group bmd-form-group is-filled">
+                                                <select name="reason_id" id="reason_id" class="form-control" required>
+                                                    <option value="1" selected><b>Selecciona una razón...</b></option>
+                                                    @foreach ($reasons as $reason)
+                                                        <option value="{{ $reason->id }}">{{ $reason->reason }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="row">
                                     <label class="col-sm-2 col-form-label">Notas</label>
                                     <div class="col-sm-10">
@@ -171,6 +216,18 @@
 @endsection
 
 @push('js')
+<script type="text/javascript">
+    function viewCancel() {
+        element = document.getElementById("cancelReason");
+        cancelReason = document.getElementById("cancelReason");
+        if (invCheck.checked) {
+            element.style.display='block';
+        }
+        else {
+            element.style.display='none';
+        }
+    }
+</script>
 
 <script type="text/javascript">
     function ShowSelected(){
@@ -178,11 +235,21 @@
         var status_id = document.getElementById("status_id").value;
         console.log(status_id);
 
-        if(status_id == 5){
-            alert('Para pedidos con crédito, es necesario ligar una factura');
+        if( status_id == 5 ){
+            alert('Para pedidos por cobrar o pedidos programados es necesario ligar a una factura');
             document.getElementById("invoice_number").placeholder = "Para pedidos a crédito se requiere un número de factura!";
             document.getElementById("invoice_number").requiered = true;
             document.getElementById("invoice_number").focus();
+        }
+        if( status_id == 7 ){
+            element = document.getElementById("cancelReason");
+            element.style.display='block';
+
+        }
+        if( status_id != 7 ){
+            element = document.getElementById("cancelReason");
+            element.style.display='none';
+
         }
         /* Para obtener el texto */
         var combo = document.getElementById("status_id");
@@ -190,7 +257,7 @@
         console.log(selected);
 
     }
-    </script>
+</script>
 
 @endpush
 

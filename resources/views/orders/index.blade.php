@@ -72,6 +72,15 @@
                                             </a>
                                         @endif
                                         {{-- Fin de pedido a crédito --}}
+                                        {{-- Pedido con orden de compra --}}
+                                        @if ( $order->purchaseorder )
+                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Pedido con orden de compra">
+                                                <span class="material-icons">
+                                                    fact_check
+                                                </span>
+                                            </a>
+                                        @endif
+                                        {{-- Fin de pedido con orden de compa --}}
                                         {{-- Subir foto en ruta --}}
                                         @if ( $order->status_id == 5 && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla") )
                                             <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir foto">
@@ -91,7 +100,7 @@
                                         {{-- Fin subir foto  en ruta--}}
                                         {{-- Subir foto cancelación o refacturación --}}
                                         @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" && ($order->pictures->count() == 0) )
-                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir foto cancelación">
+                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir foto de reembolso o nota de crédito">
                                                 <span class="material-icons">
                                                     photo_camera
                                                 </span>
@@ -115,7 +124,7 @@
                                             </a>
                                         @endif
                                         @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" && isset($order->cancelation) )
-                                            <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Existe evicencia">
+                                            <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Existe evicencia o razón de cancelación">
                                                 <span class="material-icons">
                                                     description
                                                 </span>
@@ -128,7 +137,7 @@
                                             <span class="material-icons">note</span>
                                             {{ $order->notes->count() }}
                                         </a>
-                                        @if ( $role->name == "Administrador" || $department->name == "Ventas" || $department->name == "Embarques" || $department->name == "Fabricación")
+                                        @if ( $role->name == "Administrador" || $department->name == "Ventas" || $department->name == "Embarques" || $department->name == "Fabricación" || $department->name == "Compras")
                                             <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Editar">
                                                 <span class="material-icons">
                                                     edit

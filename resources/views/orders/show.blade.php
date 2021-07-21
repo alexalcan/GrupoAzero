@@ -62,6 +62,19 @@
                         </div>
                     </div>
                 </div>
+                {{-- Si orden de compra --}}
+                @if ( $order->purchaseorder )
+                    <div class="row">
+                        <label class="col-sm-2 col-form-label">Orden de compra</label>
+                        <div class="col-sm-7">
+                            <div class="form-group bmd-form-group is-filled">
+                                <input class="form-control" name="purchaseorder" id="purchaseorder" type="text" placeholder="Factura/folio" value="{{ $order->purchaseorder ? $order->purchaseorder->number : 'N/A' }}"  disabled="true">
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                {{-- Fin si orden de compra --}}
+
                 <div class="row">
                     <label class="col-sm-2 col-form-label">Clave de cliente</label>
                     <div class="col-sm-7">
@@ -226,7 +239,7 @@
                                     <span class="material-icons">
                                         photo_camera
                                     </span>
-                                    Subir foto de reembolso o nota de crédito
+                                    Subir foto de nota de devolución crédito
                                 </button>
                             </div>
                         </div>
@@ -255,9 +268,8 @@
                                         <span class="material-icons">
                                             description
                                         </span>
-                                        Subir evidencia
+                                        Nueva factura
                                 @endif
-
 
                                 </button>
                             </div>

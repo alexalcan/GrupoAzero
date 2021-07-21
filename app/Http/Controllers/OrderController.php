@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Cancelation;
 use App\Follow;
 use App\Log;
 use App\Note;
 use App\Order;
 use App\Partial;
+use App\PurchaseOrder;
+use App\Reason;
 use App\Status;
 use App\User;
 use Illuminate\Http\Request;
@@ -51,6 +54,11 @@ class OrderController extends Controller
         }
         if( auth()->user()->department->name == 'Flotilla' ){
             $orders = Order::where('status_id', 5)->get();
+            $role = auth()->user()->role;
+            $department = auth()->user()->department;
+        }
+        if( auth()->user()->department->name == 'Compras' ){
+            $orders = Order::where('status_id', 1)->get();
             $role = auth()->user()->role;
             $department = auth()->user()->department;
         }
@@ -111,6 +119,14 @@ class OrderController extends Controller
                 'created_at' => now()
             ]);
             $action = $action . ',  se añadió una nota';
+        }
+        if($request->purchase_order){
+            PurchaseOrder::create([
+                'number' => $request->purchase_order,
+                'document' => NULL,
+                'order_id' => $order->id
+            ]);
+            $action = $action . ',  tiene la Orden de Compra '. $request->purchase_order;
         }
 
         $folios = 0;
@@ -186,7 +202,7 @@ class OrderController extends Controller
         $order = Order::find($id);
         $role = auth()->user()->role;
         $department = auth()->user()->department;
-        // dd($order->picture);
+        // dd($order->purchaseorder);
 
         return view('orders.show', compact('order', 'role', 'department'));
     }
@@ -203,12 +219,13 @@ class OrderController extends Controller
         $role = auth()->user()->role;
         $department = auth()->user()->department;
         $statuses = Status::all();
+        $reasons = Reason::all();
 
         $fav = Follow::where('user_id', auth()->user()->id)
         ->where('order_id', $order->id)
         ->first();
 
-        return view('orders.edit', compact('order', 'statuses', 'role', 'department', 'fav'));
+        return view('orders.edit', compact('order', 'statuses', 'role', 'department', 'fav', 'reasons'));
     }
 
     /**
@@ -258,6 +275,15 @@ class OrderController extends Controller
             'status_id' => $request->status_id,
             'updated_at' => now()
         ]);
+        if( $request->status_id == 7){
+            $cancelation = Cancelation::create([
+                'file' => NULL,
+                'order_id' => $order->id,
+                'reason_id' => $request->reason_id,
+                'created_at' => now(),
+            ]);
+            $action = $action . ', se especificó motivo de cancelación';
+        }
 
         if($request->favorite){
             Follow::create([

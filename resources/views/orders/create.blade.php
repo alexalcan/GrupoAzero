@@ -39,12 +39,13 @@
                                         </div>
                                     </div>
                                 </div>
+                                {{-- Añadir factura --}}
                                 <div class="row">
-                                    <label class="col-sm-2 col-form-label">Factura (opcional)</label>
+                                    <label class="col-sm-2 col-form-label">Ligar a Factura (opcional)</label>
                                     <div class="col-sm-4">
                                         <div class="form-check">
                                             <label class="form-check-label">
-                                                <input name="check" id="check" value="1" onchange="javascript:showContent()" class="form-check-input" type="checkbox" >
+                                                <input name="invCheck" id="invCheck" value="1" onchange="javascript:addInvoice()" class="form-check-input" type="checkbox" >
                                                 Ligar a una factura
                                                 <span class="form-check-sign">
                                                     <span class="check"></span>
@@ -52,14 +53,41 @@
                                             </label>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6" id="content" style="display: none;">
+                                    <div class="col-sm-6" id="invoiceSpace" style="display: none;">
                                         <div class="col-sm-6">
                                             <div class="form-group bmd-form-group is-filled">
-                                                <input class="form-control" name="invoice_number" id="input-name" type="text" placeholder="Factura" value="">
+                                                <input class="form-control" name="invoice_number" id="invoice_number" type="text" placeholder="Factura" value="">
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                {{-- Fin añadir factura --}}
+                                {{-- Añadir Orden de compra --}}
+                                @if ( $role->name == "Administrador" )
+                                    <div class="row">
+                                        <label class="col-sm-2 col-form-label">Orden de Compra (opcional)</label>
+                                        <div class="col-sm-4">
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <input name="ocCheck" id="ocCheck" value="1" onchange="javascript:addOC()" class="form-check-input" type="checkbox" >
+                                                    Ligar a orden de compra
+                                                    <span class="form-check-sign">
+                                                        <span class="check"></span>
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6" id="purchaseSpace" style="display: none;">
+                                            <div class="col-sm-6">
+                                                <div class="form-group bmd-form-group is-filled">
+                                                    <input class="form-control" name="purchase_order" id="purchase_order" type="text" placeholder="Orden de compra" value="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                                {{-- Fin añadir oren de comrpa --}}
+
 
                                 <div class="row">
                                     <label class="col-sm-2 col-form-label">No. de folio</label>
@@ -135,10 +163,22 @@
 
 @push('js')
 <script type="text/javascript">
-    function showContent() {
-        element = document.getElementById("content");
-        check = document.getElementById("check");
-        if (check.checked) {
+    function addInvoice() {
+        element = document.getElementById("invoiceSpace");
+        invCheck = document.getElementById("invCheck");
+        if (invCheck.checked) {
+            element.style.display='block';
+        }
+        else {
+            element.style.display='none';
+        }
+    }
+</script>
+<script type="text/javascript">
+    function addOC() {
+        element = document.getElementById("purchaseSpace");
+        ocCheck = document.getElementById("ocCheck");
+        if (ocCheck.checked) {
             element.style.display='block';
         }
         else {
