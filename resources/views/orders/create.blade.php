@@ -145,8 +145,8 @@
                                             </a>
                                     </div>
                                     <div id="campos" class="col-sm-10">
+                                    </div>
                                 </div>
-                            </div>
                             <div class="card-footer ml-auto mr-auto">
                                 <button type="submit" class="btn btn-primary">Guardar</button>
                             </div>
@@ -187,31 +187,6 @@
     }
 </script>
 
-<script type="text/javascript">
-    var nextinput = 0;
-    function AgregarCampos(){
-        nextinput++;
-        campo = ``;
-        if(nextinput < 6){
-            campo = `
-            <div class="col-sm-8">
-                <div class="form-group bmd-form-group is-filled">
-                    <input class="form-control" name="folio`+nextinput+`" id="input-address" type="text" placeholder="Folio `+nextinput+`" value="" required="true" aria-required="true">
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <select name="fol_status`+nextinput+`" id="status_id" class="form-control" onchange="actualizar(this)"">
-                    <option value="1" selected><b>El status inicial es "Recibido"</b></option>
-                    @foreach ($statuses as $status)
-                        <option value="{{ $status->id }}">{{ $status->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            `;
-        $("#campos").append(campo);
-        }
-    }
-</script>
 <script type="text/javascript">
     var nextinput = 0;
     function AgregarCampos(){

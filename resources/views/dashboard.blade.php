@@ -166,7 +166,7 @@
                                         <div class="row">
                                             <div class="col-12">
                                                 <div class="input-group no-border">
-                                                    <input type="text" name="invoice" value="" class="form-control" placeholder="Factura..." style="color: white">
+                                                    <input type="text" name="invoice" value="" class="form-control" placeholder="Orden..." style="color: white">
                                                     @if ( auth()->user()->role->name != "Cliente" )
                                                         <button type="submit" class="btn btn-white btn-round btn-just-icon">
                                                             <i class="material-icons">search</i>
@@ -359,7 +359,7 @@
                                             <tr>
                                                 <th width="150px">Fecha</th>
                                                 <th width="150px">Usuario</th>
-                                                <th width="120px">Factura</th>
+                                                <th width="120px">Pedido</th>
                                                 <th width="150px">Departamento</th>
                                                 <th>Acción</th>
                                             </tr>

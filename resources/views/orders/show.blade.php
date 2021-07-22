@@ -58,7 +58,7 @@
                     <label class="col-sm-2 col-form-label">Factura</label>
                     <div class="col-sm-7">
                         <div class="form-group bmd-form-group is-filled">
-                            <input class="form-control" name="invoice_number" id="input-name" type="text" placeholder="Factura/folio" value="{{ $order->invoice_number ? $order->invoice_number : 'N/A' }}"  disabled="true">
+                            <input class="form-control" name="invoice_number" id="input-name" type="text" placeholder="Sin Factura ligada" value="{{ $order->invoice_number ? $order->invoice_number : '' }}"  disabled="true">
                         </div>
                     </div>
                 </div>
@@ -68,7 +68,7 @@
                         <label class="col-sm-2 col-form-label">Orden de compra</label>
                         <div class="col-sm-7">
                             <div class="form-group bmd-form-group is-filled">
-                                <input class="form-control" name="purchaseorder" id="purchaseorder" type="text" placeholder="Factura/folio" value="{{ $order->purchaseorder ? $order->purchaseorder->number : 'N/A' }}"  disabled="true">
+                                <input class="form-control" name="purchaseorder" id="purchaseorder" type="text" placeholder="Todavía sin Orden de compra" value="{{ $order->purchaseorder->number ? $order->purchaseorder->number : '' }}"  disabled="true">
                             </div>
                         </div>
                     </div>
@@ -117,6 +117,24 @@
                     </div>
                 @endif
 
+                {{-- Mostrar orden de compra --}}
+                @if ( $order->purchaseorder && ($role->name == "Administrador" || $department->name == "Compras") )
+                    <div class="row">
+                        <label class="col-sm-2 col-form-label">Orden de compra</label>
+                        <div class="col-sm-10">
+                            <div class="card" style="width: 100%;">
+                                @if ( $order->purchaseorder->document )
+                                    <img src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" width="100%" height="400px" />
+                                @endif
+                                <div class="card-body">
+                                <p class="card-text">Orden de compra: {{ $order->purchaseorder->number }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                {{-- Fin de mostrar orden de compra --}}
+
                 @if ( $order->pictures )
                     <div class="row">
                         @foreach ($order->pictures as $picture)
@@ -157,7 +175,7 @@
                                     <tr>
                                         <th >Folio</th>
                                         <th >Estatus</th>
-                                        {{-- <th class="text-center">Acciones</th> --}}
+                                        <th class="text-center">Acciones</th>
                                         {{-- @if ( $role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Ventas" || $department->name == "Fabricación")
                                             <th width="50px">&nbsp;</th>
                                         @endif --}}
@@ -176,15 +194,41 @@
                                                     <p >{{ $partial->status->name }}</p>
                                                 {{-- </a> --}}
                                             </td>
-                                            {{-- <td class="text-right">
-                                                @if ( $role->name == "Administrador" || $department->name == "Ventas" || $department->name == "Embarques" || $department->name == "Fabricación")
-                                                    <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-primary btn-link btn-sm">
+                                            <td class="text-center">
+                                                @if ( $partial->status->name == 'Entregado' )
+                                                    <a type="button" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="modal" data-target="#partialImg{{ $partial->id }}">
                                                         <span class="material-icons">
-                                                            edit
+                                                            image
                                                         </span>
                                                     </a>
+                                                    <div class="modal fade" id="partialImg{{ $partial->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                            <h5 class="modal-title" id="exampleModalLabel">{{ $partial->invoice }}</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                @foreach ($partial->pictures as $picture)
+                                                                    <div class="card" style="width: 100%;">
+                                                                        <img class="card-img-top" src="{{ asset('storage') }}/{{ $picture->picture }}" alt="Card image cap">
+                                                                        <div class="card-body">
+                                                                        <p class="card-text">Foto subida el {{ $picture->created_at->isoFormat('MMM Do YY') }} por {{ $picture->user->name }}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                                            </div>
+                                                        </div>
+                                                        </div>
+                                                    </div>
                                                 @endif
-                                            </td> --}}
+
+                                            </td>
                                             {{-- @if ( $role->name == "Administrador" || $department->name == "Ventas" || $department->name == "Embarques" || $department->name == "Fabricación")
                                                 <td>
                                                     <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-primary btn-link btn-sm">
@@ -203,7 +247,8 @@
                 @endif
                 {{-- Fin de parciales --}}
 
-                @if ( $order->status_id == 5 && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla") )
+                {{-- Subir foto de entregado --}}
+                @if ( ($order->status_id == 5 || $order->status_id == 6 ) && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla") )
                     <form method="POST" action="{{ route('picture') }}">
                         @csrf
                         @method('get')
@@ -221,6 +266,7 @@
                         </div>
                     </form>
                 @endif
+                {{-- Fin subir foto de entregago --}}
                 {{-- @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" && !isset($order->cancelation) ) --}}
                 @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" )
                     <form method="POST" action="{{ route('picture') }}">

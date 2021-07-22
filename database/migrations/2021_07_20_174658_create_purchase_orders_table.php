@@ -16,8 +16,10 @@ class CreatePurchaseOrdersTable extends Migration
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->id();
 
-            $table->string('number');
+            $table->string('required');
+            $table->string('number')->nullable();
             $table->string('document')->nullable();
+            $table->string('iscovered')->nullable();
 
             $table->unsignedBigInteger('order_id');
             $table->foreign('order_id')->references('id')->on('orders')->onUpdate('cascade');

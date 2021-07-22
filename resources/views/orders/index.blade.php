@@ -31,6 +31,7 @@
                             <tr>
                                 <th class="text-center">Fecha</th>
                                 <th class="text-center">Folio</th>
+                                <th class="text-center">Factura</th>
                                 <th class="text-center">Cliente</th>
                                 <th class="text-center">Estatus</th>
                                 <th class="text-center">Acciones</th>
@@ -54,6 +55,11 @@
                                     </td>
                                     <td>
                                         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm">
+                                            <p style="font-size: 1.3em">{{ $order->invoice_number }}</p>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm">
                                             <p style="font-size: 1.3em">{{ $order->client }}</p>
                                         </a>
                                     </td>
@@ -63,6 +69,16 @@
                                         </a>
                                     </td>
                                     <td class="text-right">
+                                        {{-- Pedido con parciales --}}
+                                        @if ( $order->partials->count() > 0 )
+                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Pedido con {{ $order->partials->count() }} entregas parciales">
+                                                <span class="material-icons">
+                                                    alt_route
+                                                </span>
+                                                {{ $order->partials->count() }}
+                                            </a>
+                                        @endif
+                                        {{-- Fin de pedido con parciales --}}
                                         {{-- Pedido a crédito --}}
                                         @if ( $order->credit == true )
                                             <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Pedido a crédito">
@@ -73,15 +89,30 @@
                                         @endif
                                         {{-- Fin de pedido a crédito --}}
                                         {{-- Pedido con orden de compra --}}
-                                        @if ( $order->purchaseorder )
-                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Pedido con orden de compra">
-                                                <span class="material-icons">
-                                                    fact_check
-                                                </span>
-                                            </a>
+                                        @if ( isset($order->purchaseorder->required) )
+                                            @if ( $order->purchaseorder->iscovered )
+                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Pedido con orden de compra">
+                                                    <span class="material-icons">
+                                                        fact_check
+                                                    </span>
+                                                </a>
+                                            @else
+                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Pedido con orden de compra">
+                                                    <span class="material-icons">
+                                                        fact_check
+                                                    </span>
+                                                </a>
+                                            @endif
                                         @endif
                                         {{-- Fin de pedido con orden de compa --}}
                                         {{-- Subir foto en ruta --}}
+                                        @if ( $order->status_id == 6 && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla") && $order->pictures->count() == 0 )
+                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Falta subir foto de entregado">
+                                                <span class="material-icons">
+                                                    photo_camera
+                                                </span>
+                                            </a>
+                                        @endif
                                         @if ( $order->status_id == 5 && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla") )
                                             <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir foto">
                                                 <span class="material-icons">

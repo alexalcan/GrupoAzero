@@ -21,8 +21,11 @@ class CreatePicturesTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade');
 
-            $table->unsignedBigInteger('order_id');
+            $table->unsignedBigInteger('order_id')->nullable();
             $table->foreign('order_id')->references('id')->on('orders')->onUpdate('cascade');
+
+            $table->unsignedBigInteger('partial_id')->nullable();
+            $table->foreign('partial_id')->references('id')->on('partials')->onUpdate('cascade');
 
             $table->timestamps();
         });

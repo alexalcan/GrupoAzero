@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <form method="post" action="{{ route('orders.update', $order->id) }}">
+                    <form method="post" action="{{ route('orders.update', $order->id) }}" enctype="multipart/form-data">
                         @csrf
                         @method('put')
                         <div class="card">
@@ -54,7 +54,7 @@
                                     <div class="col-sm-7">
                                         <div class="form-check">
                                             <label class="form-check-label">
-                                                <input name="credit" class="form-check-input" type="checkbox" {{ $order->credit ? 'checked' : '' }} >
+                                                <input name="credit" id="credit" class="form-check-input" type="checkbox" {{ $order->credit ? 'checked' : '' }} >
                                                 Pedido a crédito
                                                 <span class="form-check-sign">
                                                     <span class="check"></span>
@@ -91,12 +91,28 @@
                                         </div>
                                     </div>
                                 </div>
-                                @if ( $role->name == "Administrador" || $department->name == "Compras" )
+                                @if ( $order->purchaseorder && ($role->name == "Administrador" || $department->name == "Compras") )
                                     <div class="row">
                                         <label class="col-sm-2 col-form-label">Orden de compra</label>
-                                        <div class="col-sm-7">
+                                        <div class="col-sm-3">
                                             <div class="form-group bmd-form-group is-filled">
-                                                <input class="form-control" name="purchaseorder" id="purchaseorder" type="text" placeholder="Factura/folio" value="{{ $order->purchaseorder ? $order->purchaseorder->number : 'N/A' }}" >
+                                                <input class="form-control" name="purchaseorder" id="purchaseorder" type="text" placeholder="Orden de compra" value="{{ $order->purchaseorder->number ? $order->purchaseorder->number : NULL }}" >
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <input name="iscovered" class="form-check-input" type="checkbox" {{ $order->purchaseorder->iscovered ? 'checked' : '' }} >
+                                                    Se cubrió OC?
+                                                    <span class="form-check-sign">
+                                                        <span class="check"></span>
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-check">
+                                                <input type="file" name="document" class="form-control-file" id="document" accept="image/*">
                                             </div>
                                         </div>
                                     </div>
@@ -201,6 +217,80 @@
                                         </div>
                                     </div>
                                 @endif
+                                <div class="row">
+                                    <div class="col-sm-2 col-form-label">
+                                        <a class="btn btn-sm btn-primary" style="color: white" onclick="AgregarCampos();">
+                                            <span class="material-icons">
+                                                add
+                                            </span>
+                                            Parcial
+                                        </a>
+                                    </div>
+                                    <div id="campos" class="col-sm-10">
+                                    </div>
+                                </div>
+
+
+                                {{-- Parciales --}}
+                                    @if ( $order->partials )
+                                    <div class="row">
+                                        <label class="col-sm-2 col-form-label">Parciales </label>
+                                        <div class="col-sm-10">
+                                            <table class="table data-table" id="orders">
+                                                <thead>
+                                                    <tr>
+                                                        <th >Folio</th>
+                                                        <th >Estatus</th>
+                                                        <th class="text-center">Acciones</th>
+                                                        {{-- @if ( $role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Ventas" || $department->name == "Fabricación")
+                                                            <th width="50px">&nbsp;</th>
+                                                        @endif --}}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($order->partials as $count => $partial)
+                                                        <tr>
+                                                            <td>
+                                                                {{-- <a href="{{ route('partials.show', $partial->id) }}" class="btn btn-primary btn-link btn-sm"> --}}
+                                                                    <p >{{ $partial->invoice }}</p>
+                                                                {{-- </a> --}}
+                                                            </td>
+                                                            <td>
+                                                                {{-- <a href="{{ route('partials.show', $partial->id) }}" class="btn btn-primary btn-link btn-sm"> --}}
+                                                                    <input type="hidden" name="stPartID_{{ $count+1 }}" value="{{ $partial->id }}">
+                                                                    <select name="stPartValue_{{ $count+1 }}" id="stPartValue_{{ $count+1 }}" class="form-control" >
+                                                                        <option value="{{ $partial->status->id }}" selected><b>{{ $partial->status->name }}</b></option>
+                                                                        @foreach ($statuses as $status)
+                                                                            <option value="{{ $status->id }}">{{ $status->name }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                {{-- </a> --}}
+                                                            </td>
+                                                            {{-- <td class="text-right">
+                                                                @if ( $role->name == "Administrador" || $department->name == "Ventas" || $department->name == "Embarques" || $department->name == "Fabricación")
+                                                                    <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-primary btn-link btn-sm">
+                                                                        <span class="material-icons">
+                                                                            edit
+                                                                        </span>
+                                                                    </a>
+                                                                @endif
+                                                            </td> --}}
+                                                            @if ( $partial->status->name == 'En ruta' )
+                                                                <td  class="text-center">
+                                                                    <div class="form-check">
+                                                                        <input type="hidden" name="partImgID_{{ $count+1 }}" value="{{ $partial->id }}">
+                                                                        <input type="file" name="partImg_{{ $count+1 }}" class="form-control-file" accept="image/*">
+                                                                    </div>
+                                                                </td>
+                                                            @endif
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                @endif
+                                {{-- Fin de parciales --}}
 
 
                             </div>
@@ -233,9 +323,11 @@
     function ShowSelected(){
         /* Para obtener el valor */
         var status_id = document.getElementById("status_id").value;
-        console.log(status_id);
+        // console.log(status_id);
+        var credit = document.getElementById('credit').checked;
+        console.log(credit);
 
-        if( status_id == 5 ){
+        if( status_id == 5 && credit == true ){
             alert('Para pedidos por cobrar o pedidos programados es necesario ligar a una factura');
             document.getElementById("invoice_number").placeholder = "Para pedidos a crédito se requiere un número de factura!";
             document.getElementById("invoice_number").requiered = true;
@@ -252,10 +344,36 @@
 
         }
         /* Para obtener el texto */
-        var combo = document.getElementById("status_id");
-        var selected = combo.options[combo.selectedIndex].text;
-        console.log(selected);
+        // var combo = document.getElementById("status_id");
+        // var selected = combo.options[combo.selectedIndex].text;
+        // console.log(selected);
 
+    }
+</script>
+
+<script type="text/javascript">
+    var nextinput = {{ $order->partials->count() }};
+    function AgregarCampos(){
+        nextinput++;
+        campo = ``;
+        if(nextinput < 6){
+            campo = `
+            <div class="col-sm-8">
+                <div class="form-group bmd-form-group is-filled">
+                    <input class="form-control" name="folio`+nextinput+`" id="input-address" type="text" placeholder="Folio `+nextinput+`" value="" required="true" aria-required="true">
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <select name="fol_status`+nextinput+`" id="status_id" class="form-control" onchange="actualizar(this)"">
+                    <option value="1" selected><b>El status inicial es "Recibido"</b></option>
+                    @foreach ($statuses as $status)
+                        <option value="{{ $status->id }}">{{ $status->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            `;
+        $("#campos").append(campo);
+        }
     }
 </script>
 

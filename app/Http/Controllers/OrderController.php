@@ -8,11 +8,13 @@ use App\Log;
 use App\Note;
 use App\Order;
 use App\Partial;
+use App\Picture;
 use App\PurchaseOrder;
 use App\Reason;
 use App\Status;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
@@ -63,8 +65,6 @@ class OrderController extends Controller
             $department = auth()->user()->department;
         }
 
-
-
         return view('orders.index', compact('orders', 'role', 'department'));
     }
 
@@ -94,7 +94,7 @@ class OrderController extends Controller
         // dd($request->all());
         $status = Status::find($request->status_id);
         $user = User::find(auth()->user()->id);
-        $action = 'Creación de orden';
+        $action = $user->name .' creó una orden';
 
         if($request->credit){
             $credit = 1;
@@ -120,13 +120,14 @@ class OrderController extends Controller
             ]);
             $action = $action . ',  se añadió una nota';
         }
-        if($request->purchase_order){
+        if($request->ocCheck == 1){
             PurchaseOrder::create([
+                'required' => $request->ocCheck,
                 'number' => $request->purchase_order,
                 'document' => NULL,
                 'order_id' => $order->id
             ]);
-            $action = $action . ',  tiene la Orden de Compra '. $request->purchase_order;
+            $action = $action . ', el pedido requiere una orden de compra ';
         }
 
         $folios = 0;
@@ -171,7 +172,7 @@ class OrderController extends Controller
             $folios++;
         }
         if($request->folio1){
-            $action = $action . ', se añadieron ' . $folios . ' parciales';
+            $action = $action . ', se añadió ' . $folios . ' entregas parciales';
         }
 
         Log::create([
@@ -238,6 +239,7 @@ class OrderController extends Controller
     public function update(Request $request, $id)
     {
         // dd($request->all());
+
         $order = Order::find($id);
         $status = Status::find($request->status_id);
         $user = User::find(auth()->user()->id);
@@ -247,26 +249,24 @@ class OrderController extends Controller
         }
 
         $action = 'Actualización de orden';
+
+        // Verificar crédito
         if($request->credit){
             $credit = 1;
         }else{
             $credit = 0;
         }
-
-        // dd($order->credit, $credit);
+        // Verificar si hay cambio en estatus de crédito
         if( $order->credit != $credit){
             if($request->credit == true){
                 $credit = 1;
                 $action = $action . ', orden a credito';
-                // dd($order->credit, $credit);
             }else{
                 $credit = 0;
                 $action = $action . ', orden sin credito';
-                // dd($order->credit, $credit);
             }
-            // dd('Cambio a: '. $action);
         }
-        // dd($order->credit, $credit);
+        // Actualización de orden
         $order->update([
             'invoice' => $request->invoice,
             'invoice_number' => $request->invoice_number,
@@ -275,6 +275,7 @@ class OrderController extends Controller
             'status_id' => $request->status_id,
             'updated_at' => now()
         ]);
+        // Cancelación de orden
         if( $request->status_id == 7){
             $cancelation = Cancelation::create([
                 'file' => NULL,
@@ -284,14 +285,39 @@ class OrderController extends Controller
             ]);
             $action = $action . ', se especificó motivo de cancelación';
         }
+        // Orden de compra
+        if( $request->iscovered == true || $request->purchaseorder || $request->document ){
+            $purchaseorder = $order->purchaseorder;
 
+            if ( $request->document ){
+                $hoy = date("Y-m-d H:i:s");
+                $file = $request->file('document');
+                $name = $hoy . '-' . $order->invoice;
+                $path = 'Images/' . $name;
+                Storage::putFileAs('/public/' . 'Images/', $file, $name );
+                $purchaseorder->update([
+                    'number' => $request->purchaseorder,
+                    'document' => $path,
+                    'iscovered' => 1,
+                ]);
+                $action = $action . ', se cubrió la orden de compra';
+
+            }else{
+                $purchaseorder->update([
+                    'number' => $request->purchaseorder,
+                    'iscovered' => 1,
+                ]);
+                $action = $action . ', se cubrió la orden de compra';
+            }
+        }
+        // Hacer favorito
         if($request->favorite){
             Follow::create([
                 'user_id' => auth()->user()->id,
                 'order_id' => $id
             ]);
         }
-
+        // Añadir nota
         if($request->note){
             Note::create([
                 'note' => $request->note,
@@ -300,7 +326,7 @@ class OrderController extends Controller
             ]);
             $action = $action . ', '.auth()->user()->name.' añadió una nota';
         }
-
+        // Verificar cambio de estatus
         if($request->status_id != $request->statAnt){
             $status = Status::find($request->status_id);
             $user = User::find(auth()->user()->id);
@@ -310,8 +336,173 @@ class OrderController extends Controller
                 'order_id' => $order->id,
                 'user_id' => auth()->user()->id
             ]);
-
         }
+        // Nuevos Parciales
+        $folios = 0;
+        if($request->folio1){
+            Partial::create([
+                'invoice' => $request->folio1,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status1
+            ]);
+            $folios++;
+        }
+        if($request->folio2){
+            Partial::create([
+                'invoice' => $request->folio2,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status2
+            ]);
+            $folios++;
+        }
+        if($request->folio3){
+            Partial::create([
+                'invoice' => $request->folio3,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status3
+            ]);
+            $folios++;
+        }
+        if($request->folio4){
+            Partial::create([
+                'invoice' => $request->folio4,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status4
+            ]);
+            $folios++;
+        }
+        if($request->folio5){
+            Partial::create([
+                'invoice' => $request->folio5,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status5
+            ]);
+            $folios++;
+        }
+        if($request->folio1){
+            $action = $action . $user->name . ', añadió ' . $folios . ' parciales';
+        }
+        // Actualización de parciales
+        if ( $order->partials->count() > 0 ){
+            // dd('el pedido tiene '. $order->partials->count() .' parciales');
+            if( $request->stPartID_1 ){
+                // Buscar ID del parcial
+                $partialID = Partial::find($request->stPartID_1);
+                // Actualizar Status
+                $partialID->update([
+                    'status_id' => $request->stPartValue_1
+                ]);
+                if( $request->partImg_1 ){
+                    $hoy = date("Y-m-d H:i:s");
+                    $file = $request->file('partImg_1');
+                    $name = $hoy . '-' . $file->getClientOriginalName();
+                    $path = 'Images/' . $name;
+                    Storage::putFileAs('/public/' . 'Images/', $file, $name );
+                    Picture::create([
+                        'picture' => $path,
+                        'user_id' => auth()->user()->id,
+                        'partial_id' => $partialID->id
+                    ]);
+                    $partialID->update([
+                        'status_id' => 6
+                    ]);
+                }
+            }
+            if( $request->stPartID_2 ){
+                // Buscar ID del parcial
+                $partialID = Partial::find($request->stPartID_2);
+                // Actualizar Status
+                $partialID->update([
+                    'status_id' => $request->stPartValue_2
+                ]);
+                if( $request->partImg_2 ){
+                    $hoy = date("Y-m-d H:i:s");
+                    $file = $request->file('partImg_2');
+                    $name = $hoy . '-' . $file->getClientOriginalName();
+                    $path = 'Images/' . $name;
+                    Storage::putFileAs('/public/' . 'Images/', $file, $name );
+                    Picture::create([
+                        'picture' => $path,
+                        'user_id' => auth()->user()->id,
+                        'partial_id' => $partialID->id
+                    ]);
+                    $partialID->update([
+                        'status_id' => 6
+                    ]);
+                }
+            }
+            if( $request->stPartID_3 ){
+                // Buscar ID del parcial
+                $partialID = Partial::find($request->stPartID_3);
+                // Actualizar Status
+                $partialID->update([
+                    'status_id' => $request->stPartValue_3
+                ]);
+                if( $request->partImg_3 ){
+                    $hoy = date("Y-m-d H:i:s");
+                    $file = $request->file('partImg_3');
+                    $name = $hoy . '-' . $file->getClientOriginalName();
+                    $path = 'Images/' . $name;
+                    Storage::putFileAs('/public/' . 'Images/', $file, $name );
+                    Picture::create([
+                        'picture' => $path,
+                        'user_id' => auth()->user()->id,
+                        'partial_id' => $partialID->id
+                    ]);
+                    $partialID->update([
+                        'status_id' => 6
+                    ]);
+                }
+            }
+            if( $request->stPartID_4 ){
+                // Buscar ID del parcial
+                $partialID = Partial::find($request->stPartID_4);
+                // Actualizar Status
+                $partialID->update([
+                    'status_id' => $request->stPartValue_4
+                ]);
+                if( $request->partImg_4 ){
+                    $hoy = date("Y-m-d H:i:s");
+                    $file = $request->file('partImg_4');
+                    $name = $hoy . '-' . $file->getClientOriginalName();
+                    $path = 'Images/' . $name;
+                    Storage::putFileAs('/public/' . 'Images/', $file, $name );
+                    Picture::create([
+                        'picture' => $path,
+                        'user_id' => auth()->user()->id,
+                        'partial_id' => $partialID->id
+                    ]);
+                    $partialID->update([
+                        'status_id' => 6
+                    ]);
+                }
+            }
+            if( $request->stPartID_5 ){
+                // Buscar ID del parcial
+                $partialID = Partial::find($request->stPartID_5);
+                // Actualizar Status
+                $partialID->update([
+                    'status_id' => $request->stPartValue_5
+                ]);
+                if( $request->partImg_5 ){
+                    $hoy = date("Y-m-d H:i:s");
+                    $file = $request->file('partImg_5');
+                    $name = $hoy . '-' . $file->getClientOriginalName();
+                    $path = 'Images/' . $name;
+                    Storage::putFileAs('/public/' . 'Images/', $file, $name );
+                    Picture::create([
+                        'picture' => $path,
+                        'user_id' => auth()->user()->id,
+                        'partial_id' => $partialID->id
+                    ]);
+                    $partialID->update([
+                        'status_id' => 6
+                    ]);
+                }
+            }
+            $action = $action . '. Actualización de parciales';
+        }
+        // Creación de un log
         Log::create([
             'status' => $status->name,
             'action' => $action,
