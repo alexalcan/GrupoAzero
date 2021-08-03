@@ -136,5 +136,36 @@ class UsersTableSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => now()
         ]);
+        // Nuevos
+        DB::table('users')->insert([
+            'name' => 'Gabriela Perez',
+            'email' => 'Grupoazero.auxgerencia@gmail.com',
+            'email_verified_at' => now(),
+            'password' => '$2y$10$ptxuriCA1AIuIqDxrFa/hOvWK8aE94jjoh35EhrTDwgjGlAmQCEji',
+            'department_id' => 3,
+            'role_id' => 2,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+        DB::table('users')->insert([
+            'name' => 'Victor Garcia',
+            'email' => 'grupoazero.f1@gmail.com',
+            'email_verified_at' => now(),
+            'password' => '$2y$10$3ycZrbae6LIE6nB3EgqTdOt1oD0h3Pls9TAwi5g5GJOlqIBOFttg.',
+            'department_id' => 3,
+            'role_id' => 2,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+        DB::table('users')->insert([
+            'name' => '	Hector Rodriguez',
+            'email' => 'ventas5.grupoazero@gmail.com',
+            'email_verified_at' => now(),
+            'password' => '$2y$10$F1tOdCrjyufJ.sqdXIYgqORm7OCkhq/8S9W3AqW9PTzrquIUISFHq',
+            'department_id' => 2,
+            'role_id' => 2,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
     }
 }

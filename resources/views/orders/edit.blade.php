@@ -63,6 +63,31 @@
                                         </div>
                                     </div>
                                 </div>
+                                {{-- Añadir Orden de compra --}}
+                                @if ( !$order->purchaseorder && ($role->name == "Administrador" || $department->name == "Compras") )
+                                    <div class="row">
+                                        <label class="col-sm-2 col-form-label">Orden de Compra (opcional)</label>
+                                        <div class="col-sm-4">
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <input name="ocCheck" id="ocCheck" value="1" onchange="javascript:addOC()" class="form-check-input" type="checkbox" >
+                                                    Ligar a orden de compra
+                                                    <span class="form-check-sign">
+                                                        <span class="check"></span>
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6" id="purchaseSpace" style="display: none;">
+                                            <div class="col-sm-6">
+                                                <div class="form-group bmd-form-group is-filled">
+                                                    <input class="form-control" name="purchase_order" id="purchase_order" type="text" placeholder="Orden de compra" value="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                                {{-- Fin añadir oren de comrpa --}}
 
                                 <div class="row">
                                     <label class="col-sm-2 col-form-label">No. de folio</label>
@@ -112,7 +137,7 @@
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="form-check">
-                                                <input type="file" name="document" class="form-control-file" id="document" accept="image/*">
+                                                <input type="file" name="document" class="form-control-file" id="document" accept="image/*,.pdf">
                                             </div>
                                         </div>
                                     </div>
@@ -132,13 +157,15 @@
                                         </div>
                                     </div>
                                 </div>
+
                                 {{-- Estatus --}}
-                                <div class="row" {{ $department->name == "Ventas" ? 'hidden' : ''}}>
+                                {{-- <div class="row" {{ $department->name == "Ventas" ? 'hidden' : ''}}> --}}
+                                <div class="row" >
                                     <input type="hidden" name="statAnt" value="{{ $order->status->id }}">
                                     <label class="col-sm-2 col-form-label">Estatus</label>
                                     <div class="col-sm-7">
                                         <select name="status_id" id="status_id" class="form-control" onchange="ShowSelected(this)"" {{ ($order->status->id == 7 || $order->status->id == 8) ? 'disabled="true"' : '' }} >
-                                            <option value="1" selected><b>{{ $order->status->name }}</b></option>
+                                            <option value="{{ $order->status->id }}" selected><b>{{ $order->status->name }}</b></option>
                                             @foreach ($statuses as $status)
                                                 <option value="{{ $status->id }}">{{ $status->name }}</option>
                                             @endforeach
@@ -146,6 +173,7 @@
                                     </div>
                                 </div>
                                 {{-- Fin de estatus --}}
+
                                 {{-- Opcional al cancelar --}}
                                 <div class="row" id="cancelReason" style="display: none">
                                     <div class="row col-sm-12">
@@ -155,9 +183,9 @@
                                             </span>
                                             Razón de cancelación
                                         </label>
-                                        <div class="col-sm-7">
+                                        <div class="col-sm-5">
                                             <div class="form-group bmd-form-group is-filled">
-                                                <select name="reason_id" id="reason_id" class="form-control" required>
+                                                <select name="cancel_reason_id" id="reason_id" class="form-control">
                                                     <option value="1" selected><b>Selecciona una razón...</b></option>
                                                     @foreach ($reasons as $reason)
                                                         <option value="{{ $reason->id }}">{{ $reason->reason }}</option>
@@ -165,8 +193,116 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        <div class="col-sm-4">
+                                            <div class="">
+                                                <label for="picture">Fotografía o PDF</label>
+                                                <input type="file" name="cancelation" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+                                {{-- Fin opcional cancelar --}}
+                                {{-- Opcional al refacturación --}}
+                                <div class="row" id="refactReason" style="display: none">
+                                    <div class="row col-sm-12">
+                                        <label class="col-sm-2 col-form-label">
+                                            <span class="material-icons">
+                                                warning
+                                            </span>
+                                            Razón de la refacturación
+                                        </label>
+                                        <div class="col-sm-5">
+                                            <div class="form-group bmd-form-group is-filled">
+                                                <select name="refact_reason_id" id="reason_id" class="form-control">
+                                                    <option value="1" selected><b>Selecciona una razón...</b></option>
+                                                    @foreach ($reasons as $reason)
+                                                        <option value="{{ $reason->id }}">{{ $reason->reason }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <div class="">
+                                                <label for="picture">Fotografía o PDF</label>
+                                                <input type="file" name="rebilling" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- Fin opcional refacturación --}}
+                                {{-- Opcional al devolución --}}
+                                <div class="row" id="devolReason" style="display: none">
+                                    <div class="row col-sm-12">
+                                        <label class="col-sm-2 col-form-label">
+                                            <span class="material-icons">
+                                                warning
+                                            </span>
+                                            Razón de la devolución
+                                        </label>
+                                        <div class="col-sm-5">
+                                            <div class="form-group bmd-form-group is-filled">
+                                                <select name="debolution_reason_id" id="reason_id" class="form-control">
+                                                    <option value="1" selected><b>Selecciona una razón...</b></option>
+                                                    @foreach ($reasons as $reason)
+                                                        <option value="{{ $reason->id }}">{{ $reason->reason }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <div class="">
+                                                <label for="picture">Fotografía o PDF del material</label>
+                                                <input type="file" name="debolution" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- Fin opcional devolución --}}
+                                {{-- Opcional al Orden de fabricación --}}
+                                @if ( $order->manufacturingorder )
+                                    <div class="row" >
+                                        <div class="row col-sm-12">
+                                            <label class="col-sm-2 col-form-label">
+                                                Orden de Fabricación
+                                            </label>
+                                            <div class="col-sm-5">
+                                                <div class="form-group bmd-form-group is-filled">
+                                                    <input class="form-control" name="manufacturingOrder" id="manufacturingOrder" type="text" placeholder="Orden de Fabricación #" value="{{ $order->manufacturingorder->number }}" >
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="">
+                                                    @if( $order->manufacturingorder->document )
+                                                        <p>{{$order->manufacturingorder->document}}</p>
+                                                    @else
+                                                        <label for="picture">Subir orden de fabricación</label>
+                                                        <input type="file" name="manufacturingFile" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera">
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="row" id="manufacturingSection" style="display: none">
+                                        <div class="row col-sm-12">
+                                            <label class="col-sm-2 col-form-label">
+                                                Introduce Orden de Fabricación
+                                            </label>
+                                            <div class="col-sm-5">
+                                                <div class="form-group bmd-form-group is-filled">
+                                                    <input class="form-control" name="manufacturingOrder" id="manufacturingOrder" type="text" placeholder="Orden de Fabricación #" value="" >
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="">
+                                                    <label for="picture">Subir orden de fabricación</label>
+                                                    <input type="file" name="manufacturingFile" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                                {{-- Fin opcional orden de fabricación --}}
 
                                 <div class="row">
                                     <label class="col-sm-2 col-form-label">Notas</label>
@@ -229,10 +365,8 @@
                                     <div id="campos" class="col-sm-10">
                                     </div>
                                 </div>
-
-
                                 {{-- Parciales --}}
-                                    @if ( $order->partials )
+                                @if ( $order->partials )
                                     <div class="row">
                                         <label class="col-sm-2 col-form-label">Parciales </label>
                                         <div class="col-sm-10">
@@ -283,6 +417,20 @@
                                                                     </div>
                                                                 </td>
                                                             @endif
+                                                            @if ( $partial->status->name == 'Entregado' )
+                                                                <td  class="text-center">
+                                                                    <div class="form-check">
+                                                                        @if ( $partial->pictures->count() > 0 )
+                                                                            <span class="material-icons">
+                                                                                check
+                                                                            </span>
+                                                                        @else
+                                                                            <input type="hidden" name="partImgID_{{ $count+1 }}" value="{{ $partial->id }}">
+                                                                            <input type="file" name="partImg_{{ $count+1 }}" class="form-control-file" accept="image/*">
+                                                                        @endif
+                                                                    </div>
+                                                                </td>
+                                                            @endif
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
@@ -291,6 +439,19 @@
                                     </div>
                                 @endif
                                 {{-- Fin de parciales --}}
+                                @php
+                                    $p = $order->partials->count();
+                                    $e = 0;
+                                @endphp
+                                @foreach ( $order->partials as $partial )
+                                    @if ( $partial->status->name == 'Entregado')
+                                        @php
+                                            $e++;
+                                        @endphp
+                                    @endif
+                                    {{-- <p>Parciales totales: {{ $p }}</p>
+                                    <p>Parciales entregados: {{ $e }}</p> --}}
+                                @endforeach
 
 
                             </div>
@@ -306,11 +467,23 @@
 @endsection
 
 @push('js')
-<script type="text/javascript">
+{{-- <script type="text/javascript">
     function viewCancel() {
         element = document.getElementById("cancelReason");
         cancelReason = document.getElementById("cancelReason");
         if (invCheck.checked) {
+            element.style.display='block';
+        }
+        else {
+            element.style.display='none';
+        }
+    }
+</script> --}}
+<script type="text/javascript">
+    function addOC() {
+        element = document.getElementById("purchaseSpace");
+        ocCheck = document.getElementById("ocCheck");
+        if (ocCheck.checked) {
             element.style.display='block';
         }
         else {
@@ -326,22 +499,70 @@
         // console.log(status_id);
         var credit = document.getElementById('credit').checked;
         console.log(credit);
+        p = {{ $p }} // p para el # de parciales totales
+        e = {{ $e }} // e para el número de parciales entregados
 
+        if( status_id == 3 ){ // En fabricación
+            element = document.getElementById("manufacturingSection");
+            element.style.display='block';
+            element = document.getElementById("refactReason");
+            element.style.display='none';
+            element = document.getElementById("devolReason");
+            element.style.display='none';
+        }
         if( status_id == 5 && credit == true ){
             alert('Para pedidos por cobrar o pedidos programados es necesario ligar a una factura');
             document.getElementById("invoice_number").placeholder = "Para pedidos a crédito se requiere un número de factura!";
             document.getElementById("invoice_number").requiered = true;
             document.getElementById("invoice_number").focus();
-        }
-        if( status_id == 7 ){
-            element = document.getElementById("cancelReason");
-            element.style.display='block';
 
-        }
-        if( status_id != 7 ){
+            element = document.getElementById("manufacturingSection");
+            element.style.display='none';
             element = document.getElementById("cancelReason");
             element.style.display='none';
-
+            element = document.getElementById("refactReason");
+            element.style.display='none';
+        }
+        if( status_id == 6 && p != e ){
+            alert('No puedes marcar de entregado el pedido hasta entregar cada parcial');
+        }
+        if( status_id == 7 ){ // Cancelado
+            element = document.getElementById("cancelReason");
+            element.style.display='block';
+            element = document.getElementById("refactReason");
+            element.style.display='none';
+            element = document.getElementById("devolReason");
+            element.style.display='none';
+            element = document.getElementById("manufacturingSection");
+            element.style.display='none';
+        }
+        if( status_id == 8 ){ // Refacturación
+            element = document.getElementById("refactReason");
+            element.style.display='block';
+            element = document.getElementById("cancelReason");
+            element.style.display='none';
+            element = document.getElementById("devolReason");
+            element.style.display='none';
+            element = document.getElementById("manufacturingSection");
+            element.style.display='none';
+        }
+        if( status_id == 9 ){ // Devolución
+            element = document.getElementById("devolReason");
+            element.style.display='block';
+            element = document.getElementById("cancelReason");
+            element.style.display='none';
+            element = document.getElementById("refactReason");
+            element.style.display='none';
+            element = document.getElementById("manufacturingSection");
+            element.style.display='none';
+        }
+        if( status_id == 1 || status_id == 2 || status_id == 4 || status_id == 6 ){
+            element = document.getElementById("cancelReason");
+            element.style.display='none';
+            element = document.getElementById("refactReason");
+            element.style.display='none';
+            element = document.getElementById("manufacturingSection");
+            element.style.display='none';
         }
         /* Para obtener el texto */
         // var combo = document.getElementById("status_id");

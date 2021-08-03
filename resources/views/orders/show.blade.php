@@ -66,9 +66,20 @@
                 @if ( $order->purchaseorder )
                     <div class="row">
                         <label class="col-sm-2 col-form-label">Orden de compra</label>
-                        <div class="col-sm-7">
+                        <div class="col-sm-4">
                             <div class="form-group bmd-form-group is-filled">
-                                <input class="form-control" name="purchaseorder" id="purchaseorder" type="text" placeholder="Todavía sin Orden de compra" value="{{ $order->purchaseorder->number ? $order->purchaseorder->number : '' }}"  disabled="true">
+                                <input class="form-control" name="purchaseorder" id="purchaseorder" type="text" placeholder="Orden de compra" value="{{ $order->purchaseorder->number ? $order->purchaseorder->number : NULL }}"  disabled="true">
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input name="iscovered" class="form-check-input" type="checkbox" {{ $order->purchaseorder->iscovered ? 'checked' : '' }}  disabled="true">
+                                    Se cubrió OC?
+                                    <span class="form-check-sign">
+                                        <span class="check"></span>
+                                    </span>
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -118,16 +129,35 @@
                 @endif
 
                 {{-- Mostrar orden de compra --}}
-                @if ( $order->purchaseorder && ($role->name == "Administrador" || $department->name == "Compras") )
+                {{-- @if ( $order->purchaseorder && ($role->name == "Administrador" || $department->name == "Compras") ) --}}
+                @if ( $order->purchaseorder )
                     <div class="row">
                         <label class="col-sm-2 col-form-label">Orden de compra</label>
                         <div class="col-sm-10">
-                            <div class="card" style="width: 100%;">
+                            <div class="col-sm-5">
                                 @if ( $order->purchaseorder->document )
-                                    <img src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" width="100%" height="400px" />
+                                    <a data-toggle="modal" data-target="#purchaseorder{{ $order->purchaseorder->id }}">
+                                        <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
+                                        <p>Orden de fabricación: {{ $order->purchaseorder->number }}</p>
+                                    </a>
                                 @endif
-                                <div class="card-body">
-                                <p class="card-text">Orden de compra: {{ $order->purchaseorder->number }}</p>
+                            </div>
+                            <div class="modal fade bd-example-modal-lge" id="purchaseorder{{ $order->purchaseorder->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                    {{-- <h5 class="modal-title" id="exampleModalLabel">{{ $partial->invoice }}</h5> --}}
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%; height: 600px;">
+                                    </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                    </div>
+                                </div>
                                 </div>
                             </div>
                         </div>
@@ -135,38 +165,332 @@
                 @endif
                 {{-- Fin de mostrar orden de compra --}}
 
-                @if ( $order->pictures )
+                {{-- Mostrar orden de fabricación --}}
+                {{-- @if ( $order->purchaseorder && ($role->name == "Administrador" || $department->name == "Compras") ) --}}
+                @if ( $order->manufacturingorder )
                     <div class="row">
-                        @foreach ($order->pictures as $picture)
-                            <label class="col-sm-2 col-form-label">Evidencia</label>
-                            <div class="col-sm-10">
-                                <div class="card" style="width: 100%;">
+                        <label class="col-sm-2 col-form-label">Orden de Fabricación</label>
+                        <div class="col-sm-10">
+                            <div class="col-sm-5">
+                                @if ( $order->manufacturingorder->document )
+                                    <a data-toggle="modal" data-target="#manufacturing{{ $order->manufacturingorder->id }}">
+                                        <embed src="{{ asset('storage') }}/{{ $order->manufacturingorder->document }}" alt="" style="width: 100%">
+                                        <p>Orden de fabricación: {{ $order->manufacturingorder->number }}</p>
+                                    </a>
+                                @endif
+                            </div>
+                            <div class="modal fade bd-example-modal-lge" id="manufacturing{{ $order->manufacturingorder->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                    {{-- <h5 class="modal-title" id="exampleModalLabel">{{ $partial->invoice }}</h5> --}}
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <embed src="{{ asset('storage') }}/{{ $order->manufacturingorder->document }}" alt="" style="width: 100%; height: 600px;">
+                                    </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                {{-- Fin de mostrar orden de compra --}}
+
+                {{-- Entregado --}}
+                @if ( $order->pictures->count() > 0 )
+                    <div class="row">
+                        <label class="col-sm-2 col-form-label">Evidencia</label>
+                        <div class="col-sm-10">
+                            @foreach ($order->pictures as $picture)
+                                <div class="col-sm-4">
+                                    <a data-toggle="modal" data-target="#cancelation{{ $picture->id }}">
+                                        @php
+                                            $ext = pathinfo($picture->picture, PATHINFO_EXTENSION)
+                                        @endphp
+                                        <p>{{ $picture->picture }}</p>
+                                        {{-- @if ( pathinfo($picture->picture, PATHINFO_EXTENSION) == '.pdf' )
+                                            <h1>pdf</h1>
+                                        @else
+                                            <h1>imagen</h1>
+                                        @endif --}}
+                                        <embed src="{{ asset('storage') }}/{{ $picture->picture }}" alt="" style="width: 100%">
+                                        <p>{{ $picture->picture }}</p>
+                                    </a>
+                                </div>
+                                <div class="modal fade bd-example-modal-lge" id="cancelation{{ $picture->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        {{-- <h5 class="modal-title" id="exampleModalLabel">{{ $partial->invoice }}</h5> --}}
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <embed src="{{ asset('storage') }}/{{ $picture->picture }}" alt="" style="width: 100%; height: 600px;">
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+
+                                {{-- <div class="card" style="width: 100%;">
                                     <img class="card-img-top" src="{{ asset('storage') }}/{{ $picture->picture }}" alt="Card image cap">
                                     <div class="card-body">
                                     <p class="card-text">Foto subida el {{ $picture->created_at->isoFormat('MMM Do YY') }} por {{ $picture->user->name }}</p>
                                     </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-                @if ( $order->cancelation )
-                    <div class="row">
-                        <label class="col-sm-2 col-form-label">Cancelación</label>
-                        <div class="col-sm-10">
-                            @foreach ($order->cancelation->files as $file)
-                                <div class="card" style="width: 100%;">
-                                    <embed src="{{ asset('storage') }}/{{ $file->file }}" type="application/pdf" width="100%" height="400px" />
-                                    <div class="card-body">
-                                    <p class="card-text">Archivo: <a href="{{ asset('storage') }}/{{ $file->file }}" target="_blank">{{ $file->file }}</a> cancelado por: {{ $order->cancelation->reason->reason }}</p>
-                                    </div>
-                                </div>
+                                </div>                                 --}}
                             @endforeach
                         </div>
                     </div>
                 @endif
+                {{-- Fin de entregado --}}
+
+                {{-- Evidencias de cancelación --}}
+                    @if ( $order->cancelation )
+                        <div class="row">
+                            <label class="col-sm-2 col-form-label">Cancelaciónes</label>
+                            <div class="col-sm-10">
+                                <p>Evidencias</p>
+                                @foreach ($order->cancelation->evidences as $evidence)
+                                    <div class="col-sm-5">
+                                        <a data-toggle="modal" data-target="#cancelation{{ $evidence->id }}">
+                                            <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                            <p>{{ $evidence->file }}</p>
+                                        </a>
+                                    </div>
+                                    <div class="modal fade bd-example-modal-lge" id="cancelation{{ $evidence->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            {{-- <h5 class="modal-title" id="exampleModalLabel">{{ $partial->invoice }}</h5> --}}
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 600px;">
+                                            </div>
+                                            <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- <div class="card" style="width: 100%;">
+                                        <embed src="{{ asset('storage') }}/{{ $evidence->file }}" type="application/pdf" width="100%" height="400px" />
+                                        <div class="card-body">
+                                        <p class="card-text">Archivo: <a href="{{ asset('storage') }}/{{ $evidence->file }}" target="_blank">{{ $file->file }}</a> cancelado por: {{ $order->cancelation->reason->reason }}</p>
+                                        </div>
+                                    </div> --}}
+                                @endforeach
+                                <p>Notas</p>
+                                @foreach ($order->cancelation->repayments as $repayment)
+                                    <div class="col-sm-5">
+                                        <a data-toggle="modal" data-target="#repayment{{ $repayment->id }}">
+                                            <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%">
+                                            <p>{{ $repayment->file }}</p>
+                                        </a>
+                                    </div>
+                                    <div class="modal fade bd-example-modal-lge" id="repayment{{ $repayment->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            {{-- <h5 class="modal-title" id="exampleModalLabel">{{ $partial->invoice }}</h5> --}}
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 600px;">
+                                            </div>
+                                            <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- <div class="card" style="width: 100%;">
+                                        <embed src="{{ asset('storage') }}/{{ $repayment->file }}" type="application/pdf" width="100%" height="400px" />
+                                        <div class="card-body">
+                                        <p class="card-text">Archivo: <a href="{{ asset('storage') }}/{{ $evidence->file }}" target="_blank">{{ $file->file }}</a> cancelado por: {{ $order->cancelation->reason->reason }}</p>
+                                        </div>
+                                    </div> --}}
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                {{-- Fin de evidencias de cancelación --}}
+
+                {{-- Evidencias de Rebilling --}}
+                @if ( $order->rebilling )
+                    <div class="row">
+                        <label class="col-sm-2 col-form-label">Refacturaciones</label>
+                        <div class="col-sm-10">
+                            <p>Evidencias</p>
+                            @foreach ($order->rebilling->evidences as $evidence)
+                                <div class="col-sm-5">
+                                    <a data-toggle="modal" data-target="#rebilling{{ $evidence->id }}">
+                                        <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                        <p>{{ $evidence->file }}</p>
+                                    </a>
+                                </div>
+                                <div class="modal fade bd-example-modal-lge" id="rebilling{{ $evidence->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        {{-- <h5 class="modal-title" id="exampleModalLabel">{{ $partial->invoice }}</h5> --}}
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 600px;">
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+
+                                {{-- <div class="card" style="width: 100%;">
+                                    <embed src="{{ asset('storage') }}/{{ $evidence->file }}" type="application/pdf" width="100%" height="400px" />
+                                    <div class="card-body">
+                                    <p class="card-text">Archivo: <a href="{{ asset('storage') }}/{{ $evidence->file }}" target="_blank">{{ $file->file }}</a> cancelado por: {{ $order->cancelation->reason->reason }}</p>
+                                    </div>
+                                </div> --}}
+                            @endforeach
+                            <p>Notas</p>
+                            @foreach ($order->rebilling->repayments as $repayment)
+                                <div class="col-sm-5">
+                                    <a data-toggle="modal" data-target="#repayment{{ $repayment->id }}">
+                                        <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%">
+                                        <p>{{ $repayment->file }}</p>
+                                    </a>
+                                </div>
+                                <div class="modal fade bd-example-modal-lge" id="repayment{{ $repayment->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        {{-- <h5 class="modal-title" id="exampleModalLabel">{{ $partial->invoice }}</h5> --}}
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 600px;">
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+
+                                {{-- <div class="card" style="width: 100%;">
+                                    <embed src="{{ asset('storage') }}/{{ $repayment->file }}" type="application/pdf" width="100%" height="400px" />
+                                    <div class="card-body">
+                                    <p class="card-text">Archivo: <a href="{{ asset('storage') }}/{{ $evidence->file }}" target="_blank">{{ $file->file }}</a> cancelado por: {{ $order->cancelation->reason->reason }}</p>
+                                    </div>
+                                </div> --}}
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+                {{-- Fin de Rebilling --}}
+
+                {{-- Evidencias de Devoluciones --}}
+                @if ( $order->debolution )
+                    <div class="row">
+                        <label class="col-sm-2 col-form-label">Devoluciones</label>
+                        <div class="col-sm-10">
+                            <p>Evidencias</p>
+                            @foreach ($order->debolution->evidences as $evidence)
+                                <div class="col-sm-5">
+                                    <a data-toggle="modal" data-target="#debolution{{ $evidence->id }}">
+                                        <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                        <p>{{ $evidence->file }}</p>
+                                    </a>
+                                </div>
+                                <div class="modal fade bd-example-modal-lge" id="debolution{{ $evidence->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        {{-- <h5 class="modal-title" id="exampleModalLabel">{{ $partial->invoice }}</h5> --}}
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 600px;">
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+
+                                {{-- <div class="card" style="width: 100%;">
+                                    <embed src="{{ asset('storage') }}/{{ $evidence->file }}" type="application/pdf" width="100%" height="400px" />
+                                    <div class="card-body">
+                                    <p class="card-text">Archivo: <a href="{{ asset('storage') }}/{{ $evidence->file }}" target="_blank">{{ $file->file }}</a> cancelado por: {{ $order->cancelation->reason->reason }}</p>
+                                    </div>
+                                </div> --}}
+                            @endforeach
+                            <p>Notas</p>
+                            @foreach ($order->debolution->repayments as $repayment)
+                                <div class="col-sm-5">
+                                    <a data-toggle="modal" data-target="#repayment{{ $repayment->id }}">
+                                        <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%">
+                                        <p>{{ $repayment->file }}</p>
+                                    </a>
+                                </div>
+                                <div class="modal fade bd-example-modal-lge" id="repayment{{ $repayment->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        {{-- <h5 class="modal-title" id="exampleModalLabel">{{ $partial->invoice }}</h5> --}}
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 600px;">
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+
+                                {{-- <div class="card" style="width: 100%;">
+                                    <embed src="{{ asset('storage') }}/{{ $repayment->file }}" type="application/pdf" width="100%" height="400px" />
+                                    <div class="card-body">
+                                    <p class="card-text">Archivo: <a href="{{ asset('storage') }}/{{ $evidence->file }}" target="_blank">{{ $file->file }}</a> cancelado por: {{ $order->cancelation->reason->reason }}</p>
+                                    </div>
+                                </div> --}}
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+                {{-- Fin de devoluciones --}}
+
+
                 {{-- Parciales --}}
-                @if ( $order->partials )
+                @if ( $order->partials->count() > 0 )
                     <div class="row">
                         <label class="col-sm-2 col-form-label">Parciales</label>
                         <div class="col-sm-10">
@@ -174,6 +498,7 @@
                                 <thead>
                                     <tr>
                                         <th >Folio</th>
+                                        <th >Creación</th>
                                         <th >Estatus</th>
                                         <th class="text-center">Acciones</th>
                                         {{-- @if ( $role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Ventas" || $department->name == "Fabricación")
@@ -191,10 +516,21 @@
                                             </td>
                                             <td>
                                                 {{-- <a href="{{ route('partials.show', $partial->id) }}" class="btn btn-primary btn-link btn-sm"> --}}
+                                                    <p >{{ $partial->created_at->isoFormat('MMM Do YY') }}</p>
+                                                {{-- </a> --}}
+                                            </td>
+                                            <td>
+                                                {{-- <a href="{{ route('partials.show', $partial->id) }}" class="btn btn-primary btn-link btn-sm"> --}}
                                                     <p >{{ $partial->status->name }}</p>
                                                 {{-- </a> --}}
                                             </td>
+                                            {{-- Acciones --}}
                                             <td class="text-center">
+                                                @if ( $partial->status->name == 'En ruta' )
+                                                    <span class="material-icons">
+                                                        local_shipping
+                                                    </span>
+                                                @endif
                                                 @if ( $partial->status->name == 'Entregado' )
                                                     <a type="button" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="modal" data-target="#partialImg{{ $partial->id }}">
                                                         <span class="material-icons">
@@ -205,7 +541,7 @@
                                                         <div class="modal-dialog" role="document">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
-                                                            <h5 class="modal-title" id="exampleModalLabel">{{ $partial->invoice }}</h5>
+                                                            <h5 class="modal-title" id="exampleModalLabel">Parcial: {{ $partial->invoice }}</h5>
                                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                 <span aria-hidden="true">&times;</span>
                                                             </button>
@@ -215,7 +551,7 @@
                                                                     <div class="card" style="width: 100%;">
                                                                         <img class="card-img-top" src="{{ asset('storage') }}/{{ $picture->picture }}" alt="Card image cap">
                                                                         <div class="card-body">
-                                                                        <p class="card-text">Foto subida el {{ $picture->created_at->isoFormat('MMM Do YY') }} por {{ $picture->user->name }}</p>
+                                                                        <p class="card-text">Entregado: {{ $picture->created_at->toDateTimeString() }} por {{ $picture->user->name }}</p>
                                                                         </div>
                                                                     </div>
                                                                 @endforeach
@@ -227,7 +563,6 @@
                                                         </div>
                                                     </div>
                                                 @endif
-
                                             </td>
                                             {{-- @if ( $role->name == "Administrador" || $department->name == "Ventas" || $department->name == "Embarques" || $department->name == "Fabricación")
                                                 <td>
@@ -249,79 +584,244 @@
 
                 {{-- Subir foto de entregado --}}
                 @if ( ($order->status_id == 5 || $order->status_id == 6 ) && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla") )
-                    <form method="POST" action="{{ route('picture') }}">
-                        @csrf
-                        @method('get')
+
+                    {{-- <p># de parciales: {{ $order->partials->count() }}</p> --}}
+                    @php
+                        $e = 0;
+                    @endphp
+                    @foreach ( $order->partials as $partial )
+                        @if ( $partial->status->name == 'Entregado')
+                            @php
+                                $e++;
+                            @endphp
+                        @endif
+                        {{-- <p>Parciales entregados: {{ $e }}</p> --}}
+                    @endforeach
+
+                    @if ( $order->partials->count() != $e )
                         <div class="row">
                             <label class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-7">
                                 <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
-                                <button type="submit" class="btn btn-sm btn-danger">
+                                <a href="{{ route('orders.edit', $order->id) }}" type="submit" class="btn btn-sm btn-alert">
                                     <span class="material-icons">
-                                        photo_camera
+                                        info
                                     </span>
-                                    Subir foto de entregado
-                                </button>
+                                    Para subir evidencia final de entregado, se requieren cubrir todos los {{ $order->partials->count() }} parciales
+                                </a>
                             </div>
                         </div>
-                    </form>
+                    @else
+                        <form method="POST" action="{{ route('picture') }}">
+                            @csrf
+                            @method('get')
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label"></label>
+                                <div class="col-sm-7">
+                                    <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <span class="material-icons">
+                                            photo_camera
+                                        </span>
+                                        Subir foto de entregado
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    @endif
                 @endif
                 {{-- Fin subir foto de entregago --}}
                 {{-- @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" && !isset($order->cancelation) ) --}}
-                @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" )
-                    <form method="POST" action="{{ route('picture') }}">
-                        @csrf
-                        @method('get')
-                        <div class="row">
-                            <label class="col-sm-2 col-form-label"></label>
-                            <div class="col-sm-7">
-                                <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
-                                @if ($order->pictures->count() == 0 )
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                @endif
-                                @if ($order->pictures->count() > 0 )
-                                    <button type="submit" class="btn btn-sm btn-primary">
-                                @endif
-                                    <span class="material-icons">
-                                        photo_camera
-                                    </span>
-                                    Subir foto de nota de devolución crédito
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                @endif
-                @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" )
-                    <form method="POST" action="{{ route('cancelation') }}">
-                        @csrf
-                        @method('get')
-                        <div class="row">
-                            <label class="col-sm-2 col-form-label"></label>
-                            <div class="col-sm-7">
-                                <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
-                                @if ( isset($order->cancelation) )
-                                    <input type="hidden" name="oldCancelation" value="true" class="form-control">
-                                @endif
-                                @if ( isset($order->cancelation) )
-                                    <button type="submit" class="btn btn-sm btn-primary">
-                                        <span class="material-icons">
-                                            description
-                                        </span>
-                                        Subir otra evidencia
-                                @endif
-                                @if ( !isset($order->cancelation) )
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        <span class="material-icons">
-                                            description
-                                        </span>
-                                        Nueva factura
-                                @endif
 
-                                </button>
+                {{-- Botones Cancelaciones --}}
+                    {{-- Boton Subir foto de nota de devolución o crédito --}}
+                    @if ( ($order->status_id == 7) && $role->name == "Administrador" )
+                        <form method="POST" action="{{ route('cancelations.repayment') }}">
+                            @csrf
+                            @method('get')
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label"></label>
+                                <div class="col-sm-7">
+                                    <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
+                                    @if ($order->cancelation->repayments->count() == 0 )
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                    @endif
+                                    @if ($order->cancelation->repayments->count() > 0 )
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                    @endif
+                                        <span class="material-icons">
+                                            photo_camera
+                                        </span>
+                                        Subir foto de nota de devolución / crédito
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
-                @endif
+                        </form>
+                    @endif
+                    {{-- Fin Boton Subir foto de nota de devolución o crédito --}}
+                    {{-- Botón suvir evidencia de cancelación --}}
+                        @if ( $order->status_id == 7 && $role->name == "Administrador" )
+                            <form method="POST" action="{{ route('cancelations.evidence') }}">
+                                @csrf
+                                @method('get')
+                                <div class="row">
+                                    <label class="col-sm-2 col-form-label"></label>
+                                    <div class="col-sm-7">
+                                        <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
+                                        @if ( $order->cancelation->evidences->count() > 0 )
+                                            <input type="hidden" name="oldCancelation" value="true" class="form-control">
+                                        @endif
+                                        @if ( $order->cancelation->evidences->count() > 0 )
+                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                <span class="material-icons">
+                                                    description
+                                                </span>
+                                                Subir otra evidencia
+                                        @endif
+                                        @if ( $order->cancelation->evidences->count() == 0 )
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <span class="material-icons">
+                                                    description
+                                                </span>
+                                                Nueva evidencia
+                                        @endif
+
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        @endif
+                    {{-- Fin Botón suvir evidencia de cancelación --}}
+                {{-- Fin de botones cancelaciónes --}}
+
+
+                {{-- Botones Rebilling --}}
+                    {{-- Boton Subir foto de nota de devolución o crédito --}}
+                    @if ( ($order->status_id == 8) && $role->name == "Administrador" )
+                        <form method="POST" action="{{ route('rebillings.repayment') }}">
+                            @csrf
+                            @method('get')
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label"></label>
+                                <div class="col-sm-7">
+                                    <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
+                                    @if ($order->rebilling->repayments->count() == 0 )
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                    @endif
+                                    @if ($order->rebilling->repayments->count() > 0 )
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                    @endif
+                                        <span class="material-icons">
+                                            photo_camera
+                                        </span>
+                                        Subir foto de nota de devolución / crédito
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    @endif
+                    {{-- Fin Boton Subir foto de nota de devolución o crédito --}}
+                    {{-- Botón suvir evidencia de REBILLING --}}
+                    @if ( $order->status_id == 8 && $role->name == "Administrador" )
+                        {{-- Separar las rutas: cancel.evidence, cancel.repayment, rebillings.evidence, rebilling.repayment... etc. --}}
+                        <form method="POST" action="{{ route('rebillings.evidence') }}">
+                            @csrf
+                            @method('get')
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label"></label>
+                                <div class="col-sm-7">
+                                    <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
+                                    @if ( $order->rebilling->evidences->count() > 0 )
+                                        <input type="hidden" name="oldCancelation" value="true" class="form-control">
+                                    @endif
+                                    @if ( $order->rebilling->evidences->count() > 0 )
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                            <span class="material-icons">
+                                                description
+                                            </span>
+                                            Subir otra evidencia
+                                    @endif
+                                    @if ( $order->rebilling->evidences->count() == 0 )
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <span class="material-icons">
+                                                description
+                                            </span>
+                                            Nueva factura
+                                    @endif
+
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    @endif
+                    {{-- Fin Botón suvir evidencia de cancelación --}}
+                {{-- Fin de botones rebilling --}}
+
+                {{-- Botones Devolución --}}
+                    {{-- Boton Subir foto de nota de devolución o crédito --}}
+                    @if ( ($order->status_id == 9) && $role->name == "Administrador" )
+                        <form method="POST" action="{{ route('debolutions.repayment') }}">
+                            @csrf
+                            @method('get')
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label"></label>
+                                <div class="col-sm-7">
+                                    <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
+                                    @if ($order->debolution->repayments->count() == 0 )
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                    @endif
+                                    @if ($order->debolution->repayments->count() > 0 )
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                    @endif
+                                        <span class="material-icons">
+                                            photo_camera
+                                        </span>
+                                        Subir foto de nota de devolución / crédito
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    @endif
+                    {{-- Fin Boton Subir foto de nota de devolución o crédito --}}
+                    {{-- Botón suvir evidencia de Devolución --}}
+                    @if ( $order->status_id == 9 && $role->name == "Administrador" )
+                        {{-- Separar las rutas: cancel.evidence, cancel.repayment, rebillings.evidence, rebilling.repayment... etc. --}}
+                        <form method="POST" action="{{ route('debolutions.evidence') }}">
+                            @csrf
+                            @method('get')
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label"></label>
+                                <div class="col-sm-7">
+                                    <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
+                                    @if ( $order->debolution->evidences->count() > 0 )
+                                        <input type="hidden" name="oldCancelation" value="true" class="form-control">
+                                    @endif
+                                    @if ( $order->debolution->evidences->count() > 0 )
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                            <span class="material-icons">
+                                                description
+                                            </span>
+                                            Subir otra evidencia
+                                    @endif
+                                    @if ( $order->debolution->evidences->count() == 0 )
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <span class="material-icons">
+                                                description
+                                            </span>
+                                            Nueva factura
+                                    @endif
+
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    @endif
+                    {{-- Fin Botón suvir evidencia de cancelación --}}
+                {{-- Fin de botones devolución --}}
+
+
+
+
             </div>
           </div>
       </div>

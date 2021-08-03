@@ -25,36 +25,6 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home')->middleware('auth');
 
 Route::group(['middleware' => 'auth'], function () {
-	Route::get('table-list', function () {
-		return view('pages.table_list');
-	})->name('table');
-
-	Route::get('typography', function () {
-		return view('pages.typography');
-	})->name('typography');
-
-	Route::get('icons', function () {
-		return view('pages.icons');
-	})->name('icons');
-
-	Route::get('map', function () {
-		return view('pages.map');
-	})->name('map');
-
-	Route::get('notifications', function () {
-		return view('pages.notifications');
-	})->name('notifications');
-
-	Route::get('rtl-support', function () {
-		return view('pages.language');
-	})->name('language');
-
-	Route::get('upgrade', function () {
-		return view('pages.upgrade');
-	})->name('upgrade');
-});
-
-Route::group(['middleware' => 'auth'], function () {
 	Route::get('profile', ['as' => 'profile.edit', 'uses' => 'ProfileController@edit']);
 	Route::put('profile', ['as' => 'profile.update', 'uses' => 'ProfileController@update']);
 	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'ProfileController@password']);
@@ -67,10 +37,23 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('picture', 'PictureController');
     Route::resource('follows', 'FollowsController');
     Route::resource('cancelations', 'CancelationsController');
+    Route::resource('rebillings', 'RebillingsController');
+    Route::resource('debolutions', 'DebolutionsController');
 
     Route::get('search','HomeController@search')->name('search');
-    Route::get('picture','HomeController@picture')->name('picture');
+
+    Route::get('picture','HomeController@picture')->name('picture'); // Foto de entregado
     Route::get('cancelation','HomeController@cancelation')->name('cancelation');
+
+    // Rutas cancelación, refacturación y devolución
+    Route::get('cancelEvidence','CancelationsController@cancelEvidence')->name('cancelations.evidence');
+    Route::get('cancelRepayment','CancelationsController@cancelRepayment')->name('cancelations.repayment');
+
+    Route::get('rebillingEvidence','RebillingsController@rebilEvidence')->name('rebillings.evidence');
+    Route::get('rebillingRepayment','RebillingsController@rebilRepayment')->name('rebillings.repayment');
+
+    Route::get('debolutionsEvidence','DebolutionsController@debolutionsEvidence')->name('debolutions.evidence');
+    Route::get('debolutionsRepayment','DebolutionsController@debolutionsRepayment')->name('debolutions.repayment');
 });
 
 // Para generar el storage link

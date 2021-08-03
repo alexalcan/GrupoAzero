@@ -88,6 +88,15 @@
                                             </a>
                                         @endif
                                         {{-- Fin de pedido a crédito --}}
+                                        {{-- Pedido con orden de fabricación --}}
+                                        @if ( $order->manufacturingorder )
+                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Con orden de fabricación {{ $order->manufacturingorder->number }}">
+                                                <span class="material-icons">
+                                                    precision_manufacturing
+                                                </span>
+                                            </a>
+                                        @endif
+                                        {{-- Fin de pedido con orden de fabricación --}}
                                         {{-- Pedido con orden de compra --}}
                                         @if ( isset($order->purchaseorder->required) )
                                             @if ( $order->purchaseorder->iscovered )
@@ -129,39 +138,118 @@
                                             </a>
                                         @endif
                                         {{-- Fin subir foto  en ruta--}}
-                                        {{-- Subir foto cancelación o refacturación --}}
-                                        @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" && ($order->pictures->count() == 0) )
-                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir foto de reembolso o nota de crédito">
-                                                <span class="material-icons">
-                                                    photo_camera
-                                                </span>
-                                            </a>
-                                        @endif
-                                        @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" && ($order->pictures->count() > 0) )
-                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="{{$order->pictures->count()}} Fotos">
-                                                <span class="material-icons">
-                                                    photo_camera
-                                                </span>
-                                                {{ $order->pictures->count() }}
-                                            </a>
-                                        @endif
-                                        {{-- fin subir foto cancelación o refacturación --}}
-                                        {{-- Evidencia de Cancelación --}}
-                                        @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" && !isset($order->cancelation) )
-                                            <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir evicencia cancelación">
-                                                <span class="material-icons">
-                                                    description
-                                                </span>
-                                            </a>
-                                        @endif
-                                        @if ( ($order->status_id == 7 || $order->status_id == 8) && $role->name == "Administrador" && isset($order->cancelation) )
-                                            <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Existe evicencia o razón de cancelación">
-                                                <span class="material-icons">
-                                                    description
-                                                </span>
-                                                {{ $order->cancelation->count() }}
-                                            </a>
-                                        @endif
+
+                                        {{-- 7- Cancelaciones --}}
+                                            {{-- Subir foto de nota de devolución o crédito --}}
+                                            @if ( ($order->status_id == 7) && $role->name == "Administrador" && ($order->cancelation->repayments->count() == 0) )
+                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir foto de reembolso o  de devolucipon de crédito">
+                                                    <span class="material-icons">
+                                                        photo_camera
+                                                    </span>
+                                                </a>
+                                            @endif
+                                            @if ( ($order->status_id == 7) && $role->name == "Administrador" && ($order->cancelation->repayments->count() > 0) )
+                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="{{$order->cancelation->repayments->count()}} Fotos">
+                                                    <span class="material-icons">
+                                                        photo_camera
+                                                    </span>
+                                                    {{ $order->cancelation->repayments->count() }}
+                                                </a>
+                                            @endif
+                                            {{-- fin subir foto de nota de devolución o créditon --}}
+                                            {{-- Evidencia de Cancelación --}}
+                                            @if ( $order->status_id == 7 && $role->name == "Administrador" && $order->cancelation->evidences->count() == 0 )
+                                                <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir evicencia cancelación">
+                                                    <span class="material-icons">
+                                                        description
+                                                    </span>
+                                                </a>
+                                            @endif
+                                            @if ( $order->status_id == 7 && $role->name == "Administrador" && $order->cancelation->evidences->count() > 0 )
+                                                <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Existe evicencia o razón de cancelación">
+                                                    <span class="material-icons">
+                                                        description
+                                                    </span>
+                                                    {{ $order->cancelation->evidences->count() }}
+                                                </a>
+                                            @endif
+                                            {{-- Fin Evidencia de cancelacion --}}
+                                        {{-- Fin cancelaciones --}}
+
+                                        {{-- 8. Rebillings --}}
+                                            {{-- Subir foto de nota de devolución o crédito --}}
+                                            @if ( ($order->status_id == 8) && $role->name == "Administrador" && ($order->rebilling->repayments->count() == 0) )
+                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir foto de reembolso o  de devolucipon de crédito">
+                                                    <span class="material-icons">
+                                                        photo_camera
+                                                    </span>
+                                                </a>
+                                            @endif
+                                            @if ( ($order->status_id == 8) && $role->name == "Administrador" && ($order->rebilling->repayments->count() > 0) )
+                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="{{$order->rebilling->repayments->count()}} Fotos">
+                                                    <span class="material-icons">
+                                                        photo_camera
+                                                    </span>
+                                                    {{ $order->rebilling->repayments->count() }}
+                                                </a>
+                                            @endif
+                                            {{-- Fin Subir foto de nota de devolución o crédito --}}
+                                            {{-- Evidencias --}}
+                                            @if ( $order->status_id == 8 && $role->name == "Administrador" && $order->rebilling->evidences->count() == 0 )
+                                                <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir evicencia refacturación">
+                                                    <span class="material-icons">
+                                                        description
+                                                    </span>
+                                                </a>
+                                            @endif
+                                            @if ( $order->status_id == 8 && $role->name == "Administrador" && $order->rebilling->evidences->count() > 0 )
+                                                <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Existe evicencia o razón de refacturación">
+                                                    <span class="material-icons">
+                                                        description
+                                                    </span>
+                                                    {{ $order->rebilling->evidences->count() }}
+                                                </a>
+                                            @endif
+                                            {{-- Fin evidencias --}}
+                                        {{-- Fin rebillings --}}
+
+                                        {{-- 8. Devoluciones --}}
+                                            {{-- Subir foto de nota de devolución o crédito --}}
+                                            @if ( $order->status_id == 9 && $role->name == "Administrador" && ($order->debolution->repayments->count() == 0) )
+                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir foto de reembolso o de devolución de crédito">
+                                                    <span class="material-icons">
+                                                        photo_camera
+                                                    </span>
+                                                </a>
+                                            @endif
+                                            @if ( $order->status_id == 9 && $role->name == "Administrador" && ($order->debolution->repayments->count() > 0) )
+                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="{{$order->debolution->repayments->count()}} Fotos">
+                                                    <span class="material-icons">
+                                                        photo_camera
+                                                    </span>
+                                                    {{ $order->debolution->repayments->count() }}
+                                                </a>
+                                            @endif
+                                            {{-- Fin Subir foto de nota de devolución o crédito --}}
+                                            {{-- Evidencias --}}
+                                            @if ( $order->status_id == 9 && $role->name == "Administrador" && $order->debolution->evidences->count() == 0 )
+                                                <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir evicencia devolución">
+                                                    <span class="material-icons">
+                                                        description
+                                                    </span>
+                                                </a>
+                                            @endif
+                                            @if ( $order->status_id == 9 && $role->name == "Administrador" && $order->debolution->evidences->count() > 0 )
+                                                <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Existe evicencia o razón de devolución">
+                                                    <span class="material-icons">
+                                                        description
+                                                    </span>
+                                                    {{ $order->debolution->evidences->count() }}
+                                                </a>
+                                            @endif
+                                            {{-- Fin evidencias --}}
+                                        {{-- Fin Devoluciones --}}
+
                                         {{-- Fin evidencia de cancelación --}}
                                         {{-- Ver y editar --}}
                                         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Notas">
@@ -212,6 +300,8 @@
             //     {data: 'btn'},
             // ],
             ordering: true,
+            order: [[1, "desc" ]],
+
             language: {
                 "decimal": "",
                 "emptyTable": "No hay información",

@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Cancelation;
+use App\Debolution;
+use App\Evidence;
 use App\Follow;
 use App\Log;
+use App\ManufacturingOrder;
 use App\Note;
 use App\Order;
 use App\Partial;
 use App\Picture;
 use App\PurchaseOrder;
 use App\Reason;
+use App\Rebilling;
 use App\Status;
 use App\User;
 use Illuminate\Http\Request;
@@ -120,6 +124,7 @@ class OrderController extends Controller
             ]);
             $action = $action . ',  se añadió una nota';
         }
+        // Ver si va con orden de compra
         if($request->ocCheck == 1){
             PurchaseOrder::create([
                 'required' => $request->ocCheck,
@@ -248,7 +253,7 @@ class OrderController extends Controller
             return redirect()->back();
         }
 
-        $action = 'Actualización de orden';
+        $action = $user->name . ' actualizó la orden';
 
         // Verificar crédito
         if($request->credit){
@@ -275,16 +280,164 @@ class OrderController extends Controller
             'status_id' => $request->status_id,
             'updated_at' => now()
         ]);
+
+        // Ver si va con orden de compra
+        if($request->ocCheck == 1){
+            PurchaseOrder::create([
+                'required' => $request->ocCheck,
+                'number' => $request->purchase_order,
+                'document' => NULL,
+                'order_id' => $order->id
+            ]);
+            $action = $action . ', el pedido requiere una orden de compra ';
+        }
+
+        // Orden de fabricación
+        if( $request->status_id == 3 && !isset( $order->manufacturingorder ) ){
+            $file = $request->file('manufacturingFile');
+            if($file){
+                $name = str_replace(' ','-', $request->invoice .'-'.$file->getClientOriginalName());
+                $path = 'Fabricaciones/' . $name;
+                $extension = pathinfo($path, PATHINFO_EXTENSION);
+                Storage::putFileAs('/public/' . 'Fabricaciones/', $file, $name );
+                ManufacturingOrder::create([
+                    'required' => 1,
+                    'number' => $request->manufacturingOrder,
+                    'document' => $path,
+                    'iscovered' => NULL,
+                    'order_id'=> $order->id
+                ]);
+                $action = $action . ', se añadió orden de fabricación ' . $request->manufacturingOrder . ' y se añadió un archivo';
+            }else{
+                $name = NULL;
+                $path = NULL;
+                $extension = NULL;
+                ManufacturingOrder::create([
+                    'required' => 1,
+                    'number' => $request->manufacturingOrder,
+                    'document' => $path,
+                    'iscovered' => NULL,
+                    'order_id'=> $order->id
+                ]);
+                $action = $action . ', se añadió orden de fabricación ' . $request->manufacturingOrder . ', no se añadió un archivo';
+            }
+        }elseif( $request->status_id == 3 && !isset( $order->manufacturingorder->document ) ){
+            $file = $request->file('manufacturingFile');
+            $name = str_replace(' ','-', $request->invoice .'-'.$file->getClientOriginalName());
+            $path = 'Fabricaciones/' . $name;
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
+            Storage::putFileAs('/public/' . 'Fabricaciones/', $file, $name );
+            $order->manufacturingorder->update([
+                'required' => 1,
+                'number' => $request->manufacturingOrder,
+                'document' => $path,
+                'iscovered' => NULL,
+                'order_id'=> $order->id
+            ]);
+            $action = $action . ', se actualizó orden de fabricación ' . $request->manufacturingOrder . ', se añadió un archivo';
+        }
+
         // Cancelación de orden
-        if( $request->status_id == 7){
+        if( $request->status_id == 7 ){
+            $file = $request->file('cancelation');
+            if($file){
+                $name = str_replace(' ','-', $request->invoice .'-'.$file->getClientOriginalName());
+                $path = 'Cancelaciones/' . $name;
+                $extension = pathinfo($path, PATHINFO_EXTENSION);
+            }else{
+                $name = NULL;
+                $path = NULL;
+                $extension = NULL;
+            }
+
+            $razon = Reason::find($request->cancel_reason_id);
+            $razon = $razon->reason;
             $cancelation = Cancelation::create([
                 'file' => NULL,
                 'order_id' => $order->id,
-                'reason_id' => $request->reason_id,
+                'reason_id' => $request->cancel_reason_id,
                 'created_at' => now(),
             ]);
-            $action = $action . ', se especificó motivo de cancelación';
+            $action = $action . ', se canceló debido a un '. $razon;
+            if($file){
+                Storage::putFileAs('/public/' . 'Cancelaciones/', $file, $name );
+                Evidence::create([
+                    'file' => $path,
+                    'cancelation_id' => $cancelation->id
+                ]);
+                $action = $action . ', se subió un archivo con extensión '. $extension;
+            }else{
+                $action = $action . ', no se subió archivo';
+            }
+
         }
+        // Refacturación de orden
+        if( $request->status_id == 8){
+            $file = $request->file('rebilling');
+            if($file){
+                $name = str_replace(' ','-', $request->invoice .'-'.$file->getClientOriginalName());
+                $path = 'Refacturaciones/' . $name;
+                $extension = pathinfo($path, PATHINFO_EXTENSION);
+            }else{
+                $name = NULL;
+                $path = NULL;
+                $extension = NULL;
+            }
+
+            $razon = Reason::find($request->refact_reason_id);
+            $razon = $razon->reason;
+            $rebilling = Rebilling::create([
+                'file' => NULL,
+                'order_id' => $order->id,
+                'reason_id' => $request->refact_reason_id,
+                'created_at' => now(),
+            ]);
+            $action = $action . ', se canceló debido a un '. $razon;
+            if($file){
+                Storage::putFileAs('/public/' . 'Refacturaciones/', $file, $name );
+                Evidence::create([
+                    'file' => $path,
+                    'rebilling_id' => $rebilling->id
+                ]);
+                $action = $action . ', se subió un archivo con extensión '. $extension;
+            }else{
+                $action = $action . ', no se subió archivo';
+            }
+        }
+        // Devolución de orden
+        if( $request->status_id == 9){
+            $file = $request->file('debolution');
+            if($file){
+                $name = str_replace(' ','-', $request->invoice .'-'.$file->getClientOriginalName());
+                $path = 'Devoluciones/' . $name;
+                $extension = pathinfo($path, PATHINFO_EXTENSION);
+            }else{
+                $name = NULL;
+                $path = NULL;
+                $extension = NULL;
+            }
+
+            $razon = Reason::find($request->debolution_reason_id);
+            $razon = $razon->reason;
+            $debolution = Debolution::create([
+                'file' => NULL,
+                'order_id' => $order->id,
+                'reason_id' => $request->debolution_reason_id,
+                'created_at' => now(),
+            ]);
+            $action = $action . ', se canceló debido a un '. $razon;
+            if($file){
+                Storage::putFileAs('/public/' . 'Devoluciones/', $file, $name );
+                Evidence::create([
+                    'file' => $path,
+                    'debolution_id' => $debolution->id
+                ]);
+                $action = $action . ', se subió un archivo con extensión '. $extension;
+            }else{
+                $action = $action . ', no se subió archivo';
+            }
+        }
+
         // Orden de compra
         if( $request->iscovered == true || $request->purchaseorder || $request->document ){
             $purchaseorder = $order->purchaseorder;
@@ -310,6 +463,7 @@ class OrderController extends Controller
                 $action = $action . ', se cubrió la orden de compra';
             }
         }
+
         // Hacer favorito
         if($request->favorite){
             Follow::create([

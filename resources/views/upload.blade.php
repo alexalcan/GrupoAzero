@@ -19,7 +19,7 @@
                                 <div class="col-sm-7">
                                     <div class="">
                                         <label for="picture">Click para subir o tomar foto</label>
-                                        <input type="file" name="picture" class="form-control-file" id="picture" accept="image/*" capture="camera" required>
+                                        <input type="file" name="picture" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera" required>
                                     </div>
                                 </div>
                             </div>
@@ -38,7 +38,7 @@
                     </div>
                     </form>
                 </div>
-                </div>
+            </div>
         </div>
     </div>
 @endsection

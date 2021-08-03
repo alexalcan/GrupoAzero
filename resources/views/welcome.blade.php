@@ -46,7 +46,7 @@
                             <p>{{ $message }}</p>
                             <table class="table">
                                 <thead>
-                                    <th>Factura</th>
+                                    <th>Pedido</th>
                                     <th>Estatus actual</th>
                                 </thead>
                                 <tbody>
@@ -64,12 +64,13 @@
                     </div>
                 </div>
             </div>
+            {{-- Entregas --}}
             @if ( isset($order->pictures) )
                 <div class="row">
                     @foreach ($order->pictures as $picture)
                         <div class="col-sm-12">
-                            <div class="card" style="width: 100%;">
-                                <img class="card-img-top" src="{{ asset('storage') }}/{{ $picture->picture }}" alt="Card image cap">
+                            <div class="card" style="width: 100%;  height: 600px">
+                                <embed class="card-img-top" src="{{ asset('storage') }}/{{ $picture->picture }}" style="width: 100%; height: 100%;">
                                 <div class="card-body">
                                     <p class="card-text">Foto subida el {{ $picture->created_at->isoFormat('MMM Do YY') }}</p>
                                 </div>
@@ -78,22 +79,147 @@
                     @endforeach
                 </div>
             @endif
-            @if ( isset($order->cancelation) )
-                @if ( $order->status_id == 7 )
-                    <div class="row">
-                        @foreach ($order->cancelation->files as $file)
-                            <div class="col-sm-12">
-                                <div class="card" style="width: 100%;">
-                                    <img class="card-img-top" src="{{ asset('storage') }}/{{ $file->file }}" alt="Card image cap">
-                                    <div class="card-body">
-                                        <p class="card-text">Foto subida el {{ $file->cancelation->created_at->isoFormat('MMM Do YY') }}</p>
-                                    </div>
+            {{-- Fin de entregas --}}
+            {{-- Entregas con parciales --}}
+            @if ( isset($order->partials) && $order->partials->count() > 0 )
+                <div class="row">
+                    {{-- <h2>Entregas Parciales</h2><br> --}}
+                    @foreach ( $order->partials as $partial )
+                        @foreach ($partial->pictures as $picture)
+                            <div class="card" style="width: 100%;  height: 600px">
+                                <embed class="card-img-top" src="{{ asset('storage') }}/{{ $picture->picture }}" style="width: 100%; height: 100%;">
+                                <div class="card-body">
+                                <p class="card-text">Parcial: {{ $picture->partial->invoice }} - Entregado: {{ $picture->created_at->toDateTimeString() }} por {{ $picture->user->name }}</p>
                                 </div>
                             </div>
                         @endforeach
-                    </div>
-                @endif
+                        {{-- <div class="col-sm-12">
+                            <div class="card" style="width: 100%;">
+                                <img class="card-img-top" src="{{ asset('storage') }}/{{ $picture->picture }}" alt="Card image cap">
+                                <div class="card-body">
+                                    <p class="card-text">Foto subida el {{ $picture->created_at->isoFormat('MMM Do YY') }}</p>
+                                </div>
+                            </div>
+                        </div> --}}
+                    @endforeach
+                </div>
             @endif
+            {{-- Fin de entregas --}}
+
+            {{-- Cancelaciones --}}
+                {{-- Evidencias --}}
+                @if ( isset($order->cancelation) )
+                    @if ( $order->status_id == 7 )
+                        <div class="row">
+                            @foreach ($order->cancelation->evidences as $evidence)
+                                <div class="col-sm-12">
+                                    <div class="card" style="width: 100%; height: 600px">
+                                        <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 100%;">
+                                        <div class="card-body">
+                                            <p class="card-text">Foto subida el {{ $evidence->cancelation->created_at->isoFormat('MMM Do YY') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                @endif
+                {{-- Fin de evidencias --}}
+                {{-- Reembolsos --}}
+                @if ( isset($order->cancelation) )
+                    @if ( $order->status_id == 7 )
+                        <div class="row">
+                            @foreach ($order->cancelation->repayments as $repayment)
+                                <div class="col-sm-12">
+                                    <div class="card" style="width: 100%; height: 600px">
+                                        <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 100%;">
+                                        <div class="card-body">
+                                            <p class="card-text">Foto subida el {{ $repayment->cancelation->created_at->isoFormat('MMM Do YY') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                @endif
+                {{-- Fin de reembolsos --}}
+            {{-- Fin de cancelaciones --}}
+            {{-- Refacturaciones --}}
+                {{-- Evidencias --}}
+                @if ( isset($order->rebilling) )
+                    @if ( $order->status_id == 8 )
+                        <div class="row">
+                            @foreach ($order->rebilling->evidences as $evidence)
+                                <div class="col-sm-12">
+                                    <div class="card" style="width: 100%; height: 600px">
+                                        <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 100%;">
+                                        <div class="card-body">
+                                            <p class="card-text">Foto subida el {{ $evidence->rebilling->created_at->isoFormat('MMM Do YY') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                @endif
+                {{-- Fin de evidencias --}}
+                {{-- Reembolsos --}}
+                @if ( isset($order->rebilling) )
+                    @if ( $order->status_id == 8 )
+                        <div class="row">
+                            @foreach ($order->rebilling->repayments as $repayment)
+                                <div class="col-sm-12">
+                                    <div class="card" style="width: 100%; height: 600px">
+                                        <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 100%;">
+                                        <div class="card-body">
+                                            <p class="card-text">Foto subida el {{ $repayment->rebilling->created_at->isoFormat('MMM Do YY') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                @endif
+                {{-- Fin de reembolsos --}}
+            {{-- Fin de refacturaciones --}}
+            {{-- Devoluciones --}}
+                {{-- Evidencias --}}
+                @if ( isset($order->debolution) )
+                    @if ( $order->status_id == 9 )
+                        <div class="row">
+                            @foreach ($order->debolution->evidences as $evidence)
+                                <div class="col-sm-12">
+                                    <div class="card" style="width: 100%; height: 600px">
+                                        <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 100%;">
+                                        <div class="card-body">
+                                            <p class="card-text">Foto subida el {{ $evidence->debolution->created_at->isoFormat('MMM Do YY') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                @endif
+                {{-- Fin de evidencias --}}
+                {{-- Reembolsos --}}
+                @if ( isset($order->debolution) )
+                    @if ( $order->status_id == 9 )
+                        <div class="row">
+                            @foreach ($order->debolution->repayments as $repayment)
+                                <div class="col-sm-12">
+                                    <div class="card" style="width: 100%; height: 600px">
+                                        <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 100%;">
+                                        <div class="card-body">
+                                            <p class="card-text">Foto subida el {{ $repayment->debolution->created_at->isoFormat('MMM Do YY') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                @endif
+                {{-- Fin de reembolsos --}}
+            {{-- Fin de devoluciones --}}
         </div>
     </div>
 </div>

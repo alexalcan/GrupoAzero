@@ -408,6 +408,9 @@
             //     {data: 'email'},
             //     {data: 'btn'},
             // ],
+            ordering: true,
+            order: [[1, "desc" ]],
+
             language: {
                 "decimal": "",
                 "emptyTable": "No hay información",

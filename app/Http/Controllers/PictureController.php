@@ -45,11 +45,26 @@ class PictureController extends Controller
         $order = Order::find($request->order_id);
         $hoy = date("Y-m-d H:i:s");
         $status = 6;
+        $statusName = 'Entregado';
+        $action = 'El pedido se entregó';
+
+        if( $order->status->id == 7){
+            $status = 7;
+            $statusName = 'Cancelado';
+            $action = 'Cancelación de pedido';
+        }
+        if( $order->status->id == 8 ){
+            $status = 8;
+            $statusName = 'Refacturación';
+            $action = 'Refacturación de pedido';
+        }
 
         $request->picture;
         $file = $request->file('picture');
-        $name = $hoy . '-' . $order->invoice;
+        $name = $hoy . '-' . $order->invoice . $file->getClientOriginalExtension();
         $path = 'Images/' . $name;
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+
         Storage::putFileAs('/public/' . 'Images/', $file, $name );
 
         Picture::create([
@@ -57,13 +72,7 @@ class PictureController extends Controller
             'user_id' => auth()->user()->id,
             'order_id' => $request->order_id
         ]);
-
-        if( $order->status->id == 7){
-            $status = 7;
-        }
-        if( $order->status->id == 8 ){
-            $status = 8;
-        }
+        $action = $action . ', se subió un archivo de evidencia ';
 
         $order->update([
             'status_id' => $status,
@@ -76,10 +85,11 @@ class PictureController extends Controller
                 'user_id' => auth()->user()->id,
                 'created_at' => now()
             ]);
+            $action = $action . ', se añadió una nota';
         }
         Log::create([
-            'status' => 'Entregado',
-            'action' => 'Entrega de pedido',
+            'status' => $statusName,
+            'action' => $action,
             'order_id' => $request->order_id,
             'user_id' => auth()->user()->id,
             'department_id' => auth()->user()->department->id,

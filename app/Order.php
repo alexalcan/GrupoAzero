@@ -45,8 +45,23 @@ class Order extends Model
         return $this->hasOne(Cancelation::class);
     }
 
+    public function rebilling()
+    {
+        return $this->hasOne(Rebilling::class);
+    }
+
+    public function debolution()
+    {
+        return $this->hasOne(Debolution::class);
+    }
+
     public function purchaseorder()
     {
         return $this->hasOne(PurchaseOrder::class);
+    }
+
+    public function manufacturingorder()
+    {
+        return $this->hasOne(ManufacturingOrder::class);
     }
 }

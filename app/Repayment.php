@@ -4,10 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class File extends Model
+class Repayment extends Model
 {
     protected $fillable = [
-        'file', 'cancelation_id', 'rebilling_id'
+        'file', 'cancelation_id', 'rebilling_id', 'debolution_id'
     ];
 
     public function cancelation()

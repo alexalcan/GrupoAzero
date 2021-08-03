@@ -36,6 +36,7 @@ class HomeController extends Controller
             $logs = Log::orderBy('created_at','DESC')->get();
         }
         if( auth()->user()->role->name == 'Empleado' ){
+            $orders = Order::all();
             if( auth()->user()->department->name == 'Ventas' ){
                 $status = 1;
                 $orders = Order::where('status_id', $status)->get();
@@ -126,12 +127,4 @@ class HomeController extends Controller
         return view('upload', compact('order'));
     }
 
-    public function cancelation(Request $request)
-    {
-        // dd($request->all());
-        $order = Order::find($request->order);
-        $reasons = Reason::all();
-
-        return view('cancelation', compact('order', 'reasons'));
-    }
 }

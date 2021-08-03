@@ -1,4 +1,4 @@
-@extends('layouts.app', ['activePage' => 'orders', 'titlePage' => __('Cancelación')])
+@extends('layouts.app', ['activePage' => 'orders', 'titlePage' => __('Evidencia de cancelación')])
 
 @section('content')
     <div class="content">
@@ -7,6 +7,7 @@
                 <div class="col-md-12">
                     <form action="{{ route('cancelations.store') }}" method="post" enctype="multipart/form-data" class="form-horizontal">
                     @csrf
+                    <input type="hidden" name="type" value="evidence">
                     <input type="hidden" name="order_id" value="{{ $order->id }}">
                     <div class="card">
                         <div class="card-header card-header-primary">
@@ -19,7 +20,7 @@
                                 <div class="col-sm-7">
                                     <div class="">
                                         <label for="picture">Adjuntar archivo</label>
-                                        <input type="file" name="file" class="form-control-file" id="picture" required>
+                                        <input type="file" name="file" class="form-control-file" id="picture" accept="image/*,.pdf" required>
                                     </div>
                                 </div>
                             </div>

@@ -28,6 +28,11 @@ class WelcomeController extends Controller
                         ->first() ){
             $message = 'Encontramos tu pedido, actualmente se encuentra en este estatus:';
             return view('welcome', compact('order', 'message'));
+        }elseif($order = Order::where('invoice_number', $request->invoice)
+                        ->where('client', $request->client)
+                        ->first() ){
+            $message = 'Encontramos tu factura, actualmente se encuentra en este estatus:';
+            return view('welcome', compact('order', 'message'));
         }else{
             $message = 'Lo sentimos, no encontramos tu pedido, verifica tu número de factura';
             return view('welcome', compact('order', 'message'));

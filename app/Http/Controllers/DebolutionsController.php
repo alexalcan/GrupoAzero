@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Cancelation;
+use App\Debolution;
 use App\Evidence;
 use App\Log;
 use App\Order;
@@ -12,7 +12,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class CancelationsController extends Controller
+class DebolutionsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -50,15 +50,15 @@ class CancelationsController extends Controller
         $action = 'Cancelación de orden';
 
         if($request->type == 'evidence'){
-            if( $request->oldCancelation == false){
+            if( $request->olddebolution == false){
                 // dd('Nueva evicencia'); str_replace(' ','-', $hoy.'-'.$file->getClientOriginalName())
                 // $name = $order->invoice;
                 $name = str_replace(' ','-', $order->invoice .'-'.$file->getClientOriginalName());
-                $path = 'Cancelaciones/' . $name;
+                $path = 'Devoluciones/' . $name;
                 $extension = pathinfo($path, PATHINFO_EXTENSION);
 
-                if(Storage::putFileAs('/public/' . 'Cancelaciones/', $file, $name )){
-                    $cancelation = Cancelation::create([
+                if(Storage::putFileAs('/public/' . 'Devoluciones/', $file, $name )){
+                    $debolution = Debolution::create([
                         'file' => $path,
                         'order_id' => $request->order_id,
                         'reason_id' => $request->reason_id,
@@ -66,13 +66,13 @@ class CancelationsController extends Controller
                     ]);
                     Evidence::create([
                         'file' => $path,
-                        'cancelation_id' => $cancelation->id
+                        'debolution_id' => $debolution->id
                     ]);
                     $action = $action . ', se subió un archivo con extensión '. $extension;
                 }
 
                 Log::create([
-                    'status' => 'Cancelado',
+                    'status' => 'Refacturado',
                     'action' => $action,
                     'order_id' => $order->id,
                     'user_id' => $user->id,
@@ -82,19 +82,19 @@ class CancelationsController extends Controller
 
             }else{
                 // dd($request->all());
-                $cancelation = Cancelation::find($request->cancelationId);
+                $debolution = Debolution::find($request->debolutionId);
                 $name = str_replace(' ','-', $order->invoice .'-'.$file->getClientOriginalName());
-                $path = 'Cancelaciones/' . $name;
+                $path = 'Devoluciones/' . $name;
                 $extension = pathinfo($path, PATHINFO_EXTENSION);
-                if(Storage::putFileAs('/public/' . 'Cancelaciones/', $file, $name )){
+                if(Storage::putFileAs('/public/' . 'Devoluciones/', $file, $name )){
                     Evidence::create([
                         'file' => $path,
-                        'cancelation_id' => $cancelation->id
+                        'debolution_id' => $debolution->id
                     ]);
                     $action = $action . ', se subió nueva evidencia con extensión '. $extension;
                 }
                 Log::create([
-                    'status' => 'Cancelado',
+                    'status' => 'Refacturado',
                     'action' => $action,
                     'order_id' => $order->id,
                     'user_id' => $user->id,
@@ -104,15 +104,15 @@ class CancelationsController extends Controller
             }
         }
         if($request->type == 'repayment'){
-            if( $request->oldCancelation == false){
+            if( $request->olddebolution == false){
                 // dd('Nueva evicencia'); str_replace(' ','-', $hoy.'-'.$file->getClientOriginalName())
                 // $name = $order->invoice;
                 $name = str_replace(' ','-', $order->invoice .'-'.$file->getClientOriginalName());
-                $path = 'Cancelaciones/' . $name;
+                $path = 'Devoluciones/' . $name;
                 $extension = pathinfo($path, PATHINFO_EXTENSION);
 
-                if(Storage::putFileAs('/public/' . 'Cancelaciones/', $file, $name )){
-                    $cancelation = Cancelation::create([
+                if(Storage::putFileAs('/public/' . 'Devoluciones/', $file, $name )){
+                    $debolution = Debolution::create([
                         'file' => $path,
                         'order_id' => $request->order_id,
                         'reason_id' => $request->reason_id,
@@ -120,7 +120,7 @@ class CancelationsController extends Controller
                     ]);
                     Repayment::create([
                         'file' => $path,
-                        'cancelation_id' => $cancelation->id
+                        'debolution_id' => $debolution->id
                     ]);
                     $action = $action . ', se subió un archivo con extensión '. $extension;
                 }
@@ -134,14 +134,14 @@ class CancelationsController extends Controller
                 ]);
             }else{
                 // dd($request->all());
-                $cancelation = Cancelation::find($request->cancelationId);
+                $debolution = debolution::find($request->debolutionId);
                 $name = str_replace(' ','-', $order->invoice .'-'.$file->getClientOriginalName());
-                $path = 'Cancelaciones/' . $name;
+                $path = 'Devoluciones/' . $name;
                 $extension = pathinfo($path, PATHINFO_EXTENSION);
-                if(Storage::putFileAs('/public/' . 'Cancelaciones/', $file, $name )){
+                if(Storage::putFileAs('/public/' . 'Devoluciones/', $file, $name )){
                     Repayment::create([
                         'file' => $path,
-                        'cancelation_id' => $cancelation->id
+                        'debolution_id' => $debolution->id
                     ]);
                     $action = $action . ', se subió nueva evidencia con extensión '. $extension;
                 }
@@ -207,22 +207,21 @@ class CancelationsController extends Controller
         //
     }
 
-    public function cancelEvidence(Request $request)
+    public function debolutionsEvidence(Request $request)
     {
         // dd($request->all());
         $order = Order::find($request->order);
         $reasons = Reason::all();
 
-        return view('cancelations.evidence', compact('order', 'reasons'));
+        return view('debolutions.evidence', compact('order', 'reasons'));
     }
 
-    public function cancelRepayment(Request $request)
+    public function debolutionsRepayment(Request $request)
     {
         // dd($request->all());
         $order = Order::find($request->order);
         $reasons = Reason::all();
 
-        return view('cancelations.repayment', compact('order', 'reasons'));
+        return view('debolutions.repayment', compact('order', 'reasons'));
     }
-
 }
