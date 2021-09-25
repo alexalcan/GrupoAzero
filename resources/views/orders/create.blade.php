@@ -90,6 +90,19 @@
 
 
                                 <div class="row">
+                                    <label class="col-sm-2 col-form-label">Sucursal</label>
+                                    <div class="col-sm-7">
+                                        <div class="form-group bmd-form-group is-filled">
+                                            <select name="office" id="office" class="form-control" onchange="actualizar(this)"">
+                                                <option value="San Pablo" selected>San Pablo</option>
+                                                <option value="La Noria">La Noria</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="row">
                                     <label class="col-sm-2 col-form-label">No. de folio</label>
                                     <div class="col-sm-7">
                                         <div class="form-group bmd-form-group is-filled">

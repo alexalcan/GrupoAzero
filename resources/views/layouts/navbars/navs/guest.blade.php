@@ -15,8 +15,8 @@
     <div class="collapse navbar-collapse justify-content-end">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a href="{{ route('home') }}" class="nav-link">
-            <i class="material-icons">dashboard</i> {{ __('Dashboard') }}
+          <a href="{{ route('orders.index') }}" class="nav-link">
+            <i class="material-icons">dashboard</i> {{ __('Pedidos') }}
           </a>
         </li>
         @guest

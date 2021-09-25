@@ -61,7 +61,7 @@ class PictureController extends Controller
 
         $request->picture;
         $file = $request->file('picture');
-        $name = $hoy . '-' . $order->invoice . $file->getClientOriginalExtension();
+        $name = $hoy . '-' . $order->invoice . '.' . $file->getClientOriginalExtension();
         $path = 'Images/' . $name;
         $extension = pathinfo($path, PATHINFO_EXTENSION);
 

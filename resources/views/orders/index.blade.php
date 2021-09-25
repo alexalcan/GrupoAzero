@@ -30,8 +30,9 @@
                         <thead>
                             <tr>
                                 <th class="text-center">Fecha</th>
+                                <th class="text-center">Sucursal</th>
                                 <th class="text-center">Folio</th>
-                                <th class="text-center">Factura</th>
+                                <th class="text-center col-hd">Factura</th>
                                 <th class="text-center">Cliente</th>
                                 <th class="text-center">Estatus</th>
                                 <th class="text-center">Acciones</th>
@@ -45,7 +46,13 @@
                                 <tr>
                                     <td>
                                         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm">
-                                            {{ $order->created_at->toFormattedDateString() }}
+                                            {{ $order->created_at->format('d-m-Y') }} <br>
+                                            {{ $order->created_at->format('h:i') }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm">
+                                            <p style="font-size: 1.3em">{{ $order->office }}</p>
                                         </a>
                                     </td>
                                     <td>
@@ -53,7 +60,7 @@
                                             <p style="font-size: 1.3em">{{ $order->invoice }}</p>
                                         </a>
                                     </td>
-                                    <td>
+                                    <td class="col-hd">
                                         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm">
                                             <p style="font-size: 1.3em">{{ $order->invoice_number }}</p>
                                         </a>
@@ -68,7 +75,18 @@
                                             <p style="font-size: 1.3em">{{ $order->status->name }}</p>
                                         </a>
                                     </td>
+                                    {{-- Sección de alertas --}}
                                     <td class="text-right">
+                                        {{-- Alerta de pedido fabricado, recordar subir foto al salir a ruta --}}
+                                        @if ( $order->status->name ==  'Fabricado')
+                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Recuerda que para salir a ruta debes tomar evidencias">
+                                                <span class="material-icons">
+                                                    priority_high
+                                                </span>
+                                                {{-- {{ $order->partials->count() }} --}}
+                                            </a>
+                                        @endif
+                                        {{-- Fin de alerta de pedido fabricado --}}
                                         {{-- Pedido con parciales --}}
                                         @if ( $order->partials->count() > 0 )
                                             <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Pedido con {{ $order->partials->count() }} entregas parciales">
@@ -178,38 +196,40 @@
 
                                         {{-- 8. Rebillings --}}
                                             {{-- Subir foto de nota de devolución o crédito --}}
-                                            @if ( ($order->status_id == 8) && $role->name == "Administrador" && ($order->rebilling->repayments->count() == 0) )
-                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir foto de reembolso o  de devolucipon de crédito">
+                                            {{-- @if ( $order->status_id == 8 && $role->name == "Administrador" && $order->rebilling->repayments->count() == 0 ) --}}
+                                            @if ( $order->status_id == 8 && $role->name == "Administrador" )
+                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir foto de reembolso o  de devolucipon de crédito">
                                                     <span class="material-icons">
                                                         photo_camera
                                                     </span>
                                                 </a>
                                             @endif
-                                            @if ( ($order->status_id == 8) && $role->name == "Administrador" && ($order->rebilling->repayments->count() > 0) )
+                                            {{-- @if ( $order->status_id == 8 && $role->name == "Administrador" && $order->rebilling->repayments->count() > 0 )
                                                 <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="{{$order->rebilling->repayments->count()}} Fotos">
                                                     <span class="material-icons">
                                                         photo_camera
                                                     </span>
                                                     {{ $order->rebilling->repayments->count() }}
                                                 </a>
-                                            @endif
+                                            @endif --}}
                                             {{-- Fin Subir foto de nota de devolución o crédito --}}
                                             {{-- Evidencias --}}
-                                            @if ( $order->status_id == 8 && $role->name == "Administrador" && $order->rebilling->evidences->count() == 0 )
-                                                <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir evicencia refacturación">
+                                            {{-- @if ( $order->status_id == 8 && $role->name == "Administrador" && $order->rebilling->evidences->count() == 0 ) --}}
+                                            @if ( $order->status_id == 8 && $role->name == "Administrador" )
+                                                <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir evicencia refacturación">
                                                     <span class="material-icons">
                                                         description
                                                     </span>
                                                 </a>
                                             @endif
-                                            @if ( $order->status_id == 8 && $role->name == "Administrador" && $order->rebilling->evidences->count() > 0 )
+                                            {{-- @if ( $order->status_id == 8 && $role->name == "Administrador" && $order->rebilling->evidences->count() > 0 )
                                                 <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Existe evicencia o razón de refacturación">
                                                     <span class="material-icons">
                                                         description
                                                     </span>
                                                     {{ $order->rebilling->evidences->count() }}
                                                 </a>
-                                            @endif
+                                            @endif --}}
                                             {{-- Fin evidencias --}}
                                         {{-- Fin rebillings --}}
 
@@ -265,6 +285,7 @@
                                         @endif
                                         {{-- Fin de ver y editar --}}
                                     </td>
+                                    {{-- Fin de sección de alertas --}}
                                     {{-- @if ( $role->name == "Administrador" || $department->name == "Ventas" || $department->name == "Embarques" || $department->name == "Fabricación")
                                         <td>
                                             <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-primary btn-link btn-sm">

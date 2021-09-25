@@ -67,7 +67,7 @@
                     <label class="col-sm-2 col-form-label">Creado el</label>
                     <div class="col-sm-7">
                         <div class="form-group bmd-form-group is-filled">
-                            <input class="form-control" name="email" id="input-email" type="text" placeholder="Email" value="{{ $role->created_at->toFormattedDateString() }}" disabled="">
+                            <input class="form-control" name="email" id="input-email" type="text" placeholder="Email" value="{{ $role->created_at->toDateTimeString() }}" disabled="">
                         </div>
                     </div>
                 </div>
@@ -75,7 +75,7 @@
                     <label class="col-sm-2 col-form-label">Última actualización de datos</label>
                     <div class="col-sm-7">
                         <div class="form-group bmd-form-group is-filled">
-                            <input class="form-control" name="email" id="input-email" type="text" placeholder="Email" value="{{ $role->updated_at->toFormattedDateString() }}" disabled="">
+                            <input class="form-control" name="email" id="input-email" type="text" placeholder="Email" value="{{ $role->updated_at->toDateTimeString() }}" disabled="">
                         </div>
                     </div>
                 </div>

@@ -19,7 +19,7 @@
 
                             Regresar
                         </a>
-                        @if ( !isset($order->cancelation) && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Fabricación" || $department->name == "Flotilla") )
+                        @if ( !isset($order->cancelation) && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Fabricación" || $department->name == "Flotilla" || $department->name == "Compras"  || $department->name == "Ventas") )
                             <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-sm btn-primary">
                                 <span class="material-icons">
                                     upgrade
@@ -46,6 +46,14 @@
                     </div>
                 </div>
 
+                <div class="row">
+                    <label class="col-sm-2 col-form-label">Sucursal</label>
+                    <div class="col-sm-7">
+                        <div class="form-group bmd-form-group is-filled">
+                            <input class="form-control" name="office" id="input-name" type="text" placeholder="Sucursal" value="{{ $order->office ? $order->office : '' }}"  disabled="true">
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <label class="col-sm-2 col-form-label">Folio</label>
                     <div class="col-sm-7">
@@ -137,7 +145,11 @@
                             <div class="col-sm-5">
                                 @if ( $order->purchaseorder->document )
                                     <a data-toggle="modal" data-target="#purchaseorder{{ $order->purchaseorder->id }}">
-                                        <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
+                                        @if ( pathinfo($order->purchaseorder->document, PATHINFO_EXTENSION) == "png" )
+                                            <img src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
+                                        @else
+                                            <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
+                                        @endif
                                         <p>Orden de fabricación: {{ $order->purchaseorder->number }}</p>
                                     </a>
                                 @endif
@@ -152,7 +164,11 @@
                                     </button>
                                     </div>
                                     <div class="modal-body">
-                                        <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%; height: 600px;">
+                                        @if ( pathinfo($order->purchaseorder->document, PATHINFO_EXTENSION) == "png" )
+                                            <img src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
+                                        @else
+                                            <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%; height: 600px;">
+                                        @endif
                                     </div>
                                     <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -174,7 +190,11 @@
                             <div class="col-sm-5">
                                 @if ( $order->manufacturingorder->document )
                                     <a data-toggle="modal" data-target="#manufacturing{{ $order->manufacturingorder->id }}">
-                                        <embed src="{{ asset('storage') }}/{{ $order->manufacturingorder->document }}" alt="" style="width: 100%">
+                                        @if ( pathinfo($order->manufacturingorder->document, PATHINFO_EXTENSION) == "png" )
+                                            <img src="{{ asset('storage') }}/{{ $order->manufacturingorder->document }}" alt="" style="width: 100%">
+                                        @else
+                                            <embed src="{{ asset('storage') }}/{{ $order->manufacturingorder->document }}" alt="" style="width: 100%">
+                                        @endif
                                         <p>Orden de fabricación: {{ $order->manufacturingorder->number }}</p>
                                     </a>
                                 @endif
@@ -189,7 +209,11 @@
                                     </button>
                                     </div>
                                     <div class="modal-body">
-                                        <embed src="{{ asset('storage') }}/{{ $order->manufacturingorder->document }}" alt="" style="width: 100%; height: 600px;">
+                                        @if ( pathinfo($order->manufacturingorder->document, PATHINFO_EXTENSION) == "png" )
+                                            <img src="{{ asset('storage') }}/{{ $order->manufacturingorder->document }}" alt="" style="width: 100%">
+                                        @else
+                                            <embed src="{{ asset('storage') }}/{{ $order->manufacturingorder->document }}" alt="" style="width: 100%; height: 600px;">
+                                        @endif
                                     </div>
                                     <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -201,6 +225,51 @@
                     </div>
                 @endif
                 {{-- Fin de mostrar orden de compra --}}
+
+                {{-- Mostrar evidencia de material terminado --}}
+                @if ( $order->shipments->count() > 0 )
+                    <div class="row">
+                        <label class="col-sm-2 col-form-label">Evidencia de fabricaciones</label>
+                        <div class="col-sm-10">
+                            @foreach ($order->shipments as $shipment)
+                                <div class="col-sm-4">
+                                    <a data-toggle="modal" data-target="#shipments{{ $shipment->id }}">
+                                        @if ( pathinfo($shipment->file, PATHINFO_EXTENSION) == "png" )
+                                            <img src="{{ asset('storage') }}/{{ $shipment->file }}" alt="" style="width: 100%">
+                                        @else
+                                            <embed src="{{ asset('storage') }}/{{ $shipment->file }}" alt="" style="width: 100%">
+                                        @endif
+
+                                        <p>{{ $shipment->file }}</p>
+                                    </a>
+                                </div>
+                                <div class="modal fade bd-example-modal-lge" id="shipments{{ $shipment->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        {{-- <h5 class="modal-title" id="exampleModalLabel">{{ $partial->invoice }}</h5> --}}
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            @if ( pathinfo($shipment->file, PATHINFO_EXTENSION) == "png" )
+                                                <img src="{{ asset('storage') }}/{{ $shipment->file }}" alt="" style="width: 100%">
+                                            @else
+                                                <embed src="{{ asset('storage') }}/{{ $shipment->file }}" alt="" style="width: 100%; height: 600px;">
+                                            @endif
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+                {{-- Fin de mostrar evidencia de material terminado --}}
 
                 {{-- Entregado --}}
                 @if ( $order->pictures->count() > 0 )
@@ -263,7 +332,12 @@
                                 @foreach ($order->cancelation->evidences as $evidence)
                                     <div class="col-sm-5">
                                         <a data-toggle="modal" data-target="#cancelation{{ $evidence->id }}">
-                                            <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                            @if ( pathinfo($evidence->file, PATHINFO_EXTENSION) == "png" )
+                                                <img src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                            @else
+                                                <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                            @endif
+
                                             <p>{{ $evidence->file }}</p>
                                         </a>
                                     </div>
@@ -277,7 +351,11 @@
                                             </button>
                                             </div>
                                             <div class="modal-body">
-                                                <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 600px;">
+                                                @if ( pathinfo($evidence->file, PATHINFO_EXTENSION) == "png" )
+                                                    <img src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                                @else
+                                                    <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 600px;">
+                                                @endif
                                             </div>
                                             <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -341,7 +419,11 @@
                             @foreach ($order->rebilling->evidences as $evidence)
                                 <div class="col-sm-5">
                                     <a data-toggle="modal" data-target="#rebilling{{ $evidence->id }}">
-                                        <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                        @if ( pathinfo($evidence->file, PATHINFO_EXTENSION) == "png" )
+                                            <img src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                        @else
+                                            <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                        @endif
                                         <p>{{ $evidence->file }}</p>
                                     </a>
                                 </div>
@@ -355,7 +437,11 @@
                                         </button>
                                         </div>
                                         <div class="modal-body">
-                                            <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 600px;">
+                                            @if ( pathinfo($evidence->file, PATHINFO_EXTENSION) == "png" )
+                                                <img src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                            @else
+                                                <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 600px;">
+                                            @endif
                                         </div>
                                         <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -419,7 +505,11 @@
                             @foreach ($order->debolution->evidences as $evidence)
                                 <div class="col-sm-5">
                                     <a data-toggle="modal" data-target="#debolution{{ $evidence->id }}">
-                                        <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                        @if ( pathinfo($evidence->file, PATHINFO_EXTENSION) == "png" )
+                                            <img src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                        @else
+                                            <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                        @endif
                                         <p>{{ $evidence->file }}</p>
                                     </a>
                                 </div>
@@ -433,7 +523,11 @@
                                         </button>
                                         </div>
                                         <div class="modal-body">
-                                            <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 600px;">
+                                            @if ( pathinfo($evidence->file, PATHINFO_EXTENSION) == "png" )
+                                                <img src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                            @else
+                                                <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 600px;">
+                                            @endif
                                         </div>
                                         <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -582,8 +676,33 @@
                 @endif
                 {{-- Fin de parciales --}}
 
+                {{-- Subir evidencia de ruta --}}
+                @if ( $order->status_id == 5 && ($role->name == "Administrador" || $department->name == "Embarques") )
+                    <form method="POST" action="{{ route('shipments.evidence') }}">
+                        @csrf
+                        @method('get')
+                        <div class="row">
+                            <label class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-7">
+                                <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
+                                <button type="submit" class="btn btn-sm btn-alert">
+                                    <span class="material-icons">
+                                        photo_camera
+                                    </span>
+                                    /
+                                    <span class="material-icons">
+                                        picture_as_pdf
+                                    </span>
+                                    Subir evidencia de material terminado
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                @endif
+                {{-- Fin de subir evidencia de ruta --}}
+
                 {{-- Subir foto de entregado --}}
-                @if ( ($order->status_id == 5 || $order->status_id == 6 ) && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla") )
+                @if ( ($order->status_id == 5 || $order->status_id == 6 ) && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla" || $department->name == "Ventas") )
 
                     {{-- <p># de parciales: {{ $order->partials->count() }}</p> --}}
                     @php
@@ -635,7 +754,7 @@
 
                 {{-- Botones Cancelaciones --}}
                     {{-- Boton Subir foto de nota de devolución o crédito --}}
-                    @if ( ($order->status_id == 7) && $role->name == "Administrador" )
+                    @if ( ($order->status_id == 7) && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla" || $department->name == "Ventas") )
                         <form method="POST" action="{{ route('cancelations.repayment') }}">
                             @csrf
                             @method('get')
@@ -660,44 +779,44 @@
                     @endif
                     {{-- Fin Boton Subir foto de nota de devolución o crédito --}}
                     {{-- Botón suvir evidencia de cancelación --}}
-                        @if ( $order->status_id == 7 && $role->name == "Administrador" )
-                            <form method="POST" action="{{ route('cancelations.evidence') }}">
-                                @csrf
-                                @method('get')
-                                <div class="row">
-                                    <label class="col-sm-2 col-form-label"></label>
-                                    <div class="col-sm-7">
-                                        <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
-                                        @if ( $order->cancelation->evidences->count() > 0 )
-                                            <input type="hidden" name="oldCancelation" value="true" class="form-control">
-                                        @endif
-                                        @if ( $order->cancelation->evidences->count() > 0 )
-                                            <button type="submit" class="btn btn-sm btn-primary">
-                                                <span class="material-icons">
-                                                    description
-                                                </span>
-                                                Subir otra evidencia
-                                        @endif
-                                        @if ( $order->cancelation->evidences->count() == 0 )
-                                            <button type="submit" class="btn btn-sm btn-danger">
-                                                <span class="material-icons">
-                                                    description
-                                                </span>
-                                                Nueva evidencia
-                                        @endif
+                    @if ( $order->status_id == 7 && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla" || $department->name == "Ventas") )
+                        <form method="POST" action="{{ route('cancelations.evidence') }}">
+                            @csrf
+                            @method('get')
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label"></label>
+                                <div class="col-sm-7">
+                                    <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
+                                    @if ( $order->cancelation->evidences->count() > 0 )
+                                        <input type="hidden" name="oldCancelation" value="true" class="form-control">
+                                    @endif
+                                    @if ( $order->cancelation->evidences->count() > 0 )
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                            <span class="material-icons">
+                                                description
+                                            </span>
+                                            Subir otra evidencia
+                                    @endif
+                                    @if ( $order->cancelation->evidences->count() == 0 )
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <span class="material-icons">
+                                                description
+                                            </span>
+                                            Evidencias Adiocionales
+                                    @endif
 
-                                        </button>
-                                    </div>
+                                    </button>
                                 </div>
-                            </form>
-                        @endif
+                            </div>
+                        </form>
+                    @endif
                     {{-- Fin Botón suvir evidencia de cancelación --}}
                 {{-- Fin de botones cancelaciónes --}}
 
 
                 {{-- Botones Rebilling --}}
                     {{-- Boton Subir foto de nota de devolución o crédito --}}
-                    @if ( ($order->status_id == 8) && $role->name == "Administrador" )
+                    @if ( ($order->status_id == 8) && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla" || $department->name == "Ventas") )
                         <form method="POST" action="{{ route('rebillings.repayment') }}">
                             @csrf
                             @method('get')
@@ -705,12 +824,13 @@
                                 <label class="col-sm-2 col-form-label"></label>
                                 <div class="col-sm-7">
                                     <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
-                                    @if ($order->rebilling->repayments->count() == 0 )
+                                    {{-- @if ($order->rebilling->repayments->count() == 0 )
                                         <button type="submit" class="btn btn-sm btn-danger">
                                     @endif
                                     @if ($order->rebilling->repayments->count() > 0 )
                                         <button type="submit" class="btn btn-sm btn-primary">
-                                    @endif
+                                    @endif --}}
+                                    <button type="submit" class="btn btn-sm btn-primary">
                                         <span class="material-icons">
                                             photo_camera
                                         </span>
@@ -722,7 +842,7 @@
                     @endif
                     {{-- Fin Boton Subir foto de nota de devolución o crédito --}}
                     {{-- Botón suvir evidencia de REBILLING --}}
-                    @if ( $order->status_id == 8 && $role->name == "Administrador" )
+                    @if ( $order->status_id == 8 && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla" || $department->name == "Ventas") )
                         {{-- Separar las rutas: cancel.evidence, cancel.repayment, rebillings.evidence, rebilling.repayment... etc. --}}
                         <form method="POST" action="{{ route('rebillings.evidence') }}">
                             @csrf
@@ -731,7 +851,7 @@
                                 <label class="col-sm-2 col-form-label"></label>
                                 <div class="col-sm-7">
                                     <input type="hidden" name="order" value="{{ $order->id }}" class="form-control">
-                                    @if ( $order->rebilling->evidences->count() > 0 )
+                                    {{-- @if ( $order->rebilling->evidences->count() > 0 )
                                         <input type="hidden" name="oldCancelation" value="true" class="form-control">
                                     @endif
                                     @if ( $order->rebilling->evidences->count() > 0 )
@@ -746,8 +866,13 @@
                                             <span class="material-icons">
                                                 description
                                             </span>
-                                            Nueva factura
-                                    @endif
+                                            Evidencias Adiocionales
+                                    @endif --}}
+                                    <button type="submit" class="btn btn-sm btn-primary">
+                                        <span class="material-icons">
+                                            description
+                                        </span>
+                                        Evidencias Adiocionales
 
                                     </button>
                                 </div>
@@ -759,7 +884,7 @@
 
                 {{-- Botones Devolución --}}
                     {{-- Boton Subir foto de nota de devolución o crédito --}}
-                    @if ( ($order->status_id == 9) && $role->name == "Administrador" )
+                    @if ( ($order->status_id == 9) && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla" || $department->name == "Ventas") )
                         <form method="POST" action="{{ route('debolutions.repayment') }}">
                             @csrf
                             @method('get')
@@ -784,7 +909,7 @@
                     @endif
                     {{-- Fin Boton Subir foto de nota de devolución o crédito --}}
                     {{-- Botón suvir evidencia de Devolución --}}
-                    @if ( $order->status_id == 9 && $role->name == "Administrador" )
+                    @if ( $order->status_id == 9 && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Flotilla" || $department->name == "Ventas") )
                         {{-- Separar las rutas: cancel.evidence, cancel.repayment, rebillings.evidence, rebilling.repayment... etc. --}}
                         <form method="POST" action="{{ route('debolutions.evidence') }}">
                             @csrf
@@ -808,7 +933,7 @@
                                             <span class="material-icons">
                                                 description
                                             </span>
-                                            Nueva factura
+                                            Evidencias Adiocionales
                                     @endif
 
                                     </button>
@@ -818,10 +943,6 @@
                     @endif
                     {{-- Fin Botón suvir evidencia de cancelación --}}
                 {{-- Fin de botones devolución --}}
-
-
-
-
             </div>
           </div>
       </div>

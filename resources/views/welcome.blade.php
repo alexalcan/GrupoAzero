@@ -105,6 +105,30 @@
                 </div>
             @endif
             {{-- Fin de entregas --}}
+            {{-- Evidencias de fabricaciones --}}
+            @if ( isset($order->shipments) )
+                <div class="row">
+                    @foreach ($order->shipments as $shipment)
+                        <div class="col-sm-12">
+                            <div class="card" style="width: 100%;  height: 600px">
+                                @if ( pathinfo($shipment->file, PATHINFO_EXTENSION) == "png" )
+                                    <img src="{{ asset('storage') }}/{{ $shipment->file }}" alt="" style="width: 100%">
+                                    <div class="card-body">
+                                        <p class="card-text">Foto subida el {{ $shipment->created_at->isoFormat('MMM Do YY') }}</p>
+                                    </div>
+                                @else
+                                    <embed src="{{ asset('storage') }}/{{ $shipment->file }}" alt="" style="width: 100%; height: 600px;">
+                                    <div class="card-body">
+                                        <p class="card-text">Foto subida el {{ $shipment->created_at->isoFormat('MMM Do YY') }}</p>
+                                    </div>
+                                @endif
+                                {{-- <embed class="card-img-top" src="{{ asset('storage') }}/{{ $shipment->file }}" style="width: 100%; height: 100%;"> --}}
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+            {{-- Fin de evidencias de fabricaciones --}}
 
             {{-- Cancelaciones --}}
                 {{-- Evidencias --}}
@@ -114,10 +138,21 @@
                             @foreach ($order->cancelation->evidences as $evidence)
                                 <div class="col-sm-12">
                                     <div class="card" style="width: 100%; height: 600px">
-                                        <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 100%;">
+                                        @if ( pathinfo($evidence->file, PATHINFO_EXTENSION) == "png" )
+                                            <img src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                            <div class="card-body">
+                                                <p class="card-text">Foto subida el {{ $evidence->created_at->isoFormat('MMM Do YY') }}</p>
+                                            </div>
+                                        @else
+                                            <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 600px;">
+                                            <div class="card-body">
+                                                <p class="card-text">Foto subida el {{ $evidence->created_at->isoFormat('MMM Do YY') }}</p>
+                                            </div>
+                                        @endif
+                                        {{-- <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 100%;">
                                         <div class="card-body">
                                             <p class="card-text">Foto subida el {{ $evidence->cancelation->created_at->isoFormat('MMM Do YY') }}</p>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                             @endforeach
@@ -132,10 +167,21 @@
                             @foreach ($order->cancelation->repayments as $repayment)
                                 <div class="col-sm-12">
                                     <div class="card" style="width: 100%; height: 600px">
-                                        <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 100%;">
+                                        @if ( pathinfo($repayment->file, PATHINFO_EXTENSION) == "png" )
+                                            <img src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%">
+                                            <div class="card-body">
+                                                <p class="card-text">Foto subida el {{ $repayment->created_at->isoFormat('MMM Do YY') }}</p>
+                                            </div>
+                                        @else
+                                            <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 600px;">
+                                            <div class="card-body">
+                                                <p class="card-text">Foto subida el {{ $repayment->created_at->isoFormat('MMM Do YY') }}</p>
+                                            </div>
+                                        @endif
+                                        {{-- <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 100%;">
                                         <div class="card-body">
                                             <p class="card-text">Foto subida el {{ $repayment->cancelation->created_at->isoFormat('MMM Do YY') }}</p>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                             @endforeach
@@ -152,10 +198,21 @@
                             @foreach ($order->rebilling->evidences as $evidence)
                                 <div class="col-sm-12">
                                     <div class="card" style="width: 100%; height: 600px">
-                                        <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 100%;">
+                                        @if ( pathinfo($evidence->file, PATHINFO_EXTENSION) == "png" )
+                                            <img src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                            <div class="card-body">
+                                                <p class="card-text">Foto subida el {{ $evidence->created_at->isoFormat('MMM Do YY') }}</p>
+                                            </div>
+                                        @else
+                                            <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 600px;">
+                                            <div class="card-body">
+                                                <p class="card-text">Foto subida el {{ $evidence->created_at->isoFormat('MMM Do YY') }}</p>
+                                            </div>
+                                        @endif
+                                        {{-- <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 100%;">
                                         <div class="card-body">
                                             <p class="card-text">Foto subida el {{ $evidence->rebilling->created_at->isoFormat('MMM Do YY') }}</p>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                             @endforeach
@@ -170,10 +227,21 @@
                             @foreach ($order->rebilling->repayments as $repayment)
                                 <div class="col-sm-12">
                                     <div class="card" style="width: 100%; height: 600px">
-                                        <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 100%;">
+                                        @if ( pathinfo($repayment->file, PATHINFO_EXTENSION) == "png" )
+                                            <img src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%">
+                                            <div class="card-body">
+                                                <p class="card-text">Foto subida el {{ $repayment->created_at->isoFormat('MMM Do YY') }}</p>
+                                            </div>
+                                        @else
+                                            <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 600px;">
+                                            <div class="card-body">
+                                                <p class="card-text">Foto subida el {{ $repayment->created_at->isoFormat('MMM Do YY') }}</p>
+                                            </div>
+                                        @endif
+                                        {{-- <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 100%;">
                                         <div class="card-body">
                                             <p class="card-text">Foto subida el {{ $repayment->rebilling->created_at->isoFormat('MMM Do YY') }}</p>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                             @endforeach
@@ -190,10 +258,21 @@
                             @foreach ($order->debolution->evidences as $evidence)
                                 <div class="col-sm-12">
                                     <div class="card" style="width: 100%; height: 600px">
-                                        <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 100%;">
+                                        @if ( pathinfo($evidence->file, PATHINFO_EXTENSION) == "png" )
+                                            <img src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
+                                            <div class="card-body">
+                                                <p class="card-text">Foto subida el {{ $evidence->created_at->isoFormat('MMM Do YY') }}</p>
+                                            </div>
+                                        @else
+                                            <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 600px;">
+                                            <div class="card-body">
+                                                <p class="card-text">Foto subida el {{ $evidence->created_at->isoFormat('MMM Do YY') }}</p>
+                                            </div>
+                                        @endif
+                                        {{-- <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%; height: 100%;">
                                         <div class="card-body">
                                             <p class="card-text">Foto subida el {{ $evidence->debolution->created_at->isoFormat('MMM Do YY') }}</p>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                             @endforeach
@@ -208,10 +287,21 @@
                             @foreach ($order->debolution->repayments as $repayment)
                                 <div class="col-sm-12">
                                     <div class="card" style="width: 100%; height: 600px">
-                                        <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 100%;">
+                                        @if ( pathinfo($repayment->file, PATHINFO_EXTENSION) == "png" )
+                                            <img src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%">
+                                            <div class="card-body">
+                                                <p class="card-text">Foto subida el {{ $repayment->created_at->isoFormat('MMM Do YY') }}</p>
+                                            </div>
+                                        @else
+                                            <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 600px;">
+                                            <div class="card-body">
+                                                <p class="card-text">Foto subida el {{ $repayment->created_at->isoFormat('MMM Do YY') }}</p>
+                                            </div>
+                                        @endif
+                                        {{-- <embed src="{{ asset('storage') }}/{{ $repayment->file }}" alt="" style="width: 100%; height: 100%;">
                                         <div class="card-body">
                                             <p class="card-text">Foto subida el {{ $repayment->debolution->created_at->isoFormat('MMM Do YY') }}</p>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                             @endforeach

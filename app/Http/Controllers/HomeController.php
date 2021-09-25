@@ -39,11 +39,13 @@ class HomeController extends Controller
             $orders = Order::all();
             if( auth()->user()->department->name == 'Ventas' ){
                 $status = 1;
-                $orders = Order::where('status_id', $status)->get();
+                $orders = Order::where('status_id', $status)
+                                ->orWhere('status_id', 6)->get();
             }
             if( auth()->user()->department->name == 'Embarques' ){
                 $status = 2;
-                $orders = Order::where('status_id', $status)->get();
+                $orders = Order::where('status_id', $status)
+                                ->orWhere('status_id', 6)->get();
             }
             if( auth()->user()->department->name == 'Fabricación' ){
                 $status = 4;
@@ -52,6 +54,11 @@ class HomeController extends Controller
             if( auth()->user()->department->name == 'Flotilla' ){
                 $status = 5;
                 $orders = Order::where('status_id', $status)->get();
+            }
+            if( auth()->user()->department->name == 'Compras' ){
+                $orders = Order::where('status_id', 3)
+                            ->orWhere('status_id', 4)
+                            ->get();
             }
 
             $users = User::all()->count();

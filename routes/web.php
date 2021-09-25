@@ -39,6 +39,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('cancelations', 'CancelationsController');
     Route::resource('rebillings', 'RebillingsController');
     Route::resource('debolutions', 'DebolutionsController');
+    Route::resource('shipments', 'ShipmentsController');
 
     Route::get('search','HomeController@search')->name('search');
 
@@ -46,6 +47,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('cancelation','HomeController@cancelation')->name('cancelation');
 
     // Rutas cancelación, refacturación y devolución
+    Route::get('shipmentEvidence','ShipmentsController@shipmentEvidence')->name('shipments.evidence');
+
     Route::get('cancelEvidence','CancelationsController@cancelEvidence')->name('cancelations.evidence');
     Route::get('cancelRepayment','CancelationsController@cancelRepayment')->name('cancelations.repayment');
 

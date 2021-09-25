@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     protected $fillable = [
-        'invoice', 'invoice_number', 'client', 'credit', 'status_id'
+        'office', 'invoice', 'invoice_number', 'client', 'credit', 'status_id'
     ];
 
     public function status()
@@ -63,5 +63,10 @@ class Order extends Model
     public function manufacturingorder()
     {
         return $this->hasOne(ManufacturingOrder::class);
+    }
+
+    public function shipments()
+    {
+        return $this->hasMany(Shipment::class);
     }
 }

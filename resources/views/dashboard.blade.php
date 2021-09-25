@@ -367,7 +367,7 @@
                                         <tbody>
                                             @foreach ($logs as $log)
                                                 <tr>
-                                                    <td>{{ $log->created_at->calendar() }}</td>
+                                                    <td>{{ $log->created_at->toDateTimeString() }}</td>
                                                     <td>{{ $log->user->name }}</td>
                                                     <td>
                                                         <a href="{{ route('orders.show', $log->order->id) }}">{{ $log->order->invoice }}</a>

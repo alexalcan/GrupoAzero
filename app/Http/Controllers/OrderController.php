@@ -15,6 +15,7 @@ use App\Picture;
 use App\PurchaseOrder;
 use App\Reason;
 use App\Rebilling;
+use App\Shipment;
 use App\Status;
 use App\User;
 use Illuminate\Http\Request;
@@ -37,37 +38,50 @@ class OrderController extends Controller
         }
 
         if( auth()->user()->department->name == 'Ventas' ){
-            $orders = Order::where('status_id', 1)->get();
+            $orders = Order::all();
+            // $orders = Order::where('status_id', 1)
+            //                 ->orWhere('status_id', 6)
+            //                 ->get();
             $role = auth()->user()->role;
             $department = auth()->user()->department;
         }
         if( auth()->user()->department->name == 'Embarques' ){
-            $orders = Order::where('status_id', 1)
-                            ->orWhere('status_id', 2)
-                            ->orWhere('status_id', 3)
-                            ->orWhere('status_id', 4)
-                            ->orWhere('status_id', 5)
-                            ->get();
+            $orders = Order::all();
+            // $orders = Order::where('status_id', 1)
+            //                 ->orWhere('status_id', 2)
+            //                 ->orWhere('status_id', 3)
+            //                 ->orWhere('status_id', 4)
+            //                 ->orWhere('status_id', 5)
+            //                 ->orWhere('status_id', 6)
+            //                 ->get();
             $role = auth()->user()->role;
             $department = auth()->user()->department;
         }
         if( auth()->user()->department->name == 'Fabricación' ){
-            $orders = Order::where('status_id', 2)
-                            ->orWhere('status_id', 3)
-                            ->get();
+            $orders = Order::all();
+            // $orders = Order::where('status_id', 2)
+            //                 ->orWhere('status_id', 3)
+            //                 ->orWhere('status_id', 6)
+            //                 ->get();
             $role = auth()->user()->role;
             $department = auth()->user()->department;
         }
         if( auth()->user()->department->name == 'Flotilla' ){
-            $orders = Order::where('status_id', 5)->get();
+            $orders = Order::where('status_id', 5)
+                            // ->orWhere('status_id', 6)
+                            ->get();
             $role = auth()->user()->role;
             $department = auth()->user()->department;
         }
         if( auth()->user()->department->name == 'Compras' ){
-            $orders = Order::where('status_id', 1)->get();
+            $orders = Order::all();
+            // $orders = Order::where('status_id', 3)
+            //                 ->orWhere('status_id', 4)
+            //                 ->orWhere('status_id', 6)->get();
             $role = auth()->user()->role;
             $department = auth()->user()->department;
         }
+
 
         return view('orders.index', compact('orders', 'role', 'department'));
     }
@@ -108,6 +122,7 @@ class OrderController extends Controller
         }
 
         $order = Order::create([
+            'office' => $request->office,
             'invoice' => $request->invoice,
             'invoice_number' => $request->invoice_number,
             'client' => $request->client,
@@ -273,6 +288,7 @@ class OrderController extends Controller
         }
         // Actualización de orden
         $order->update([
+            'office' => $request->office,
             'invoice' => $request->invoice,
             'invoice_number' => $request->invoice_number,
             'client' => $request->client,
@@ -335,6 +351,32 @@ class OrderController extends Controller
                 'order_id'=> $order->id
             ]);
             $action = $action . ', se actualizó orden de fabricación ' . $request->manufacturingOrder . ', se añadió un archivo';
+        }
+
+        // Evidencia para salida a ruta
+        if($request->status_id == 5){
+            $file = $request->file('routeEvidence');
+            if($file){
+                $name = str_replace(' ','-', $request->invoice .'-'.$file->getClientOriginalName());
+                $path = 'Embarques/' . $name;
+                $extension = pathinfo($path, PATHINFO_EXTENSION);
+            }else{
+                $name = NULL;
+                $path = NULL;
+                $extension = NULL;
+            }
+            $action = $action . ', pedido sale a ruta';
+            if($file){
+                Storage::putFileAs('/public/' . 'Embarques/', $file, $name );
+                $shipment = Shipment::create([
+                    'file' => $path,
+                    'order_id' => $order->id,
+                    'created_at' => now(),
+                ]);
+                $action = $action . ', se subió evidencia con extensión '. $extension;
+            }else{
+                $action = $action . ', no se subió evidencia';
+            }
         }
 
         // Cancelación de orden
@@ -445,9 +487,9 @@ class OrderController extends Controller
             if ( $request->document ){
                 $hoy = date("Y-m-d H:i:s");
                 $file = $request->file('document');
-                $name = $hoy . '-' . $order->invoice;
-                $path = 'Images/' . $name;
-                Storage::putFileAs('/public/' . 'Images/', $file, $name );
+                $name = str_replace(' ','-', $request->invoice .'-'.$file->getClientOriginalName());
+                $path = 'OrdenesDeCompra/' . $name;
+                Storage::putFileAs('/public/' . 'OrdenesDeCompra/', $file, $name );
                 $purchaseorder->update([
                     'number' => $request->purchaseorder,
                     'document' => $path,

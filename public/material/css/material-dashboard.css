@@ -18103,6 +18103,9 @@ Copyright (c) 2015 Daniel Eden
   .index-page .cd-section .tim-typo .tim-note {
     width: 60px;
   }
+  .col-hd{
+      display: none;
+  }
 }
 
 @media screen and (max-width: 400px) {
