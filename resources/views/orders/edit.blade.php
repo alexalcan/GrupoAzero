@@ -64,15 +64,15 @@
                                     </div>
                                 </div>
                                 {{-- fin de hacer favorito --}}
-                                {{-- Añadir Orden de compra --}}
-                                @if ( !$order->purchaseorder && ($role->name == "Administrador" || $department->name == "Compras") )
+                                {{-- Añadir Orden de Requisición --}}
+                                @if ( !$order->purchaseorder && ($role->name == "Administrador" || $department->name == "Compras" || $department->name == "Ventas") )
                                     <div class="row">
-                                        <label class="col-sm-2 col-form-label">Orden de Compra (opcional)</label>
+                                        <label class="col-sm-2 col-form-label">Orden de Requisición (opcional)</label>
                                         <div class="col-sm-4">
                                             <div class="form-check">
                                                 <label class="form-check-label">
                                                     <input name="ocCheck" id="ocCheck" value="1" onchange="javascript:addOC()" class="form-check-input" type="checkbox" >
-                                                    Ligar a orden de compra
+                                                    Ligar a Orden de Requisición
                                                     <span class="form-check-sign">
                                                         <span class="check"></span>
                                                     </span>
@@ -82,7 +82,7 @@
                                         <div class="col-sm-6" id="purchaseSpace" style="display: none;">
                                             <div class="col-sm-6">
                                                 <div class="form-group bmd-form-group is-filled">
-                                                    <input class="form-control" name="purchase_order" id="purchase_order" type="text" placeholder="Orden de compra" value="">
+                                                    <input class="form-control" name="purchase_order" id="purchase_order" type="text" placeholder="Orden de Requisición" value="">
                                                 </div>
                                             </div>
                                         </div>
@@ -137,10 +137,10 @@
                                 {{-- Añadir Órden de compra --}}
                                 @if ( $order->purchaseorder && ($role->name == "Administrador" || $department->name == "Compras" || $department->name == "Embarques") )
                                     <div class="row">
-                                        <label class="col-sm-2 col-form-label">Orden de compra</label>
+                                        <label class="col-sm-2 col-form-label">Orden de Requisición</label>
                                         <div class="col-sm-3">
                                             <div class="form-group bmd-form-group is-filled">
-                                                <input class="form-control" name="purchaseorder" id="purchaseorder" type="text" placeholder="Orden de compra" value="{{ $order->purchaseorder->number ? $order->purchaseorder->number : NULL }}" >
+                                                <input class="form-control" name="purchaseorder" id="purchaseorder" type="text" placeholder="Orden de Requisición" value="{{ $order->purchaseorder->number ? $order->purchaseorder->number : NULL }}" >
                                             </div>
                                         </div>
                                         <div class="col-sm-2">

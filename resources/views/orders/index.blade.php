@@ -12,7 +12,7 @@
                             <h4 class="card-title ">Pedidos</h4>
                             <p class="card-category"> {{ auth()->user()->name }} / {{ $role->name }} / {{ $department->name }} </p>
                         </div>
-                        @if ( $role->name == "Administrador" || $department->name == "Ventas" )
+                        @if ( $role->name == "Administrador" || $department->name == "Ventas" || $department->name == "Embarques" )
                             <div class="col-md-8 col-sm-12 col-xs-12 text-right">
                                 <a href="{{ route('orders.create') }}" class="btn btn-sm btn-primary">
                                     <span class="material-icons">
@@ -115,16 +115,16 @@
                                             </a>
                                         @endif
                                         {{-- Fin de pedido con orden de fabricación --}}
-                                        {{-- Pedido con orden de compra --}}
+                                        {{-- Pedido con Orden de Requisición --}}
                                         @if ( isset($order->purchaseorder->required) )
                                             @if ( $order->purchaseorder->iscovered )
-                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Pedido con orden de compra">
+                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Pedido con Orden de Requisición">
                                                     <span class="material-icons">
                                                         fact_check
                                                     </span>
                                                 </a>
                                             @else
-                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Pedido con orden de compra">
+                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Pedido con Orden de Requisición">
                                                     <span class="material-icons">
                                                         fact_check
                                                     </span>

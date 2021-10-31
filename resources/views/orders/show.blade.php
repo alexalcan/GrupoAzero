@@ -70,13 +70,13 @@
                         </div>
                     </div>
                 </div>
-                {{-- Si orden de compra --}}
+                {{-- Si Orden de Requisición --}}
                 @if ( $order->purchaseorder )
                     <div class="row">
-                        <label class="col-sm-2 col-form-label">Orden de compra</label>
+                        <label class="col-sm-2 col-form-label">Orden de Requisición</label>
                         <div class="col-sm-4">
                             <div class="form-group bmd-form-group is-filled">
-                                <input class="form-control" name="purchaseorder" id="purchaseorder" type="text" placeholder="Orden de compra" value="{{ $order->purchaseorder->number ? $order->purchaseorder->number : NULL }}"  disabled="true">
+                                <input class="form-control" name="purchaseorder" id="purchaseorder" type="text" placeholder="Orden de Requisición" value="{{ $order->purchaseorder->number ? $order->purchaseorder->number : NULL }}"  disabled="true">
                             </div>
                         </div>
                         <div class="col-sm-2">
@@ -92,7 +92,7 @@
                         </div>
                     </div>
                 @endif
-                {{-- Fin si orden de compra --}}
+                {{-- Fin si Orden de Requisición --}}
 
                 <div class="row">
                     <label class="col-sm-2 col-form-label">Clave de cliente</label>
@@ -136,11 +136,11 @@
                     </div>
                 @endif
 
-                {{-- Mostrar orden de compra --}}
+                {{-- Mostrar Orden de Requisición --}}
                 {{-- @if ( $order->purchaseorder && ($role->name == "Administrador" || $department->name == "Compras") ) --}}
                 @if ( $order->purchaseorder )
                     <div class="row">
-                        <label class="col-sm-2 col-form-label">Orden de compra</label>
+                        <label class="col-sm-2 col-form-label">Orden de Requisición</label>
                         <div class="col-sm-10">
                             <div class="col-sm-5">
                                 @if ( $order->purchaseorder->document )
@@ -179,7 +179,7 @@
                         </div>
                     </div>
                 @endif
-                {{-- Fin de mostrar orden de compra --}}
+                {{-- Fin de mostrar Orden de Requisición --}}
 
                 {{-- Mostrar orden de fabricación --}}
                 {{-- @if ( $order->purchaseorder && ($role->name == "Administrador" || $department->name == "Compras") ) --}}
@@ -224,13 +224,13 @@
                         </div>
                     </div>
                 @endif
-                {{-- Fin de mostrar orden de compra --}}
+                {{-- Fin de mostrar Orden de Requisición --}}
 
                 {{-- Mostrar evidencia de material terminado --}}
                 @if ( $order->shipments->count() > 0 )
                     <div class="row">
-                        <label class="col-sm-2 col-form-label">Evidencia de fabricaciones</label>
-                        <div class="col-sm-10">
+                        <label class="col-sm-2 col-form-label">Evidencia de salida del material</label>
+                        <div class="col-sm-10"></div>
                             @foreach ($order->shipments as $shipment)
                                 <div class="col-sm-4">
                                     <a data-toggle="modal" data-target="#shipments{{ $shipment->id }}">

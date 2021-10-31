@@ -139,7 +139,7 @@ class OrderController extends Controller
             ]);
             $action = $action . ',  se añadió una nota';
         }
-        // Ver si va con orden de compra
+        // Ver si va con Orden de Requisición
         if($request->ocCheck == 1){
             PurchaseOrder::create([
                 'required' => $request->ocCheck,
@@ -147,7 +147,7 @@ class OrderController extends Controller
                 'document' => NULL,
                 'order_id' => $order->id
             ]);
-            $action = $action . ', el pedido requiere una orden de compra ';
+            $action = $action . ', el pedido requiere una Orden de Requisición ';
         }
 
         $folios = 0;
@@ -297,7 +297,7 @@ class OrderController extends Controller
             'updated_at' => now()
         ]);
 
-        // Ver si va con orden de compra
+        // Ver si va con Orden de Requisición
         if($request->ocCheck == 1){
             PurchaseOrder::create([
                 'required' => $request->ocCheck,
@@ -305,7 +305,7 @@ class OrderController extends Controller
                 'document' => NULL,
                 'order_id' => $order->id
             ]);
-            $action = $action . ', el pedido requiere una orden de compra ';
+            $action = $action . ', el pedido requiere una Orden de Requisición ';
         }
 
         // Orden de fabricación
@@ -480,7 +480,7 @@ class OrderController extends Controller
             }
         }
 
-        // Orden de compra
+        // Orden de Requisición
         if( $request->iscovered == true || $request->purchaseorder || $request->document ){
             $purchaseorder = $order->purchaseorder;
 
@@ -495,14 +495,14 @@ class OrderController extends Controller
                     'document' => $path,
                     'iscovered' => 1,
                 ]);
-                $action = $action . ', se cubrió la orden de compra';
+                $action = $action . ', se cubrió la Orden de Requisición';
 
             }else{
                 $purchaseorder->update([
                     'number' => $request->purchaseorder,
                     'iscovered' => 1,
                 ]);
-                $action = $action . ', se cubrió la orden de compra';
+                $action = $action . ', se cubrió la Orden de Requisición';
             }
         }
 

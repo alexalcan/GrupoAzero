@@ -48,11 +48,11 @@ class HomeController extends Controller
                                 ->orWhere('status_id', 6)->get();
             }
             if( auth()->user()->department->name == 'Fabricación' ){
-                $status = 4;
+                // $status = 4;
                 $orders = Order::where('status_id', $status)->get();
             }
             if( auth()->user()->department->name == 'Flotilla' ){
-                $status = 5;
+                // $status = 5;
                 $orders = Order::where('status_id', $status)->get();
             }
             if( auth()->user()->department->name == 'Compras' ){
