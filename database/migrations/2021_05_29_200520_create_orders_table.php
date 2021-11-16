@@ -21,6 +21,7 @@ class CreateOrdersTable extends Migration
             $table->string('invoice_number')->nullable();
             $table->string('client')->nullable();
             $table->string('credit');
+            $table->string('delete')->nullable();
 
             $table->unsignedBigInteger('status_id')->default(3);
             $table->foreign('status_id')->references('id')->on('statuses')->onUpdate('cascade');

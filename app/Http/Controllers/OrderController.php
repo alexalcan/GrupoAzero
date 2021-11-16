@@ -31,56 +31,10 @@ class OrderController extends Controller
      */
     public function index()
     {
-        if( auth()->user()->department->name == 'Administrador' ){
-            $orders = Order::all();
-            $role = auth()->user()->role;
-            $department = auth()->user()->department;
-        }
-
-        if( auth()->user()->department->name == 'Ventas' ){
-            $orders = Order::all();
-            // $orders = Order::where('status_id', 1)
-            //                 ->orWhere('status_id', 6)
-            //                 ->get();
-            $role = auth()->user()->role;
-            $department = auth()->user()->department;
-        }
-        if( auth()->user()->department->name == 'Embarques' ){
-            $orders = Order::all();
-            // $orders = Order::where('status_id', 1)
-            //                 ->orWhere('status_id', 2)
-            //                 ->orWhere('status_id', 3)
-            //                 ->orWhere('status_id', 4)
-            //                 ->orWhere('status_id', 5)
-            //                 ->orWhere('status_id', 6)
-            //                 ->get();
-            $role = auth()->user()->role;
-            $department = auth()->user()->department;
-        }
-        if( auth()->user()->department->name == 'Fabricación' ){
-            $orders = Order::all();
-            // $orders = Order::where('status_id', 2)
-            //                 ->orWhere('status_id', 3)
-            //                 ->orWhere('status_id', 6)
-            //                 ->get();
-            $role = auth()->user()->role;
-            $department = auth()->user()->department;
-        }
-        if( auth()->user()->department->name == 'Flotilla' ){
-            $orders = Order::where('status_id', 5)
-                            // ->orWhere('status_id', 6)
-                            ->get();
-            $role = auth()->user()->role;
-            $department = auth()->user()->department;
-        }
-        if( auth()->user()->department->name == 'Compras' ){
-            $orders = Order::all();
-            // $orders = Order::where('status_id', 3)
-            //                 ->orWhere('status_id', 4)
-            //                 ->orWhere('status_id', 6)->get();
-            $role = auth()->user()->role;
-            $department = auth()->user()->department;
-        }
+        // $orders = Order::all();
+        $orders = Order::where('delete', NULL)->get();
+        $role = auth()->user()->role;
+        $department = auth()->user()->department;
 
 
         return view('orders.index', compact('orders', 'role', 'department'));
@@ -723,6 +677,27 @@ class OrderController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $order = Order::find($id);
+        // dd($id, $order->status->name);
+        $user = User::find(auth()->user()->id);
+
+        $action = $user->name . ' archivó la orden';
+
+        $order->update([
+            'delete' => 1,
+            'updated_at' => now()
+        ]);
+
+        // Creación de un log
+        Log::create([
+            'status' => $order->status->name,
+            'action' => $action,
+            'order_id' => $order->id,
+            'user_id' => $user->id,
+            'department_id' => $user->department->id,
+            'created_at' => now()
+        ]);
+
+        return redirect()->route('orders.index');
     }
 }

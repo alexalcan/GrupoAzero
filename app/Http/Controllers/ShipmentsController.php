@@ -48,11 +48,17 @@ class ShipmentsController extends Controller
             'created_at' => now()
         ]);
 
-        $orders = Order::all();
+        // $orders = Order::all();
+        // $role = auth()->user()->role;
+        // $department = auth()->user()->department;
+
+        // return view('orders.index', compact('orders', 'role', 'department'));
+
         $role = auth()->user()->role;
         $department = auth()->user()->department;
+        // dd($order->purchaseorder);
 
-        return view('orders.index', compact('orders', 'role', 'department'));
+        return view('orders.show', compact('order', 'role', 'department'));
     }
 
     public function shipmentEvidence(Request $request)

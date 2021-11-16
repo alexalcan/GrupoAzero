@@ -18,10 +18,10 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-Route::get('users', function () {
-    return datatables()
-		->eloquent(App\User::query())
-		->addColumn('btn', 'actions')
-		->rawColumns(['btn'])
-		->toJson();
-});
+// Route::get('orders', function () {
+//     return datatables()
+// 		->eloquent(App\Order::query())
+// 		->addColumn('btn', 'actions')
+// 		// ->rawColumns(['btn'])
+// 		->toJson();
+// });
