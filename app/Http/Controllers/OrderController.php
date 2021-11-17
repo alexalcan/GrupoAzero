@@ -32,7 +32,7 @@ class OrderController extends Controller
     public function index()
     {
         // $orders = Order::all();
-        $orders = Order::where('delete', NULL)->get();
+        $orders = Order::where('delete', NULL)->with('status')->get();
         $role = auth()->user()->role;
         $department = auth()->user()->department;
 
