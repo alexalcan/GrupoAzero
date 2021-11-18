@@ -31,8 +31,8 @@ class OrderController extends Controller
      */
     public function index()
     {
-        // $orders = Order::all();
-        $orders = Order::where('delete', NULL)->with('status')->get();
+        $orders = Order::paginate(15);
+        // $orders = Order::where('delete', NULL)->with('status')->get();
         $role = auth()->user()->role;
         $department = auth()->user()->department;
 

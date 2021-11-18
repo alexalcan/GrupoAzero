@@ -300,6 +300,7 @@
                         </tbody>
                     </table>
                     </div>
+                    {{ $orders->links() }}
                 </div>
                 </div>
             </div>
@@ -309,7 +310,7 @@
 
 @push('js')
 
-<script>
+<!-- <script>
     $(document).ready(function() {
         $('#orders').DataTable({
             // "serverSide": true,
@@ -345,7 +346,7 @@
             },
         });
     });
-</script>
+</script> -->
 
 <script>
     $(function () {

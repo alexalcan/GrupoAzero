@@ -22,6 +22,6 @@ use Illuminate\Support\Facades\Route;
 //     return datatables()
 // 		->eloquent(App\Order::query())
 // 		->addColumn('btn', 'actions')
-// 		// ->rawColumns(['btn'])
+// 		->rawColumns(['btn'])
 // 		->toJson();
 // });
