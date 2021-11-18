@@ -159,11 +159,7 @@ class OrderController extends Controller
         ]);
 
 
-        $orders = Order::all();
-        $role = auth()->user()->role;
-        $department = auth()->user()->department;
-
-        return view('orders.index', compact('orders', 'role', 'department'));
+        return redirect()->route('orders.index');
     }
 
     /**
