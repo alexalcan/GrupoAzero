@@ -33,7 +33,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('orders', 'OrderController');
     Route::resource('roles', 'RoleController');
     Route::resource('departments', 'DepartmentController');
-    Route::resource('orders', 'OrderController');
+    // Route::resource('orders', 'OrderController');
     Route::resource('picture', 'PictureController');
     Route::resource('follows', 'FollowsController');
     Route::resource('cancelations', 'CancelationsController');

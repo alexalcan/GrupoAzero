@@ -21,6 +21,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -29,15 +30,30 @@ class OrderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $orders = Order::paginate(15);
-        // $orders = Order::where('delete', NULL)->with('status')->get();
-        $role = auth()->user()->role;
-        $department = auth()->user()->department;
+        $texto = trim($request->busqueda);
 
-
-        return view('orders.index', compact('orders', 'role', 'department'));
+        if ($texto == NULL){
+            $orders = Order::paginate(15);
+            // $orders = Order::where('delete', NULL)->with('status')->get();
+            $role = auth()->user()->role;
+            $department = auth()->user()->department;
+            return view('orders.index', compact('orders', 'role', 'department'));
+        }else{
+            // $orders = DB::table('orders')
+            $orders = Order::where('invoice', 'LIKE', '%'.$texto.'%')
+                            ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
+                            ->orWhere('client', 'LIKE', '%'.$texto.'%')
+                            ->orWhere('office', 'LIKE', '%'.$texto.'%')
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(15);
+                        
+            $role = auth()->user()->role;
+            $department = auth()->user()->department;
+            return view('orders.index', compact('orders', 'role', 'department'));
+        }
+        
     }
 
     /**

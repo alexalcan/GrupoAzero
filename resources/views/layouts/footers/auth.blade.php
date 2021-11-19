@@ -29,7 +29,7 @@
       <script>
         document.write(new Date().getFullYear())
       </script>, made with <i class="material-icons">favorite</i> by
-      <a href="https://tooring.com.mx" target="_blank">Tooring</a>
+      <a href="#" target="_blank">Ricardo Monroy</a>
     </div>
   </div>
 </footer>

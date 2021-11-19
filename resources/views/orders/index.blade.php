@@ -25,6 +25,21 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <form class="navbar-form" method="GET" action="{{ route('orders.index') }}">
+                        @csrf
+                        @method('get')
+                        <div class="row">
+                            <div class="col-5">
+                                <div class="input-group no-border">
+                                    <input type="text" name="busqueda" value="" class="form-control" placeholder="Buscar por folio..." style="">
+                                        <button type="submit" class="btn btn-white btn-round btn-just-icon">
+                                            <i class="material-icons">search</i>
+                                        </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
                     <div class="table-responsive ">
                     <table class="table data-table" id="orders">
                         <thead>
