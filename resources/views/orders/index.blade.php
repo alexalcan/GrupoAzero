@@ -31,7 +31,7 @@
                         <div class="row">
                             <div class="col-5">
                                 <div class="input-group no-border">
-                                    <input type="text" name="busqueda" value="" class="form-control" placeholder="Buscar por folio..." style="">
+                                    <input type="text" name="busqueda" value="" class="form-control" placeholder="Buscar por folio, factura, cliente, sucursal..." style="">
                                         <button type="submit" class="btn btn-white btn-round btn-just-icon">
                                             <i class="material-icons">search</i>
                                         </button>
