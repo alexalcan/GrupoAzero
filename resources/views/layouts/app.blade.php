@@ -18,6 +18,10 @@
     <link href="{{ asset('material') }}/demo/demo.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
 
+    <!-- Datepicker Files -->
+    <link rel="stylesheet" href="{{asset('css/bootstrap-datepicker3.css')}}">
+    
+
     </head>
     <body class="{{ $class ?? '' }}">
         @auth()

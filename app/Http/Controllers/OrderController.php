@@ -33,25 +33,46 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $texto = trim($request->busqueda);
+        $fecha = $request->fecha;
+        // dd($texto, $fecha);
 
-        if ($texto == NULL){
+        if ($texto == NULL && $fecha == NULL){
             $orders = Order::paginate(15);
             // $orders = Order::where('delete', NULL)->with('status')->get();
             $role = auth()->user()->role;
             $department = auth()->user()->department;
-            return view('orders.index', compact('orders', 'role', 'department'));
+            return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha'));
         }else{
-            // $orders = DB::table('orders')
-            $orders = Order::where('invoice', 'LIKE', '%'.$texto.'%')
+            // Busqueda combinada
+            if ($fecha && $texto){
+                $orders = Order::where('invoice', 'LIKE', '%'.$texto.'%')
+                            ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
+                            ->orWhere('client', 'LIKE', '%'.$texto.'%')
+                            ->orWhere('office', 'LIKE', '%'.$texto.'%')
+                            ->whereDate('created_at', $fecha)
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(15);
+            }
+            // Busqueda por fecha
+            if ($fecha && $texto == NULL){
+                $orders = Order::whereDate('created_at', $fecha)
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(15);
+                // dd($orders);
+            }
+            // Busqueda de ordenes
+            if ($fecha == NULL && $texto) {
+                $orders = Order::where('invoice', 'LIKE', '%'.$texto.'%')
                             ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
                             ->orWhere('client', 'LIKE', '%'.$texto.'%')
                             ->orWhere('office', 'LIKE', '%'.$texto.'%')
                             ->orderBy('created_at', 'desc')
                             ->paginate(15);
+            }
                         
             $role = auth()->user()->role;
             $department = auth()->user()->department;
-            return view('orders.index', compact('orders', 'role', 'department'));
+            return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha'));
         }
         
     }

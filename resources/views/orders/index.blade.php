@@ -30,14 +30,37 @@
                         @method('get')
                         <div class="row">
                             <div class="col-5">
+                                <div class="form-group no-border">
+                                    <!-- <label class="label-control">Buscar por fecha</label> -->
+                                    <input type="text" name="fecha" class="form-control datetimepicker" placeholder="Buscar por fecha, dejar en blanco para buscar todas"/>
+                                </div>
+                            </div>
+                            <div class="col-5">
                                 <div class="input-group no-border">
+                                    
                                     <input type="text" name="busqueda" value="" class="form-control" placeholder="Buscar por folio, factura, cliente, sucursal..." style="">
                                         <button type="submit" class="btn btn-white btn-round btn-just-icon">
                                             <i class="material-icons">search</i>
                                         </button>
                                 </div>
                             </div>
+
+                            
                         </div>
+                        @if ($fecha || $texto)
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5>Resultado de busqueda: 
+                                        @if( $fecha )
+                                            fecha: {{ $fecha }}
+                                        @endif
+                                        @if( $texto )
+                                            Criterio: {{ $texto }}
+                                        @endif
+                                    </h5>
+                                </div>                            
+                            </div>                            
+                        @endif
                     </form>
 
                     <div class="table-responsive ">
@@ -406,4 +429,10 @@
         });
     });
   </script> --}}
+
+    <script type="text/javascript">
+        $('.datetimepicker').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
+    </script>
 @endpush
