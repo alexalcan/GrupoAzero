@@ -380,6 +380,7 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                {{ $logs->links() }}
                             </div>
                         </div>
                     </div>
@@ -397,7 +398,7 @@
     });
   </script>
 
-<script>
+<!-- <script>
     $(document).ready(function() {
         $('#bitacora').DataTable({
             // "serverSide": true,
@@ -433,5 +434,5 @@
             },
         });
     });
-</script>
+</script> -->
 @endpush

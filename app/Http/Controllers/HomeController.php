@@ -33,7 +33,7 @@ class HomeController extends Controller
         if( auth()->user()->role->name == 'Administrador' ){
             $orders = Order::all()->count();
             $users = User::all()->count();
-            $logs = Log::orderBy('created_at','DESC')->get();
+            $logs = Log::orderBy('created_at','DESC')->paginate(15);
         }
         if( auth()->user()->role->name == 'Empleado' ){
             $orders = Order::all();
@@ -62,12 +62,12 @@ class HomeController extends Controller
             }
 
             $users = User::all()->count();
-            $logs = Log::orderBy('created_at','DESC')->get();
+            $logs = Log::orderBy('created_at','DESC')->paginate(15);
         }
         if( auth()->user()->role->name == 'Cliente' ){
             $orders = Order::all()->count();
             $users = User::all()->count();
-            $logs = Log::orderBy('created_at','DESC')->get();
+            $logs = Log::orderBy('created_at','DESC')->paginate(15);
         }
         $plural = 0;
 
@@ -81,7 +81,7 @@ class HomeController extends Controller
         // dd($request->all());
         $orders = Order::all()->count();
         $users = User::all()->count();
-        $logs = Log::orderBy('created_at','DESC')->get();
+        $logs = Log::orderBy('created_at','DESC')->paginate(15);
         // dd($order);
         $plural = 0;
 
