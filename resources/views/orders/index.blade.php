@@ -52,10 +52,10 @@
                                 <div class="col-12">
                                     <h5>Resultado de busqueda: 
                                         @if( $fecha )
-                                            fecha: {{ $fecha }}
+                                            fecha: {{ $fecha ?? '' }}
                                         @endif
                                         @if( $texto )
-                                            Criterio: {{ $texto }}
+                                            Criterio: {{ $texto ?? '' }}
                                         @endif
                                     </h5>
                                 </div>                            
