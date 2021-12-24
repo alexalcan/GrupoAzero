@@ -29,13 +29,31 @@
                         @csrf
                         @method('get')
                         <div class="row">
-                            <div class="col-5">
+                            
+                            <div class="col-2">
                                 <div class="form-group no-border">
                                     <!-- <label class="label-control">Buscar por fecha</label> -->
-                                    <input type="text" name="fecha" class="form-control datetimepicker" placeholder="Buscar por fecha, dejar en blanco para buscar todas"/>
+                                    <input type="text" name="fecha" class="form-control datetimepicker" placeholder="Buscar por fecha"/>
                                 </div>
                             </div>
-                            <div class="col-5">
+                            <div class="col-2">
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input name="ranDate" id="ranDate" value="1" onchange="javascript:addInvoice()" class="form-check-input" type="checkbox" >
+                                        Rango de fecha
+                                        <span class="form-check-sign">
+                                            <span class="check"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-2" id="fechaDos" style="display: none;">
+                                <div class="form-group no-border">
+                                    <!-- <label class="label-control">Buscar por fecha</label> -->
+                                    <input type="text" name="fechaDos" class="form-control datetimepicker" placeholder="Fecha final..."/>
+                                </div>
+                            </div>
+                            <div class="col-4">
                                 <div class="input-group no-border">
                                     
                                     <input type="text" name="busqueda" value="" class="form-control" placeholder="Buscar por folio, factura, cliente, sucursal..." style="">
@@ -53,6 +71,9 @@
                                     <h5>Resultado de busqueda: 
                                         @if( $fecha )
                                             fecha: {{ $fecha ?? '' }}
+                                        @endif
+                                        @if( $fechaDos )
+                                            al: {{ $fechaDos ?? '' }}
                                         @endif
                                         @if( $texto )
                                             Criterio: {{ $texto ?? '' }}
@@ -392,7 +413,18 @@
     })
 </script>
 
-
+<script type="text/javascript">
+    function addInvoice() {
+        element = document.getElementById("fechaDos");
+        ranDate = document.getElementById("ranDate");
+        if (ranDate.checked) {
+            element.style.display='block';
+        }
+        else {
+            element.style.display='none';
+        }
+    }
+</script>
 
 {{-- <script type="text/javascript">
     $(function () {

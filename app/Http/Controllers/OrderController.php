@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class OrderController extends Controller
 {
@@ -32,11 +33,13 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
+        // dd($request->all());
         $texto = trim($request->busqueda);
         $fecha = $request->fecha;
+        $fechaDos = $request->fechaDos;
         // dd($texto, $fecha);
 
-        if ($texto == NULL && $fecha == NULL){
+        if ($texto == NULL && $fecha == NULL && $fechaDos == NULL){
             $orders = Order::paginate(15);
             // $orders = Order::where('delete', NULL)->with('status')->get();
             $role = auth()->user()->role;
@@ -44,35 +47,50 @@ class OrderController extends Controller
             return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha'));
         }else{
             // Busqueda combinada
-            if ($fecha && $texto){
+            if ($fecha && $texto && $fechaDos == NULL){
                 $orders = Order::where('invoice', 'LIKE', '%'.$texto.'%')
                             ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
                             ->orWhere('client', 'LIKE', '%'.$texto.'%')
                             ->orWhere('office', 'LIKE', '%'.$texto.'%')
-                            ->whereDate('created_at', $fecha)
+                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
                             ->orderBy('created_at', 'desc')
-                            ->paginate(15);
+                            ->paginate(1500);
+            }
+            if ($fecha && $texto && $fechaDos){
+                $orders = Order::where('invoice', 'LIKE', '%'.$texto.'%')
+                            ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
+                            ->orWhere('client', 'LIKE', '%'.$texto.'%')
+                            ->orWhere('office', 'LIKE', '%'.$texto.'%')
+                            ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
+                            ->orderBy('created_at', 'asc')
+                            ->paginate(1500);
             }
             // Busqueda por fecha
-            if ($fecha && $texto == NULL){
-                $orders = Order::whereDate('created_at', $fecha)
+            if ($fecha && $texto == NULL && $fechaDos == NULL){
+                $orders = Order::whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
                             ->orderBy('created_at', 'desc')
-                            ->paginate(15);
+                            ->paginate(1500);
+                // dd($orders);
+            }
+            if ($fecha && $fechaDos && $texto == NULL){
+                $orders = Order::whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
+                            ->orderBy('created_at', 'asc')
+                            ->paginate(1500);
                 // dd($orders);
             }
             // Busqueda de ordenes
-            if ($fecha == NULL && $texto) {
+            if ($fecha == NULL && $fechaDos == NULL && $texto) {
                 $orders = Order::where('invoice', 'LIKE', '%'.$texto.'%')
                             ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
                             ->orWhere('client', 'LIKE', '%'.$texto.'%')
                             ->orWhere('office', 'LIKE', '%'.$texto.'%')
                             ->orderBy('created_at', 'desc')
-                            ->paginate(15);
+                            ->paginate(1500);
             }
                         
             $role = auth()->user()->role;
             $department = auth()->user()->department;
-            return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha'));
+            return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'fechaDos'));
         }
         
     }
