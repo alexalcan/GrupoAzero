@@ -317,7 +317,7 @@
                                                             <p>{{$order->manufacturingorder->document}}</p>
                                                         @else
                                                             <label for="picture">Subir orden de fabricación</label>
-                                                            <input type="file" name="manufacturingFile" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera">
+                                                            <input type="file" name="manufacturingFile" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera" required="true" aria-required="true">
                                                         @endif
                                                     </div>
                                                 </div>
