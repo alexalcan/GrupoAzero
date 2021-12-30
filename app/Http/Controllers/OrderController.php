@@ -33,31 +33,33 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        // dd($request->all());
         $texto = trim($request->busqueda);
         $fecha = $request->fecha;
         $fechaDos = $request->fechaDos;
         // dd($texto, $fecha);
 
         if ($texto == NULL && $fecha == NULL && $fechaDos == NULL){
-            $orders = Order::paginate(15);
-            // $orders = Order::where('delete', NULL)->with('status')->get();
+            // $orders = Order::paginate(15);
+            $orders = Order::where('delete', NULL)->paginate(15);
             $role = auth()->user()->role;
             $department = auth()->user()->department;
             return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha'));
         }else{
             // Busqueda combinada
             if ($fecha && $texto && $fechaDos == NULL){
-                $orders = Order::where('invoice', 'LIKE', '%'.$texto.'%')
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice', 'LIKE', '%'.$texto.'%')
                             ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
                             ->orWhere('client', 'LIKE', '%'.$texto.'%')
                             ->orWhere('office', 'LIKE', '%'.$texto.'%')
                             ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
                             ->orderBy('created_at', 'desc')
+                            ->where('delete', NULL)
                             ->paginate(1500);
             }
             if ($fecha && $texto && $fechaDos){
-                $orders = Order::where('invoice', 'LIKE', '%'.$texto.'%')
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice', 'LIKE', '%'.$texto.'%')
                             ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
                             ->orWhere('client', 'LIKE', '%'.$texto.'%')
                             ->orWhere('office', 'LIKE', '%'.$texto.'%')
@@ -73,26 +75,28 @@ class OrderController extends Controller
                 // dd($orders);
             }
             if ($fecha && $fechaDos && $texto == NULL){
-                $orders = Order::whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
+                $orders = Order::where('delete', NULL)
+                            ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
                             ->orderBy('created_at', 'asc')
                             ->paginate(1500);
                 // dd($orders);
             }
             // Busqueda de ordenes
             if ($fecha == NULL && $fechaDos == NULL && $texto) {
-                $orders = Order::where('invoice', 'LIKE', '%'.$texto.'%')
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice', 'LIKE', '%'.$texto.'%')
                             ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
                             ->orWhere('client', 'LIKE', '%'.$texto.'%')
                             ->orWhere('office', 'LIKE', '%'.$texto.'%')
                             ->orderBy('created_at', 'desc')
                             ->paginate(1500);
             }
-                        
+
             $role = auth()->user()->role;
             $department = auth()->user()->department;
             return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'fechaDos'));
         }
-        
+
     }
 
     /**
@@ -106,8 +110,9 @@ class OrderController extends Controller
         $statuses = Status::all();
         $role = auth()->user()->role;
         $department = auth()->user()->department;
+        $mensaje = NULL;
 
-        return view('orders.create', compact('orders', 'statuses', 'role', 'department'));
+        return view('orders.create', compact('orders', 'statuses', 'role', 'department', 'mensaje'));
     }
 
     /**
@@ -119,102 +124,115 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         // dd($request->all());
-        $status = Status::find($request->status_id);
-        $user = User::find(auth()->user()->id);
-        $action = $user->name .' creó una orden';
+        $registro = Order::where('invoice', 'like', $request->invoice)->count();
+        // dd($registro);
+        if($registro >0 ){
+            // dd($registro, $request->invoice);
+            $mensaje = 'Introduce datos nuevos';
 
-        if($request->credit){
-            $credit = 1;
-            $action = $action . ' a credito';
+            $orders = Order::all();
+            $statuses = Status::all();
+            $role = auth()->user()->role;
+            $department = auth()->user()->department;
+
+            return view('orders.create', compact('orders', 'statuses', 'role', 'department', 'mensaje'));
         }else{
-            $credit = 0;
-        }
+            $status = Status::find($request->status_id);
+            $user = User::find(auth()->user()->id);
+            $action = $user->name .' creó una orden';
 
-        $order = Order::create([
-            'office' => $request->office,
-            'invoice' => $request->invoice,
-            'invoice_number' => $request->invoice_number,
-            'client' => $request->client,
-            'credit' => $credit,
-            'status_id' => $request->status_id,
-            'created_at' => now(),
-        ]);
-        if($request->note){
-            Note::create([
-                'note' => $request->note,
+            if($request->credit){
+                $credit = 1;
+                $action = $action . ' a credito';
+            }else{
+                $credit = 0;
+            }
+
+            $order = Order::create([
+                'office' => $request->office,
+                'invoice' => $request->invoice,
+                'invoice_number' => $request->invoice_number,
+                'client' => $request->client,
+                'credit' => $credit,
+                'status_id' => $request->status_id,
+                'created_at' => now(),
+            ]);
+            if($request->note){
+                Note::create([
+                    'note' => $request->note,
+                    'order_id' => $order->id,
+                    'user_id' => $user->id,
+                    'created_at' => now()
+                ]);
+                $action = $action . ',  se añadió una nota';
+            }
+            // Ver si va con Orden de Requisición
+            if($request->ocCheck == 1){
+                PurchaseOrder::create([
+                    'required' => $request->ocCheck,
+                    'number' => $request->purchase_order,
+                    'document' => NULL,
+                    'order_id' => $order->id
+                ]);
+                $action = $action . ', el pedido requiere una Orden de Requisición ';
+            }
+
+            $folios = 0;
+            if($request->folio1){
+                Partial::create([
+                    'invoice' => $request->folio1,
+                    'order_id' => $order->id,
+                    'status_id' => $request->fol_status1
+                ]);
+                $folios++;
+            }
+            if($request->folio2){
+                Partial::create([
+                    'invoice' => $request->folio2,
+                    'order_id' => $order->id,
+                    'status_id' => $request->fol_status2
+                ]);
+                $folios++;
+            }
+            if($request->folio3){
+                Partial::create([
+                    'invoice' => $request->folio3,
+                    'order_id' => $order->id,
+                    'status_id' => $request->fol_status3
+                ]);
+                $folios++;
+            }
+            if($request->folio4){
+                Partial::create([
+                    'invoice' => $request->folio4,
+                    'order_id' => $order->id,
+                    'status_id' => $request->fol_status4
+                ]);
+                $folios++;
+            }
+            if($request->folio5){
+                Partial::create([
+                    'invoice' => $request->folio5,
+                    'order_id' => $order->id,
+                    'status_id' => $request->fol_status5
+                ]);
+                $folios++;
+            }
+            if($request->folio1){
+                $action = $action . ', se añadió ' . $folios . ' entregas parciales';
+            }
+
+            Log::create([
+                'status' => $status->name,
+                'action' => $action,
                 'order_id' => $order->id,
                 'user_id' => $user->id,
+                'department_id' => $user->department->id,
                 'created_at' => now()
             ]);
-            $action = $action . ',  se añadió una nota';
-        }
-        // Ver si va con Orden de Requisición
-        if($request->ocCheck == 1){
-            PurchaseOrder::create([
-                'required' => $request->ocCheck,
-                'number' => $request->purchase_order,
-                'document' => NULL,
-                'order_id' => $order->id
-            ]);
-            $action = $action . ', el pedido requiere una Orden de Requisición ';
-        }
 
-        $folios = 0;
-        if($request->folio1){
-            Partial::create([
-                'invoice' => $request->folio1,
-                'order_id' => $order->id,
-                'status_id' => $request->fol_status1
-            ]);
-            $folios++;
+            return redirect()->route('orders.index');
         }
-        if($request->folio2){
-            Partial::create([
-                'invoice' => $request->folio2,
-                'order_id' => $order->id,
-                'status_id' => $request->fol_status2
-            ]);
-            $folios++;
-        }
-        if($request->folio3){
-            Partial::create([
-                'invoice' => $request->folio3,
-                'order_id' => $order->id,
-                'status_id' => $request->fol_status3
-            ]);
-            $folios++;
-        }
-        if($request->folio4){
-            Partial::create([
-                'invoice' => $request->folio4,
-                'order_id' => $order->id,
-                'status_id' => $request->fol_status4
-            ]);
-            $folios++;
-        }
-        if($request->folio5){
-            Partial::create([
-                'invoice' => $request->folio5,
-                'order_id' => $order->id,
-                'status_id' => $request->fol_status5
-            ]);
-            $folios++;
-        }
-        if($request->folio1){
-            $action = $action . ', se añadió ' . $folios . ' entregas parciales';
-        }
-
-        Log::create([
-            'status' => $status->name,
-            'action' => $action,
-            'order_id' => $order->id,
-            'user_id' => $user->id,
-            'department_id' => $user->department->id,
-            'created_at' => now()
-        ]);
-
-
-        return redirect()->route('orders.index');
     }
 
     /**
@@ -226,11 +244,12 @@ class OrderController extends Controller
     public function show($id)
     {
         $order = Order::find($id);
+        $logs = Log::where('order_id', $id)->get();
         $role = auth()->user()->role;
         $department = auth()->user()->department;
-        // dd($order->purchaseorder);
+        // dd($logs);
 
-        return view('orders.show', compact('order', 'role', 'department'));
+        return view('orders.show', compact('order', 'role', 'department', 'logs'));
     }
 
     /**

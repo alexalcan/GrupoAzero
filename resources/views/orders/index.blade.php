@@ -29,7 +29,7 @@
                         @csrf
                         @method('get')
                         <div class="row">
-                            
+
                             <div class="col-2">
                                 <div class="form-group no-border">
                                     <!-- <label class="label-control">Buscar por fecha</label> -->
@@ -55,7 +55,7 @@
                             </div>
                             <div class="col-4">
                                 <div class="input-group no-border">
-                                    
+
                                     <input type="text" name="busqueda" value="" class="form-control" placeholder="Buscar por folio, factura, cliente, sucursal..." style="">
                                         <button type="submit" class="btn btn-white btn-round btn-just-icon">
                                             <i class="material-icons">search</i>
@@ -63,12 +63,12 @@
                                 </div>
                             </div>
 
-                            
+
                         </div>
                         @if ($fecha || $texto)
                             <div class="row">
                                 <div class="col-12">
-                                    <h5>Resultado de busqueda: 
+                                    <h5>Resultado de busqueda:
                                         @if( $fecha )
                                             fecha: {{ $fecha ?? '' }}
                                         @endif
@@ -79,8 +79,8 @@
                                             Criterio: {{ $texto ?? '' }}
                                         @endif
                                     </h5>
-                                </div>                            
-                            </div>                            
+                                </div>
+                            </div>
                         @endif
                     </form>
 

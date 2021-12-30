@@ -25,6 +25,14 @@
                                 </div>
                             </div>
                             <div class="card-body ">
+                                    @if ($mensaje != NULL)
+                                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                            <strong>Alerta!</strong> La orden que intentas crear ya existe. {{ $mensaje ?? '' }}
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    @endif
                                 <div class="row">
                                     <label class="col-sm-2 col-form-label">Crédito</label>
                                     <div class="col-sm-4">

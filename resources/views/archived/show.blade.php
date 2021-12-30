@@ -1,4 +1,4 @@
-@extends('layouts.app', ['activePage' => 'orders', 'titlePage' => __('Pedidos')])
+@extends('layouts.app', ['activePage' => 'archived', 'titlePage' => __('Pedidos archivados')])
 
 @section('content')
   <div class="content">
@@ -19,23 +19,15 @@
 
                             Regresar
                         </a>
-                        @if ( !isset($order->cancelation) && ($role->name == "Administrador" || $department->name == "Embarques" || $department->name == "Fabricación" || $department->name == "Flotilla" || $department->name == "Compras"  || $department->name == "Ventas") )
-                            <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-sm btn-primary">
-                                <span class="material-icons">
-                                    upgrade
-                                </span>
-                                Actualizar pedido
-                            </a>
-                        @endif
                         @if ( $role->name == "Administrador" )
-                            <form action="{{ route('orders.destroy', $order->id)}}" method="post">
+                            <form action="{{ route('archived.destroy', $order->id)}}" method="post">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-sm btn-danger" type="submit">
                                     <span class="material-icons">
-                                        archive
+                                        unarchive
                                     </span>
-                                    Archivar
+                                    Desarchivar
                                 </button>
                             </form>
                         @endif

@@ -53,7 +53,8 @@
                     $activePage == 'profile' ||
                     $activePage == 'user-management' ||
                     $activePage == 'roles' ||
-                    $activePage == 'departments'
+                    $activePage == 'departments' ||
+                    $activePage == 'archived'
                 ) ? ' show' : '' }}" id="admin">
                 <ul class="nav">
                 <li class="nav-item{{ $activePage == 'profile' ? ' active' : '' }}">
@@ -63,6 +64,12 @@
                     </a>
                 </li>
                 @if ( auth()->user()->role->name == "Administrador")
+                    <li class="nav-item{{ $activePage == 'archived' ? ' active' : '' }}">
+                        <a class="nav-link" href="{{ route('archived.index') }}">
+                        <span class="sidebar-mini"> AR </span>
+                        <span class="sidebar-normal"> {{ __('Archivados') }} </span>
+                        </a>
+                    </li>
                     <li class="nav-item{{ $activePage == 'user-management' ? ' active' : '' }}">
                         <a class="nav-link" href="{{ route('users.index') }}">
                         <span class="sidebar-mini"> US </span>
