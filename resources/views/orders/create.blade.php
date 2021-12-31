@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <form method="post" action="{{ route('orders.store') }}">
+                    <form method="post" action="{{ route('orders.store') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="card">
                             <div class="card-header card-header-primary">
@@ -74,7 +74,7 @@
                                 @if ( $role->name == "Administrador" )
                                     <div class="row">
                                         <label class="col-sm-2 col-form-label">Orden de Requisición (opcional)</label>
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-2">
                                             <div class="form-check">
                                                 <label class="form-check-label">
                                                     <input name="ocCheck" id="ocCheck" value="1" onchange="javascript:addOC()" class="form-check-input" type="checkbox" >
@@ -85,10 +85,28 @@
                                                 </label>
                                             </div>
                                         </div>
-                                        <div class="col-sm-6" id="purchaseSpace" style="display: none;">
-                                            <div class="col-sm-6">
-                                                <div class="form-group bmd-form-group is-filled">
-                                                    <input class="form-control" name="purchase_order" id="purchase_order" type="text" placeholder="Orden de Requisición" value="">
+                                        <div class="col-sm-8" id="purchaseSpace" style="display: none;">
+                                            <div class="row">
+                                                <div class="col-sm-4">
+                                                    <div class="form-group bmd-form-group is-filled">
+                                                        <input class="form-control" name="purchase_order" id="purchase_order" type="text" placeholder="Orden de Requisición" value="">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <div class="form-check">
+                                                        <label for="documentReq" class="custom-file-upload">
+                                                            Factura
+                                                        </label>
+                                                        <input type="file" name="documentReq" class="form-control-file" id="documentReq" accept="image/*,.pdf" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <div class="form-check">
+                                                        <label for="requisition" class="custom-file-upload">
+                                                            Requisición
+                                                        </label>
+                                                        <input type="file" name="requisition" class="form-control-file" id="requisition" accept="image/*,.pdf" >
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

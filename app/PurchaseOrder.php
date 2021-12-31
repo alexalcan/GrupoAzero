@@ -10,6 +10,7 @@ class PurchaseOrder extends Model
         'required',
         'number',
         'document',
+        'requisition',
         'iscovered',
         'order_id'
     ];

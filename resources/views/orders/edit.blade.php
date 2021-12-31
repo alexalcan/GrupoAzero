@@ -138,7 +138,7 @@
                                 @if ( $order->purchaseorder && ($role->name == "Administrador" || $department->name == "Compras" || $department->name == "Embarques") )
                                     <div class="row">
                                         <label class="col-sm-2 col-form-label">Orden de Requisición</label>
-                                        <div class="col-sm-3">
+                                        <div class="col-sm-2">
                                             <div class="form-group bmd-form-group is-filled">
                                                 <input class="form-control" name="purchaseorder" id="purchaseorder" type="text" placeholder="Orden de Requisición" value="{{ $order->purchaseorder->number ? $order->purchaseorder->number : NULL }}" >
                                             </div>
@@ -160,6 +160,14 @@
                                                     Factura
                                                 </label>
                                                 <input type="file" name="document" class="form-control-file" id="document" accept="image/*,.pdf" >
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-check">
+                                                <label for="requisition" class="custom-file-upload">
+                                                    Requisición
+                                                </label>
+                                                <input type="file" name="requisition" class="form-control-file" id="requisition" accept="image/*,.pdf" >
                                             </div>
                                         </div>
                                     </div>

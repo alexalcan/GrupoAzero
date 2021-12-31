@@ -197,17 +197,31 @@
                     <div class="row">
                         <label class="col-sm-2 col-form-label">Orden de Requisición</label>
                         <div class="col-sm-10">
-                            <div class="col-sm-5">
-                                @if ( $order->purchaseorder->document )
-                                    <a data-toggle="modal" data-target="#purchaseorder{{ $order->purchaseorder->id }}">
-                                        @if ( pathinfo($order->purchaseorder->document, PATHINFO_EXTENSION) == "png" )
-                                            <img src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
-                                        @else
-                                            <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
-                                        @endif
-                                        <p>Orden de fabricación: {{ $order->purchaseorder->number }}</p>
-                                    </a>
-                                @endif
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    @if ( $order->purchaseorder->document )
+                                        <a data-toggle="modal" data-target="#purchaseorder{{ $order->purchaseorder->id }}">
+                                            @if ( pathinfo($order->purchaseorder->document, PATHINFO_EXTENSION) == "png" )
+                                                <img src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
+                                            @else
+                                                <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
+                                            @endif
+                                            <p>Orden de fabricación: {{ $order->purchaseorder->number }}</p>
+                                        </a>
+                                    @endif
+                                </div>
+                                <div class="col-sm-5">
+                                    @if ( $order->purchaseorder->requisition )
+                                        <a data-toggle="modal" data-target="#purchaseorder{{ $order->purchaseorder->id }}">
+                                            @if ( pathinfo($order->purchaseorder->requisition, PATHINFO_EXTENSION) == "png" )
+                                                <img src="{{ asset('storage') }}/{{ $order->purchaseorder->requisition }}" alt="" style="width: 100%">
+                                            @else
+                                                <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->requisition }}" alt="" style="width: 100%">
+                                            @endif
+                                            <p>Orden de fabricación: {{ $order->purchaseorder->number }}</p>
+                                        </a>
+                                    @endif
+                                </div>
                             </div>
                             <div class="modal fade bd-example-modal-lge" id="purchaseorder{{ $order->purchaseorder->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-lg" role="document">

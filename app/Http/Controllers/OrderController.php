@@ -36,14 +36,14 @@ class OrderController extends Controller
         $texto = trim($request->busqueda);
         $fecha = $request->fecha;
         $fechaDos = $request->fechaDos;
-        // dd($texto, $fecha);
+        $mensaje = NULL;
 
         if ($texto == NULL && $fecha == NULL && $fechaDos == NULL){
             // $orders = Order::paginate(15);
             $orders = Order::where('delete', NULL)->paginate(15);
             $role = auth()->user()->role;
             $department = auth()->user()->department;
-            return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha'));
+            return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'mensaje'));
         }else{
             // Busqueda combinada
             if ($fecha && $texto && $fechaDos == NULL){
@@ -94,7 +94,7 @@ class OrderController extends Controller
 
             $role = auth()->user()->role;
             $department = auth()->user()->department;
-            return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'fechaDos'));
+            return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'fechaDos', 'mensaje'));
         }
 
     }
@@ -126,113 +126,146 @@ class OrderController extends Controller
         // dd($request->all());
         $registro = Order::where('invoice', 'like', $request->invoice)->count();
         // dd($registro);
-        if($registro >0 ){
-            // dd($registro, $request->invoice);
-            $mensaje = 'Introduce datos nuevos';
-
-            $orders = Order::all();
-            $statuses = Status::all();
-            $role = auth()->user()->role;
-            $department = auth()->user()->department;
-
-            return view('orders.create', compact('orders', 'statuses', 'role', 'department', 'mensaje'));
+        if($registro == 0 ){
+            $mensaje = 'Órden guardada con éxito!';
         }else{
-            $status = Status::find($request->status_id);
-            $user = User::find(auth()->user()->id);
-            $action = $user->name .' creó una orden';
+            $mensaje = 'La orden que almacenaste ya existe';
+        }
 
-            if($request->credit){
-                $credit = 1;
-                $action = $action . ' a credito';
-            }else{
-                $credit = 0;
-            }
+        $status = Status::find($request->status_id);
+        $user = User::find(auth()->user()->id);
+        $action = $user->name .' creó una orden';
 
-            $order = Order::create([
-                'office' => $request->office,
-                'invoice' => $request->invoice,
-                'invoice_number' => $request->invoice_number,
-                'client' => $request->client,
-                'credit' => $credit,
-                'status_id' => $request->status_id,
-                'created_at' => now(),
+        if($request->credit){
+            $credit = 1;
+            $action = $action . ' a credito';
+        }else{
+            $credit = 0;
+        }
+
+        $order = Order::create([
+            'office' => $request->office,
+            'invoice' => $request->invoice,
+            'invoice_number' => $request->invoice_number,
+            'client' => $request->client,
+            'credit' => $credit,
+            'status_id' => $request->status_id,
+            'created_at' => now(),
+        ]);
+        if($request->note){
+            Note::create([
+                'note' => $request->note,
+                'order_id' => $order->id,
+                'user_id' => $user->id,
+                'created_at' => now()
             ]);
-            if($request->note){
-                Note::create([
-                    'note' => $request->note,
-                    'order_id' => $order->id,
-                    'user_id' => $user->id,
-                    'created_at' => now()
-                ]);
-                $action = $action . ',  se añadió una nota';
-            }
-            // Ver si va con Orden de Requisición
-            if($request->ocCheck == 1){
-                PurchaseOrder::create([
+            $action = $action . ',  se añadió una nota';
+        }
+        // Ver si va con Orden de Requisición
+        if($request->ocCheck == 1){
+            if ( $request->documentReq || $request->requisition){
+                $hoy = date("Y-m-d H:i:s");
+                $path = NULL;
+                $pathReq = NULL;
+                $action = $action . ', se cubrió la Orden de Requisición';
+
+                $po = PurchaseOrder::create([
                     'required' => $request->ocCheck,
                     'number' => $request->purchase_order,
                     'document' => NULL,
+                    'requisition' => NULL,
+                    'iscovered' => 1,
                     'order_id' => $order->id
                 ]);
-                $action = $action . ', el pedido requiere una Orden de Requisición ';
-            }
+                $action = $action . ', se añadió factura y requisición';
 
-            $folios = 0;
-            if($request->folio1){
-                Partial::create([
-                    'invoice' => $request->folio1,
-                    'order_id' => $order->id,
-                    'status_id' => $request->fol_status1
-                ]);
-                $folios++;
-            }
-            if($request->folio2){
-                Partial::create([
-                    'invoice' => $request->folio2,
-                    'order_id' => $order->id,
-                    'status_id' => $request->fol_status2
-                ]);
-                $folios++;
-            }
-            if($request->folio3){
-                Partial::create([
-                    'invoice' => $request->folio3,
-                    'order_id' => $order->id,
-                    'status_id' => $request->fol_status3
-                ]);
-                $folios++;
-            }
-            if($request->folio4){
-                Partial::create([
-                    'invoice' => $request->folio4,
-                    'order_id' => $order->id,
-                    'status_id' => $request->fol_status4
-                ]);
-                $folios++;
-            }
-            if($request->folio5){
-                Partial::create([
-                    'invoice' => $request->folio5,
-                    'order_id' => $order->id,
-                    'status_id' => $request->fol_status5
-                ]);
-                $folios++;
-            }
-            if($request->folio1){
-                $action = $action . ', se añadió ' . $folios . ' entregas parciales';
-            }
+                if ($request->documentReq){
+                    $file = $request->file('documentReq');
+                    $name = str_replace(' ','-', $request->invoice .'-'.$file->getClientOriginalName());
+                    $path = 'OrdenesDeCompra/' . $name;
+                    Storage::putFileAs('/public/' . 'OrdenesDeCompra/', $file, $name );
+                    $po->update([
+                        'number' => $request->purchase_order,
+                        'document' => $path,
+                        'iscovered' => 1,
+                    ]);
+                }
+                if ($request->requisition){
+                    $fileReq = $request->file('requisition');
+                    $nameReq = str_replace(' ','-', $request->invoice .'-'.$fileReq->getClientOriginalName());
+                    $pathReq = 'OrdenesDeCompra/' . $nameReq;
+                    Storage::putFileAs('/public/' . 'OrdenesDeCompra/', $fileReq, $nameReq );
+                    $po->update([
+                        'number' => $request->purchase_order,
+                        'requisition' => $pathReq,
+                        'iscovered' => 1,
+                    ]);
+                }
 
-            Log::create([
-                'status' => $status->name,
-                'action' => $action,
-                'order_id' => $order->id,
-                'user_id' => $user->id,
-                'department_id' => $user->department->id,
-                'created_at' => now()
-            ]);
-
-            return redirect()->route('orders.index');
+            }
         }
+
+        $folios = 0;
+        if($request->folio1){
+            Partial::create([
+                'invoice' => $request->folio1,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status1
+            ]);
+            $folios++;
+        }
+        if($request->folio2){
+            Partial::create([
+                'invoice' => $request->folio2,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status2
+            ]);
+            $folios++;
+        }
+        if($request->folio3){
+            Partial::create([
+                'invoice' => $request->folio3,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status3
+            ]);
+            $folios++;
+        }
+        if($request->folio4){
+            Partial::create([
+                'invoice' => $request->folio4,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status4
+            ]);
+            $folios++;
+        }
+        if($request->folio5){
+            Partial::create([
+                'invoice' => $request->folio5,
+                'order_id' => $order->id,
+                'status_id' => $request->fol_status5
+            ]);
+            $folios++;
+        }
+        if($request->folio1){
+            $action = $action . ', se añadió ' . $folios . ' entregas parciales';
+        }
+
+        Log::create([
+            'status' => $status->name,
+            'action' => $action,
+            'order_id' => $order->id,
+            'user_id' => $user->id,
+            'department_id' => $user->department->id,
+            'created_at' => now()
+        ]);
+
+        // dd($registro, $request->invoice);
+        $fecha = '';
+        $texto = '';
+        $orders = Order::where('delete', NULL)->paginate(15);
+        $role = auth()->user()->role;
+        $department = auth()->user()->department;
+        return view('orders.index', compact('orders', 'role', 'department', 'fecha', 'texto', 'mensaje'));
     }
 
     /**
@@ -327,6 +360,7 @@ class OrderController extends Controller
                 'required' => $request->ocCheck,
                 'number' => $request->purchase_order,
                 'document' => NULL,
+                'requisition' => NULL,
                 'order_id' => $order->id
             ]);
             $action = $action . ', el pedido requiere una Orden de Requisición ';
@@ -508,20 +542,38 @@ class OrderController extends Controller
         if( $request->iscovered == true || $request->purchaseorder || $request->document ){
             $purchaseorder = $order->purchaseorder;
 
-            if ( $request->document ){
+            if ( $request->document || $request->requisition){
                 $hoy = date("Y-m-d H:i:s");
-                $file = $request->file('document');
-                $name = str_replace(' ','-', $request->invoice .'-'.$file->getClientOriginalName());
-                $path = 'OrdenesDeCompra/' . $name;
-                Storage::putFileAs('/public/' . 'OrdenesDeCompra/', $file, $name );
-                $purchaseorder->update([
-                    'number' => $request->purchaseorder,
-                    'document' => $path,
-                    'iscovered' => 1,
-                ]);
+                $path = NULL;
+                $pathReq = NULL;
+
+                if ($request->document){
+                    $file = $request->file('document');
+                    $name = str_replace(' ','-', $request->invoice .'-'.$file->getClientOriginalName());
+                    $path = 'OrdenesDeCompra/' . $name;
+                    Storage::putFileAs('/public/' . 'OrdenesDeCompra/', $file, $name );
+                    $purchaseorder->update([
+                        'number' => $request->purchaseorder,
+                        'document' => $path,
+                        'iscovered' => 1,
+                    ]);
+                }
+                if ($request->requisition){
+                    $fileReq = $request->file('requisition');
+                    $nameReq = str_replace(' ','-', $request->invoice .'-'.$fileReq->getClientOriginalName());
+                    $pathReq = 'OrdenesDeCompra/' . $nameReq;
+                    Storage::putFileAs('/public/' . 'OrdenesDeCompra/', $fileReq, $nameReq );
+                    $purchaseorder->update([
+                        'number' => $request->purchaseorder,
+                        'requisition' => $pathReq,
+                        'iscovered' => 1,
+                    ]);
+                }
+
                 $action = $action . ', se cubrió la Orden de Requisición';
 
-            }else{
+            }
+            else{
                 $purchaseorder->update([
                     'number' => $request->purchaseorder,
                     'iscovered' => 1,

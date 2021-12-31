@@ -25,6 +25,14 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    @if ($mensaje)
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>Alerta!</strong> {{ $mensaje ?? '' }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    @endif
                     <form class="navbar-form" method="GET" action="{{ route('orders.index') }}">
                         @csrf
                         @method('get')

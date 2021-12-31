@@ -19,6 +19,7 @@ class CreatePurchaseOrdersTable extends Migration
             $table->string('required');
             $table->string('number')->nullable();
             $table->string('document')->nullable();
+            $table->string('requisition')->nullable();
             $table->string('iscovered')->nullable();
 
             $table->unsignedBigInteger('order_id');
