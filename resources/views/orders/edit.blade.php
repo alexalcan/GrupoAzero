@@ -466,6 +466,7 @@
                                                             @if ( $partial->status->name == 'En ruta' )
                                                                 <td  class="text-center">
                                                                     <div class="form-check">
+                                                                        <label for="">Evidencia de salida</label>
                                                                         <input type="hidden" name="partImgID_{{ $count+1 }}" value="{{ $partial->id }}">
                                                                         <input type="file" name="partImg_{{ $count+1 }}" class="form-control-file" accept="image/*">
                                                                     </div>
@@ -479,6 +480,7 @@
                                                                                 check
                                                                             </span>
                                                                         @else
+                                                                            <label for="">Evidencia de entrega parcial</label>
                                                                             <input type="hidden" name="partImgID_{{ $count+1 }}" value="{{ $partial->id }}">
                                                                             <input type="file" name="partImg_{{ $count+1 }}" class="form-control-file" accept="image/*">
                                                                         @endif

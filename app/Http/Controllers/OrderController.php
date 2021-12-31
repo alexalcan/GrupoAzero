@@ -69,7 +69,8 @@ class OrderController extends Controller
             }
             // Busqueda por fecha
             if ($fecha && $texto == NULL && $fechaDos == NULL){
-                $orders = Order::whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
+                $orders = Order::where('delete', NULL)
+                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
                             ->orderBy('created_at', 'desc')
                             ->paginate(1500);
                 // dd($orders);
