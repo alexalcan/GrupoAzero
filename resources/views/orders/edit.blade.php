@@ -217,7 +217,7 @@
                                             <div class="col-sm-7">
                                                 <div class="">
                                                     <label for="picture">Fotografía o PDF</label>
-                                                    <input type="file" name="routeEvidence" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera">
+                                                    <input type="file" name="routeEvidence" class="form-control-file" id="picture" accept="image/*" capture="camera">
                                                 </div>
                                             </div>
                                         </div>
