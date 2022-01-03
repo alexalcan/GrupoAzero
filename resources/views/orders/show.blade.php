@@ -206,7 +206,7 @@
                                             @else
                                                 <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
                                             @endif
-                                            <p>Orden de fabricación: {{ $order->purchaseorder->number }}</p>
+                                            <p>Factura: {{ $order->purchaseorder->number }}</p>
                                         </a>
                                     @endif
                                 </div>
@@ -218,7 +218,7 @@
                                             @else
                                                 <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->requisition }}" alt="" style="width: 100%">
                                             @endif
-                                            <p>Orden de fabricación: {{ $order->purchaseorder->number }}</p>
+                                            <p>Requisición</p>
                                         </a>
                                     @endif
                                 </div>
