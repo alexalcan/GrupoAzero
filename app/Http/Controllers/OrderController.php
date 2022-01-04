@@ -84,7 +84,7 @@ class OrderController extends Controller
             }
             // Busqueda de ordenes
             if ($fecha == NULL && $fechaDos == NULL && $texto) {
-                $orders = Order::where('delete', '=', NULL)
+                $orders = Order::where('delete', '<>', 1)
                             ->where('invoice', 'LIKE', '%'.$texto.'%')
                             ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
                             ->orWhere('client', 'LIKE', '%'.$texto.'%')
