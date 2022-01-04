@@ -31,6 +31,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::resource('users', 'UserController');
     Route::resource('orders', 'OrderController');
+    Route::resource('check', 'CheckOrderController');
     Route::resource('archived', 'ArchivedController');
     Route::resource('roles', 'RoleController');
     Route::resource('departments', 'DepartmentController');
