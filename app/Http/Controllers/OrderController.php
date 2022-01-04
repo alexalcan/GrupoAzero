@@ -40,14 +40,14 @@ class OrderController extends Controller
 
         if ($texto == NULL && $fecha == NULL && $fechaDos == NULL){
             // $orders = Order::paginate(15);
-            $orders = Order::where('delete', NULL)->paginate(15);
+            $orders = Order::where('delete', 'LIKE', NULL)->paginate(15);
             $role = auth()->user()->role;
             $department = auth()->user()->department;
             return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'mensaje'));
         }else{
             // Busqueda combinada
             if ($fecha && $texto && $fechaDos == NULL){
-                $orders = Order::where('delete', NULL)
+                $orders = Order::where('delete', 'LIKE', NULL)
                             ->where('invoice', 'LIKE', '%'.$texto.'%')
                             ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
                             ->orWhere('client', 'LIKE', '%'.$texto.'%')
@@ -58,7 +58,7 @@ class OrderController extends Controller
                             ->paginate(1500);
             }
             if ($fecha && $texto && $fechaDos){
-                $orders = Order::where('delete', NULL)
+                $orders = Order::where('delete', 'LIKE', NULL)
                             ->where('invoice', 'LIKE', '%'.$texto.'%')
                             ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
                             ->orWhere('client', 'LIKE', '%'.$texto.'%')
@@ -69,14 +69,14 @@ class OrderController extends Controller
             }
             // Busqueda por fecha
             if ($fecha && $texto == NULL && $fechaDos == NULL){
-                $orders = Order::where('delete', NULL)
+                $orders = Order::where('delete', 'LIKE', NULL)
                             ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
                             ->orderBy('created_at', 'desc')
                             ->paginate(1500);
                 // dd($orders);
             }
             if ($fecha && $fechaDos && $texto == NULL){
-                $orders = Order::where('delete', NULL)
+                $orders = Order::where('delete', 'LIKE', NULL)
                             ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
                             ->orderBy('created_at', 'asc')
                             ->paginate(1500);
@@ -84,7 +84,7 @@ class OrderController extends Controller
             }
             // Busqueda de ordenes
             if ($fecha == NULL && $fechaDos == NULL && $texto) {
-                $orders = Order::where('delete', NULL)
+                $orders = Order::where('delete', 'LIKE', NULL)
                             ->where('invoice', 'LIKE', '%'.$texto.'%')
                             ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
                             ->orWhere('client', 'LIKE', '%'.$texto.'%')
