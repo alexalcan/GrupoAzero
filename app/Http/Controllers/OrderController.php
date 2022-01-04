@@ -40,7 +40,7 @@ class OrderController extends Controller
 
         if ($texto == NULL && $fecha == NULL && $fechaDos == NULL){
             // $orders = Order::paginate(15);
-            $orders = Order::where('delete', 'LIKE', NULL)->paginate(15);
+            $orders = Order::where('delete', NULL)->paginate(15);
             $role = auth()->user()->role;
             $department = auth()->user()->department;
             return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'mensaje'));
@@ -60,8 +60,8 @@ class OrderController extends Controller
             if ($fecha && $texto && $fechaDos){
                 $orders = Order::where('delete', 'LIKE', NULL)
                             ->where('invoice', 'LIKE', '%'.$texto.'%')
+                            ->where('client', 'LIKE', '%'.$texto.'%')
                             ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
-                            ->orWhere('client', 'LIKE', '%'.$texto.'%')
                             ->orWhere('office', 'LIKE', '%'.$texto.'%')
                             ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
                             ->orderBy('created_at', 'asc')
@@ -84,10 +84,10 @@ class OrderController extends Controller
             }
             // Busqueda de ordenes
             if ($fecha == NULL && $fechaDos == NULL && $texto) {
-                $orders = Order::where('delete', '<>', 1)
-                            ->where('invoice', 'LIKE', '%'.$texto.'%')
+                $orders = Order::where('delete', NULL)
+                            ->where('client', 'LIKE', '%'.$texto.'%')
+                            ->orWhere('invoice', '%'.$texto.'%')
                             ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
-                            ->orWhere('client', 'LIKE', '%'.$texto.'%')
                             ->orWhere('office', 'LIKE', '%'.$texto.'%')
                             ->orderBy('created_at', 'desc')
                             ->paginate(1500);

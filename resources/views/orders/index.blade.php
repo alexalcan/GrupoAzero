@@ -367,7 +367,7 @@
                         </tbody>
                     </table>
                     </div>
-                    {{ $orders->links() }}
+                    {{ $orders->links()  }}
                 </div>
                 </div>
             </div>

@@ -8,7 +8,7 @@
             <div class="card-header card-header-primary">
                 <div class="row">
                     <div class="col-md-4 col-sm-12 col-xs-12 text-left">
-                        <h4>Pedido {{ $order->invoice }}</h4>
+                        <h4>Pedido {{ $order->invoice }} - {{ $order->delete ? 'Archivada' : 'Activa' }}</h4>
                         <p class="card-category"> Detalles e historial</p>
                     </div>
                     <div class="col-md-8 col-sm-12 col-xs-12 text-right">
