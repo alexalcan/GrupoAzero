@@ -33,68 +33,273 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $texto = trim($request->busqueda);
+        // dd($request->all());
+        $texto = '';
+        $busquedaOrden = trim($request->busquedaOrden);
+        $busquedaFactura = trim($request->busquedaFactura);
+        $busquedaCliente = trim($request->busquedaCliente);
+        $busquedaSucursal = trim($request->busquedaSucursal);
+
         $fecha = $request->fecha;
         $fechaDos = $request->fechaDos;
         $mensaje = NULL;
+        $orders = Order::where('delete', NULL)->paginate(15);
+        $role = auth()->user()->role;
+        $department = auth()->user()->department;
 
-        if ($texto == NULL && $fecha == NULL && $fechaDos == NULL){
+        if ($busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL && $fecha == NULL && $fechaDos == NULL){
             // $orders = Order::paginate(15);
-            $orders = Order::where('delete', NULL)->paginate(15);
-            $role = auth()->user()->role;
-            $department = auth()->user()->department;
             return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'mensaje'));
         }else{
-            // Busqueda combinada
-            if ($fecha && $texto && $fechaDos == NULL){
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice', 'LIKE', '%'.$texto.'%')
-                            ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
-                            ->orWhere('client', 'LIKE', '%'.$texto.'%')
-                            ->orWhere('office', 'LIKE', '%'.$texto.'%')
-                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
-                            ->orderBy('created_at', 'desc')
-                            ->where('delete', NULL)
-                            ->paginate(1500);
-            }
-            if ($fecha && $texto && $fechaDos){
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice', 'LIKE', '%'.$texto.'%')
-                            ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
-                            ->orWhere('client', 'LIKE', '%'.$texto.'%')
-                            ->orWhere('office', 'LIKE', '%'.$texto.'%')
-                            ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
-                            ->orderBy('created_at', 'asc')
-                            ->paginate(1500);
-            }
             // Busqueda por fecha
-            if ($fecha && $texto == NULL && $fechaDos == NULL){
+            if ($fecha && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL){
                 $orders = Order::where('delete', NULL)
                             ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
                             ->orderBy('created_at', 'desc')
                             ->paginate(1500);
-                // dd($orders);
             }
-            if ($fecha && $fechaDos && $texto == NULL){
+            if ($fecha && $fechaDos && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL){
                 $orders = Order::where('delete', NULL)
                             ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
                             ->orderBy('created_at', 'asc')
                             ->paginate(1500);
-                // dd($orders);
             }
-            // Busqueda de ordenes
-            if ($fecha == NULL && $fechaDos == NULL && $texto) {
+            // Busqueda combinada
+            // una fecha y folio
+            if ($fecha && $busquedaOrden && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL && $fechaDos == NULL){
+                $texto = $texto.' '.$busquedaOrden;
                 $orders = Order::where('delete', NULL)
-                            ->where('invoice', 'LIKE', '%'.$texto.'%')
-                            ->orWhere('invoice_number', 'LIKE', '%'.$texto.'%')
-                            ->orWhere('client', 'LIKE', '%'.$texto.'%')
-                            ->orWhere('office', 'LIKE', '%'.$texto.'%')
+                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
+                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // fecha, folio y factura
+            if ($fecha && $busquedaOrden && $busquedaFactura && $busquedaCliente == NULL && $busquedaSucursal == NULL && $fechaDos == NULL){
+                $texto = $texto.' '.$busquedaOrden.', '.$busquedaFactura;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
+                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
+                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // fecha, folio, factura y cliente
+            if ($fecha && $busquedaOrden && $busquedaFactura && $busquedaCliente && $busquedaSucursal == NULL && $fechaDos == NULL){
+                $texto = $texto.' '.$busquedaOrden.', '.$busquedaFactura.', '.$busquedaCliente;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
+                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
+                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
+                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // fecha, folio, factura, cliente, sucursal
+            if ($fecha && $busquedaOrden && $busquedaFactura && $busquedaCliente && $busquedaSucursal && $fechaDos == NULL){
+                $texto = $texto.' '.$busquedaOrden.', '.$busquedaFactura.', '.$busquedaCliente.', '.$busquedaSucursal;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
+                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
+                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
+                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
+                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // Fecha y factura
+            if ($fecha && $busquedaOrden == NULL && $busquedaFactura && $busquedaCliente == NULL && $busquedaSucursal == NULL && $fechaDos == NULL){
+                $texto = $texto.' '.$busquedaFactura.', '.$busquedaCliente.', '.$busquedaSucursal;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
+                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // Fecha y cliente
+            if ($fecha && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente && $busquedaSucursal == NULL && $fechaDos == NULL){
+                $texto = $texto.' '.$busquedaCliente;
+                $orders = Order::where('delete', NULL)
+                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
+                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // Fecha y sucursal
+            if ($fecha && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal && $fechaDos == NULL){
+                $texto = $texto.' '.$busquedaSucursal;
+                $orders = Order::where('delete', NULL)
+                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
+                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // rango de fechas
+            if ($fecha && $fechaDos && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL){
+                $orders = Order::where('delete', NULL)
+                            ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
+                            ->orderBy('created_at', 'asc')
+                            ->paginate(1500);
+            }
+            // fechas y folio
+            if ($fecha && $fechaDos && $busquedaOrden && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL){
+                $texto = $texto.' '.$busquedaOrden;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
+                            ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
+                            ->orderBy('created_at', 'asc')
+                            ->paginate(1500);
+            }
+            // Fechas y factura
+            if ($fecha && $fechaDos && $busquedaOrden == NULL && $busquedaFactura && $busquedaCliente == NULL && $busquedaSucursal == NULL){
+                $texto = $texto.' '.$busquedaFactura;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
+                            ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
+                            ->orderBy('created_at', 'asc')
+                            ->paginate(1500);
+            }
+            // Fechas y cliente
+            if ($fecha && $fechaDos && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente && $busquedaSucursal == NULL){
+                $texto = $texto.' '.$busquedaCliente;
+                $orders = Order::where('delete', NULL)
+                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
+                            ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
+                            ->orderBy('created_at', 'asc')
+                            ->paginate(1500);
+            }
+            // Fechas y sucursal
+            if ($fecha && $fechaDos && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal){
+                $texto = $texto.' '.$busquedaSucursal;
+                $orders = Order::where('delete', NULL)
+                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
+                            ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
+                            ->orderBy('created_at', 'asc')
+                            ->paginate(1500);
+            }
+
+            // Busqueda de ordenes
+            // Individuales
+            // Solo folio
+            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL) {
+                $texto = $texto.' '.$busquedaOrden;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // Folio y factura
+            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden && $busquedaFactura && $busquedaCliente == NULL && $busquedaSucursal == NULL) {
+                $texto = $texto.' '.$busquedaOrden;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
+                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // Folio y cliente
+            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden && $busquedaFactura == NULL && $busquedaCliente && $busquedaSucursal == NULL) {
+                $texto = $texto.' '.$busquedaOrden.', '.$busquedaCliente;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
+                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // Folio y sucursal
+            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal) {
+                $texto = $texto.' '.$busquedaOrden.', '.$busquedaSucursal;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
+                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // Folio, factura y cliente
+            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden && $busquedaFactura && $busquedaCliente && $busquedaSucursal == NULL) {
+                $texto = $texto.' '.$busquedaOrden.' '.$busquedaFactura.' '.$busquedaCliente;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
+                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
+                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // Factura
+            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura && $busquedaCliente == NULL && $busquedaSucursal == NULL) {
+                $texto = $texto.' '.$busquedaFactura;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // Factura y cliente
+            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura && $busquedaCliente && $busquedaSucursal == NULL) {
+                $texto = $texto.' '.$busquedaFactura.' '.$busquedaCliente;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
+                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // Factura cliente y sucursal
+            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura && $busquedaCliente && $busquedaSucursal) {
+                $texto = $texto.' '.$busquedaFactura.' '.$busquedaCliente.' '.$busquedaSucursal;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
+                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
+                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // Factura y sucursal
+            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura && $busquedaCliente == NULL && $busquedaSucursal) {
+                $texto = $texto.' '.$busquedaFactura.' '.$busquedaSucursal;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
+                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // Cliente
+            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente && $busquedaSucursal == NULL) {
+                $texto = $texto.' '.$busquedaCliente;
+                $orders = Order::where('delete', NULL)
+                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // Cliente y sucursal
+            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente && $busquedaSucursal) {
+                $texto = $texto.' '.$busquedaCliente.' '.$busquedaSucursal;
+                $orders = Order::where('delete', NULL)
+                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
+                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+            // Sucursal
+            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal) {
+                $texto = $texto.' '.$busquedaSucursal;
+                $orders = Order::where('delete', NULL)
+                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
                             ->orderBy('created_at', 'desc')
                             ->paginate(1500);
             }
 
-            $role = auth()->user()->role;
-            $department = auth()->user()->department;
+
+            // Todas
+            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden && $busquedaFactura && $busquedaCliente && $busquedaSucursal) {
+                $texto = $texto.' '.$busquedaOrden.', '.$busquedaFactura.', '.$busquedaCliente.', '.$busquedaSucursal;
+                $orders = Order::where('delete', NULL)
+                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
+                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
+                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
+                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
+                            ->orderBy('created_at', 'desc')
+                            ->paginate(1500);
+            }
+
             return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'fechaDos', 'mensaje'));
         }
 

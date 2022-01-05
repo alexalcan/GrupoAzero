@@ -37,40 +37,52 @@
                         @csrf
                         @method('get')
                         <div class="row">
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <div class="form-group no-border">
+                                            <!-- <label class="label-control">Buscar por fecha</label> -->
+                                            <input type="text" name="fecha" class="form-control datetimepicker" placeholder="Fecha o fecha inicial..."/>
+                                        </div>
+                                    </div>
+                                    <div class="col-1">
+                                        <div class="form-check text-center">
+                                            <p> / </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-5" id="fechaDos">
+                                        <div class="form-group no-border">
+                                            <!-- <label class="label-control">Buscar por fecha</label> -->
+                                            <input type="text" name="fechaDos" class="form-control datetimepicker" placeholder="Fecha final (opcional)..."/>
+                                        </div>
+                                    </div>
+                                    <div class="col-1">
+                                        <div class="form-check text-center">
+                                            <button type="submit" class="btn btn-white btn-round btn-just-icon">
+                                                <i class="material-icons">search</i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="input-group no-border">
+                                            <div class="col-3">
+                                                <input type="text" name="busquedaOrden" value="" class="form-control" placeholder="Buscar por folio" style="">
+                                            </div>
+                                            <div class="col-3">
+                                                <input type="text" name="busquedaFactura" value="" class="form-control" placeholder="Buscar por factura" style="">
+                                            </div>
+                                            <div class="col-3">
+                                                <input type="text" name="busquedaCliente" value="" class="form-control" placeholder="Buscar por cliente" style="">
+                                            </div>
+                                            <div class="col-3">
+                                                <input type="text" name="busquedaSucursal" value="" class="form-control" placeholder="Buscar por sucursal" style="">
+                                            </div>
 
-                            <div class="col-2">
-                                <div class="form-group no-border">
-                                    <!-- <label class="label-control">Buscar por fecha</label> -->
-                                    <input type="text" name="fecha" class="form-control datetimepicker" placeholder="Buscar por fecha"/>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-2">
-                                <div class="form-check">
-                                    <label class="form-check-label">
-                                        <input name="ranDate" id="ranDate" value="1" onchange="javascript:addInvoice()" class="form-check-input" type="checkbox" >
-                                        Rango de fecha
-                                        <span class="form-check-sign">
-                                            <span class="check"></span>
-                                        </span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-2" id="fechaDos" style="display: none;">
-                                <div class="form-group no-border">
-                                    <!-- <label class="label-control">Buscar por fecha</label> -->
-                                    <input type="text" name="fechaDos" class="form-control datetimepicker" placeholder="Fecha final..."/>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="input-group no-border">
-
-                                    <input type="text" name="busqueda" value="" class="form-control" placeholder="Buscar por folio, factura, cliente, sucursal..." style="">
-                                        <button type="submit" class="btn btn-white btn-round btn-just-icon">
-                                            <i class="material-icons">search</i>
-                                        </button>
-                                </div>
-                            </div>
-
+                            <br>
 
                         </div>
                         @if ($fecha || $texto)
@@ -367,7 +379,7 @@
                         </tbody>
                     </table>
                     </div>
-                    {{ $orders->links()  }}
+                    {{ $orders->links() }}
                 </div>
                 </div>
             </div>
