@@ -200,7 +200,7 @@
                             <div class="row">
                                 <div class="col-sm-5">
                                     @if ( $order->purchaseorder->document )
-                                        <a data-toggle="modal" data-target="#purchaseorder{{ $order->purchaseorder->id }}">
+                                        <a data-toggle="modal" data-target="#document{{ $order->purchaseorder->id }}">
                                             @if ( pathinfo($order->purchaseorder->document, PATHINFO_EXTENSION) == "png" )
                                                 <img src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
                                             @else
@@ -223,7 +223,7 @@
                                     @endif
                                 </div>
                             </div>
-                            <div class="modal fade bd-example-modal-lge" id="purchaseorder{{ $order->purchaseorder->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal fade bd-example-modal-lge" id="document{{ $order->purchaseorder->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-lg" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -237,6 +237,28 @@
                                             <img src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
                                         @else
                                             <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%; height: 600px;">
+                                        @endif
+                                    </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="modal fade bd-example-modal-lge" id="purchaseorder{{ $order->purchaseorder->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                    {{-- <h5 class="modal-title" id="exampleModalLabel">{{ $partial->invoice }}</h5> --}}
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        @if ( pathinfo($order->purchaseorder->document, PATHINFO_EXTENSION) == "png" )
+                                            <img src="{{ asset('storage') }}/{{ $order->purchaseorder->requisition }}" alt="" style="width: 100%">
+                                        @else
+                                            <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->requisition }}" alt="" style="width: 100%; height: 600px;">
                                         @endif
                                     </div>
                                     <div class="modal-footer">
