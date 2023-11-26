@@ -1,0 +1,68 @@
+.paginacion_wrapper{
+width:100%;
+text-align:right;
+background:#bbb;
+}
+.paginacion_wrapper .info{
+text-align:left;
+font-size:15px;
+font-weight:bold;
+color:#333;
+padding:10px 6px;
+}
+
+ul.paginacion{
+display:block;
+margin:0px 0px 0px 0px;
+padding:4px 10px;
+background:#C72029;
+text-align:left;
+letter-spacing:.05em;
+word-spacing:.2em;
+color:#fff;
+}
+
+ul.paginacion li{
+display:inline-block;
+margin:2px 8px 2px 0px;
+list-style:none;
+padding:0px 0px;
+color:#fff;
+font-size: 12px;
+vertical-align:middle;
+}
+ul.paginacion li span{
+padding:0px 12px;
+color:#fff;
+}
+ul.paginacion li a{
+    display:block;
+   font-weight:bold;
+   color:#fff;
+   text-decoration:none; 
+}
+ul.paginacion li a.first{
+background:url(paginacion/first.png) top left no-repeat;
+width:16px;
+height:20px;
+}
+ul.paginacion li a.prev{
+background:url(paginacion/prev.png) top left no-repeat;
+width:16px;
+height:20px;
+}
+ul.paginacion li a.next{
+background:url(paginacion/next.png) top left no-repeat;
+width:16px;
+height:20px;
+}
+ul.paginacion li a.last{
+background:url(paginacion/last.png) top left no-repeat;
+width:16px;
+height:20px;
+}
+
+ul.paginacion li.steps a{
+	display:inline-block;
+	margin:0px 5px;
+}

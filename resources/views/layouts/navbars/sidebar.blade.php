@@ -6,10 +6,11 @@
     -->
     <div class="logo">
     <a href="/" class="simple-text logo-normal">
-        <img src="{{ asset('img/logo.png') }}" alt="" style="width: 50px;">
+        <img src="{{ asset('img/logo.png') }}" alt="" style="width: 100px;">
         {{-- {{ __('Grupo Azero') }} --}}
     </a>
     </div>
+    <div class='hrbar'></div>
     <div class="sidebar-wrapper">
         <ul class="nav">
             <li class="nav-item{{ $activePage == 'dashboard' ? ' active' : '' }}">
@@ -18,6 +19,16 @@
                     <p>{{ __('Dashboard') }}</p>
                 </a>
             </li>
+            
+           @if ( auth()->user()->role->name != "Administrator" )
+                <li class="nav-item{{ $activePage == 'reportes' ? ' active' : '' }}">
+                    <a class="nav-link" href="{{ route('reportes') }}">
+                        <i class="material-icons">receipt</i>
+                        <p>{{ __('Reportes') }}</p>
+                    </a>
+                </li>
+            @endif
+            
             @if ( auth()->user()->role->name != "Cliente" )
                 <li class="nav-item{{ $activePage == 'orders' ? ' active' : '' }}">
                     <a class="nav-link" href="{{ route('orders.index') }}">

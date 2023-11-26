@@ -23,6 +23,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Libraries\Paginacion;
+use App\Libraries\Tools;
+//use App\Paginacion;
 
 class OrderController extends Controller
 {
@@ -34,7 +37,7 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         // dd($request->all());
-        $texto = '';
+        $textos = [];
         $busquedaOrden = trim($request->busquedaOrden);
         $busquedaFactura = trim($request->busquedaFactura);
         $busquedaCliente = trim($request->busquedaCliente);
@@ -43,10 +46,65 @@ class OrderController extends Controller
         $fecha = $request->fecha;
         $fechaDos = $request->fechaDos;
         $mensaje = NULL;
-        $orders = Order::where('delete', NULL)->paginate(15);
+        //$orders = Order::where('delete', NULL)->paginate(15);
+        //$orders=[];
         $role = auth()->user()->role;
         $department = auth()->user()->department;
-
+        
+        $pag = $request->get("page");
+        $pag = !empty($pag) ? intval($pag) : 1 ;
+  
+        
+        $ordersbuilder = Order::where('delete', NULL);
+        
+        if(!empty($busquedaOrden)){
+            $textos []=$busquedaOrden;
+            $ordersbuilder->where('invoice', 'LIKE', '%'.$busquedaOrden.'%');
+        }
+        if(!empty($busquedaFactura)){
+            $textos []=$busquedaFactura;
+            $ordersbuilder->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%');
+        }
+        if(!empty($busquedaCliente)){
+            $textos []=$busquedaCliente;
+            $ordersbuilder->where('client', 'LIKE', '%'.$busquedaCliente.'%');
+        }
+        if(!empty($busquedaSucursal)){
+            $textos []=$busquedaSucursal;
+            $ordersbuilder->where('office', 'LIKE', '%'.$busquedaSucursal.'%');
+        }
+        
+        if(!empty($fecha) && empty($fechaDos)){
+            $ordersbuilder->whereDate('created_at', Carbon::parse($request->fecha)->toDateString());
+        }
+        else if(!empty($fecha) && !empty($fechaDos)){
+            $ordersbuilder->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()]);
+        }
+        
+        $texto = implode(", ",$textos);
+        
+        $ini = ($pag < 2 ) ? 0 : $pag - 1;
+        $rpp = 15;
+        
+        $ordersbuildertot = $ordersbuilder;
+        $total = $ordersbuildertot->count();
+        //echo $ordersbuildertot->toSql();
+        
+        $ordersbuilder->orderBy('created_at', 'desc')
+        ->skip($ini)->take($rpp);
+        
+        $orders = $ordersbuilder->get();
+        
+        //$total = 1500;
+       //var_dump($orders);
+        $busquedas = ["order"=>$busquedaOrden, "factura"=>$busquedaFactura, "cliente"=>$busquedaCliente,
+            "sucursal"=>$busquedaSucursal, "fecha"=>$fecha, "fechaDos"=>$fechaDos
+        ];
+        
+        return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'fechaDos', 'mensaje','pag','rpp','total',"busquedas"));
+        
+        
+        /*
         if ($busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL && $fecha == NULL && $fechaDos == NULL){
             // $orders = Order::paginate(15);
             return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'mensaje'));
@@ -57,12 +115,14 @@ class OrderController extends Controller
                             ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
                             ->orderBy('created_at', 'desc')
                             ->paginate(1500);
+                            echo "UNO";
+                            die();
             }
             if ($fecha && $fechaDos && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL){
                 $orders = Order::where('delete', NULL)
                             ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
                             ->orderBy('created_at', 'asc')
-                            ->paginate(1500);
+                            ->paginate(1500);   
             }
             // Busqueda combinada
             // una fecha y folio
@@ -299,9 +359,12 @@ class OrderController extends Controller
                             ->orderBy('created_at', 'desc')
                             ->paginate(1500);
             }
+            
 
             return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'fechaDos', 'mensaje'));
         }
+
+        */
 
     }
 
@@ -312,7 +375,8 @@ class OrderController extends Controller
      */
     public function create()
     {
-        $orders = Order::all();
+        //$orders = Order::all();
+        $orders=[];
         $statuses = Status::all();
         $role = auth()->user()->role;
         $department = auth()->user()->department;
@@ -348,9 +412,11 @@ class OrderController extends Controller
         }else{
             $credit = 0;
         }
+        
+        $userOffice = !empty($user->office) ? $user->office : "San Pablo";
 
         $order = Order::create([
-            'office' => $request->office,
+            'office' => $userOffice,
             'invoice' => $request->invoice,
             'invoice_number' => $request->invoice_number,
             'client' => $request->client,

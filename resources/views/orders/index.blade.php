@@ -1,6 +1,9 @@
 @extends('layouts.app', ['activePage' => 'orders', 'titlePage' => __('Pedidos')])
 
 @section('content')
+
+<link href="{{ route("welcome")."/css/paginacion.css" }}" rel="stylesheet" />
+
     <div class="content">
         <div class="container-fluid">
             <div class="row">
@@ -36,13 +39,19 @@
                     <form class="navbar-form" method="GET" action="{{ route('orders.index') }}">
                         @csrf
                         @method('get')
+                        <?php 
+               
+                        App\Libraries\Tools::valores($busquedas);
+                        
+                        ?>
                         <div class="row">
                             <div class="col-12">
                                 <div class="row">
                                     <div class="col-5">
                                         <div class="form-group no-border">
                                             <!-- <label class="label-control">Buscar por fecha</label> -->
-                                            <input type="text" name="fecha" class="form-control datetimepicker" placeholder="Fecha o fecha inicial..."/>
+                                            <input type="text" name="fecha" class="form-control datetimepicker " placeholder="Fecha o fecha inicial..." 
+                                            value="<?php echo App\Libraries\Tools::valor("fecha",""); ?>"/>
                                         </div>
                                     </div>
                                     <div class="col-1">
@@ -53,7 +62,8 @@
                                     <div class="col-5" id="fechaDos">
                                         <div class="form-group no-border">
                                             <!-- <label class="label-control">Buscar por fecha</label> -->
-                                            <input type="text" name="fechaDos" class="form-control datetimepicker" placeholder="Fecha final (opcional)..."/>
+                                            <input type="text" name="fechaDos" class="form-control datetimepicker" placeholder="Fecha final (opcional)..."
+                                            value="<?php echo App\Libraries\Tools::valor("fechaDos",""); ?>" />
                                         </div>
                                     </div>
                                     <div class="col-1">
@@ -66,16 +76,20 @@
                                     <div class="col-12">
                                         <div class="input-group no-border">
                                             <div class="col-3">
-                                                <input type="text" name="busquedaOrden" value="" class="form-control" placeholder="Buscar por folio" style="">
+                                                <input type="text" name="busquedaOrden" class="form-control" placeholder="Buscar por folio" 
+                                                value="<?php echo App\Libraries\Tools::valor("order",""); ?>" />
                                             </div>
                                             <div class="col-3">
-                                                <input type="text" name="busquedaFactura" value="" class="form-control" placeholder="Buscar por factura" style="">
+                                                <input type="text" name="busquedaFactura"  class="form-control" placeholder="Buscar por factura" style="" 
+                                                 value="<?php echo App\Libraries\Tools::valor("factura",""); ?>">
                                             </div>
                                             <div class="col-3">
-                                                <input type="text" name="busquedaCliente" value="" class="form-control" placeholder="Buscar por cliente" style="">
+                                                <input type="text" name="busquedaCliente" class="form-control" placeholder="Buscar por cliente" style=""  
+                                                value="<?php echo App\Libraries\Tools::valor("cliente",""); ?>">
                                             </div>
                                             <div class="col-3">
-                                                <input type="text" name="busquedaSucursal" value="" class="form-control" placeholder="Buscar por sucursal" style="">
+                                                <input type="text" name="busquedaSucursal" class="form-control" placeholder="Buscar por sucursal" style=""
+                                                 value="<?php echo App\Libraries\Tools::valor("sucursal",""); ?>">
                                             </div>
 
                                         </div>
@@ -88,6 +102,7 @@
                         @if ($fecha || $texto)
                             <div class="row">
                                 <div class="col-12">
+                                <hr/>
                                     <h5>Resultado de busqueda:
                                         @if( $fecha )
                                             fecha: {{ $fecha ?? '' }}
@@ -103,7 +118,9 @@
                             </div>
                         @endif
                     </form>
-
+					
+					<p>&nbsp;</p>
+					
                     <div class="table-responsive ">
                     <table class="table data-table" id="orders">
                         <thead>
@@ -122,6 +139,7 @@
                         </thead>
                         <tbody>
                             @foreach ($orders as $order)
+                            <?php //var_dump($order); ?>
                                 <tr>
                                     <td>
                                         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm">
@@ -131,27 +149,27 @@
                                     </td>
                                     <td>
                                         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm">
-                                            <p style="font-size: 1.3em">{{ $order->office }}</p>
+                                            {{ $order->office }}
                                         </a>
                                     </td>
                                     <td>
                                         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm">
-                                            <p style="font-size: 1.3em">{{ $order->invoice }}</p>
+                                            {{ $order->invoice }}
                                         </a>
                                     </td>
                                     <td class="col-hd">
                                         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm">
-                                            <p style="font-size: 1.3em">{{ $order->invoice_number }}</p>
+                                            {{ $order->invoice_number }}
                                         </a>
                                     </td>
                                     <td>
                                         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm">
-                                            <p style="font-size: 1.3em">{{ $order->client }}</p>
+                                            {{ $order->client }}
                                         </a>
                                     </td>
                                     <td>
                                         <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm">
-                                            <p style="font-size: 1.3em">{{ $order->status->name }}</p>
+                                            {{ $order->status->name }}
                                         </a>
                                     </td>
                                     {{-- Sección de alertas --}}
@@ -379,7 +397,23 @@
                         </tbody>
                     </table>
                     </div>
-                    {{ $orders->links() }}
+                    {{-- $orders->links() --}}
+                    <?php 
+                    //var_dump($pag);
+                    App\Libraries\Paginacion::rpp($rpp);
+                    App\Libraries\Paginacion::total($total);
+                    App\Libraries\Paginacion::actual($pag);
+                    App\Libraries\Paginacion::$pag_var="page";
+                    
+                    $qs = "?order=".App\Libraries\Tools::valor("order","")
+                    ."&factura=".App\Libraries\Tools::valor("factura","")
+                    ."&cliente=".App\Libraries\Tools::valor("cliente","")
+                    ."&sucursal=".App\Libraries\Tools::valor("sucursal","")
+                    ."&fecha=".App\Libraries\Tools::valor("fecha","")
+                    ."&fechaDos=".App\Libraries\Tools::valor("fechaDos","");
+                    
+                    echo App\Libraries\Paginacion::render(url("orders").$qs,"multi");
+                                    ?>
                 </div>
                 </div>
             </div>

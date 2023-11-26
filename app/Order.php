@@ -3,12 +3,19 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
     protected $fillable = [
         'office', 'invoice', 'invoice_number', 'client', 'credit', 'status_id', 'delete'
     ];
+    
+    public static function countAll(){
+        $list = DB::select(DB::raw("SELECT COUNT(*) AS tot FROM orders"));
+
+        return $list[0]->tot;
+    }
 
     public function status()
     {

@@ -15,6 +15,12 @@
 
 /*     brand Colors              */
 
+@font-face {
+  font-family: Oswald;
+  src: url(Oswald.woff2);
+}
+
+
 .card {
   font-size: .875rem;
 }
@@ -32,6 +38,7 @@ html {
   -ms-text-size-adjust: 100%;
   -ms-overflow-style: scrollbar;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    font-size:16px;
 }
 
 @-ms-viewport {
@@ -55,7 +62,7 @@ section {
 body {
   margin: 0;
   font-family: "Roboto", "Helvetica", "Arial", sans-serif;
-  font-size: 1rem;
+  font-size:18px;
   font-weight: 400;
   line-height: 1.5;
   color: #212529;
@@ -2182,12 +2189,20 @@ pre code {
 }
 
 select.form-control:not([size]):not([multiple]) {
-  height: calc(2.4375rem + 2px);
+  /*height: calc(2.4375rem + 2px);*/
+  height: calc(2.4rem + 8px);
 }
 
 select.form-control:focus::-ms-value {
   color: #495057;
   background-color: rgba(0, 0, 0, 0);
+}
+select.form-control option{
+	padding:10px 14px;
+	-webkit-appearance:none;
+	-moz-appearance:none;
+	appearance:none;
+	text-indent:10px;
 }
 
 .form-control-file,
@@ -4607,6 +4622,9 @@ tbody.collapse.show {
 
 .card-title {
   margin-bottom: 0.75rem;
+  font-family:Oswald;
+  font-weight:bold;
+  letter-spacing:.1rem;
 }
 
 .card-subtitle {
@@ -10624,7 +10642,8 @@ fieldset[disabled][disabled] .btn-group-raised .btn,
 .btn-group-sm>.btn,
 .btn-group-sm .btn {
   padding: 0.40625rem 1.25rem;
-  font-size: 0.6875rem;
+  /*font-size: 0.6875rem;*/
+  font-size:1rem;
   line-height: 1.5;
   border-radius: 0.2rem;
 }
@@ -11185,7 +11204,7 @@ form {
   padding-left: 0;
   padding-right: 0;
   border-radius: 0;
-  font-size: 14px;
+
 }
 
 .form-control:focus,
@@ -11198,19 +11217,19 @@ form {
 .form-control::-moz-placeholder {
   color: #AAAAAA;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 1rem;
 }
 
 .form-control:-ms-input-placeholder {
   color: #AAAAAA;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 1rem;
 }
 
 .form-control::-webkit-input-placeholder {
   color: #AAAAAA;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 1rem;
 }
 
 .has-white .form-control::-moz-placeholder {
@@ -13151,11 +13170,14 @@ fieldset[disabled] .form-group .form-control {
   position: relative;
   color: inherit;
   height: 50px;
-  font-size: 1.125rem;
+  font-size: 1.6rem;
   line-height: 30px;
   padding: 0.625rem 0;
   font-weight: 300;
   margin-left: 1rem;
+  font-weight:bold;
+  text-shadow:#aaa 2px 2px 2px;
+  letter-spacing:2pt;
 }
 
 .navbar>.container {
@@ -14630,7 +14652,7 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
 .sidebar .nav p {
   margin: 0;
   line-height: 30px;
-  font-size: 14px;
+
   position: relative;
   display: block;
   height: auto;
@@ -14655,8 +14677,12 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
   padding-left: 10px;
   padding-right: 10px;
   text-transform: capitalize;
-  font-size: 13px;
-  padding: 10px 15px;
+  font-size: 1.2rem;
+  padding: 8px 15px;
+}
+.nav-item .nav .nav-item a{
+	 margin: 6px 15px 0;
+	 padding: 6px 15px;
 }
 
 .sidebar .sidebar-background {
@@ -14683,13 +14709,15 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
 }
 
 .sidebar .logo {
-  padding: 15px 0px;
+  padding: 5px 0px 15px 0px;
   margin: 0;
+  margin-bottom:20px;
   display: block;
   position: relative;
   z-index: 4;
 }
 
+/*
 .sidebar .logo:after {
   content: '';
   position: absolute;
@@ -14699,6 +14727,16 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
   width: calc(100% - 30px);
   background-color: rgba(180, 180, 180, 0.3);
 }
+*/
+.hrbar{
+	margin:-24px 40px 20px 40px;
+	border-bottom: #ddd 1px solid;
+	display:block;
+	height:1px;
+	position:relative;
+	z-index:3;
+}
+
 
 .sidebar .logo p {
   float: left;
@@ -14720,6 +14758,12 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
   overflow: hidden;
   text-align: center;
   display: block;
+}
+a.simple-text.logo-normal{
+	margin-bottom:-30px;
+}
+a.simple-text.logo-normal img{
+	z-index:60;
 }
 
 .sidebar .logo-tim {
@@ -16162,6 +16206,9 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
 
 .table thead tr th {
   font-size: 1.063rem;
+  background:#545759;
+  color:#ddd;
+  font-weight:bold;
 }
 
 .table .th-description {
@@ -16982,10 +17029,11 @@ label {
 
 .card .card-header .card-title {
   margin-bottom: 3px;
+  font-size:1.5rem;
 }
 
 .card .card-header .card-category {
-  margin: 0;
+  margin: -4px 0 0 0;
 }
 
 .card .card-header.card-header-text {

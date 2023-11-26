@@ -17,9 +17,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', 'WelcomeController@index')->name('welcome');
 Route::get('homesearch','WelcomeController@search')->name('homesearch');
 
-Auth::routes();
+//Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('home', 'HomeController@index')->name('home');
+Route::get('home/prueba', 'HomeController@prueba');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home')->middleware('auth');
@@ -58,6 +59,10 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('debolutionsEvidence','DebolutionsController@debolutionsEvidence')->name('debolutions.evidence');
     Route::get('debolutionsRepayment','DebolutionsController@debolutionsRepayment')->name('debolutions.repayment');
+    
+    
+    Route::get('reportes','ReportesController@index')->name('reportes');
+    Route::post('reportes/reporte','ReportesController@reporte')->name('reporte');
 });
 
 // Para generar el storage link

@@ -33,6 +33,7 @@
                                             </button>
                                         </div>
                                     @endif
+                                <!--      
                                 <div class="row">
                                     <label class="col-sm-2 col-form-label">Crédito</label>
                                     <div class="col-sm-4">
@@ -47,6 +48,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                -->
                                 {{-- Añadir factura --}}
                                 <div class="row">
                                     <label class="col-sm-2 col-form-label">Ligar a Factura (opcional)</label>
@@ -114,7 +116,7 @@
                                 @endif
                                 {{-- Fin añadir oren de comrpa --}}
 
-
+								<!--  
                                 <div class="row">
                                     <label class="col-sm-2 col-form-label">Sucursal</label>
                                     <div class="col-sm-7">
@@ -126,6 +128,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                -->
 
 
                                 <div class="row">

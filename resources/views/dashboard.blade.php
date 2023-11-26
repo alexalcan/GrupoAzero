@@ -56,7 +56,11 @@
                         </div>
                         </div>
                     </div> --}}
-                    {{-- <div class="col-lg-4 col-md-6 col-sm-6">
+                    
+                    
+                    {{-- 
+                    <!--  
+                    <div class="col-lg-4 col-md-6 col-sm-6">
                         <div class="card card-stats">
                         <div class="card-header card-header-info card-header-icon">
                             <div class="card-icon">
@@ -71,7 +75,11 @@
                             </div>
                         </div>
                         </div>
-                    </div> --}}
+                    </div> 
+                    -->
+                    --}}
+                    
+                    
                 </div>
             @elseif( auth()->user()->role->name == "Administrador" )
                 <div class="row">
@@ -94,14 +102,14 @@
                         </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="col-lg-8 col-md-6 col-sm-6">
                         <div class="card card-stats">
                         <div class="card-header card-header-success card-header-icon">
                             <div class="card-icon">
                             <i class="material-icons">receipt</i>
                             </div>
                             <p class="card-category">Pedidos</p>
-                            <h3 class="card-title">{{ $orders }}</h3>
+                            <h3 class="card-title">{{ number_format($orders,0) }}</h3>
                         </div>
                         <div class="card-footer">
                             <div class="stats">
@@ -127,6 +135,9 @@
                         </div>
                         </div>
                     </div> --}}
+                    
+                    
+                    {{--
                     <div class="col-lg-4 col-md-6 col-sm-6">
                         <div class="card card-stats">
                         <div class="card-header card-header-info card-header-icon">
@@ -138,12 +149,14 @@
                         </div>
                         <div class="card-footer">
                             <div class="stats">
-                            {{-- <i class="material-icons">update</i>  --}}
+                            <!--   <i class="material-icons">update</i>  -->
                             Bitácora de transaciones
                             </div>
                         </div>
                         </div>
                     </div>
+                    --}}
+                    
                 </div>
 
             @endif
@@ -159,7 +172,7 @@
                             <div class="row">
                                 <div class="col-12 text-left">
                                     {{-- <h4 class="card-title ">Buscar Factura</h4> --}}
-                                    {{-- <p class="card-category"> Todos los movimientosa</p> --}}
+                                    {{-- <p class="card-category"> Todos los movimientos</p> --}}
                                     <form class="navbar-form" method="POST" action="{{ route('search') }}">
                                         @csrf
                                         @method('get')
@@ -303,7 +316,7 @@
                         <div class="card">
                             <div class="card-header card-header-primary">
                                 <div class="row">
-                                    <div class="col-md-4 col-sm-12 col-xs-12 text-left">
+                                    <div class="col-md-6 col-sm-12 col-xs-12 text-left">
                                         <h4 class="card-title ">Notas</h4>
                                         <p class="card-category"> Aquí se despliegan sus notas</p>
                                     </div>
@@ -348,7 +361,7 @@
                                 <div class="row">
                                     <div class="col-md-4 col-sm-12 col-xs-12 text-left">
                                         <h4 class="card-title ">Bitácora</h4>
-                                        <p class="card-category"> Todos los movimientosa</p>
+                                        <p class="card-category"> Todos los movimientos</p>
                                     </div>
                                 </div>
                             </div>

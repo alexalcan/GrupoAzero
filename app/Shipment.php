@@ -3,6 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Ramsey\Collection\AbstractArray;
+use Illuminate\Support\Facades\DB;
 
 class Shipment extends Model
 {
@@ -14,4 +16,11 @@ class Shipment extends Model
     {
         return $this->belongsTo(Order::class);
     }
+    
+    
+    public static function inOrder(int $order_id=0) : object {
+        $list = DB::table('shipments')->where("order_id",$order_id)->get();
+        return $list;
+    }
+
 }

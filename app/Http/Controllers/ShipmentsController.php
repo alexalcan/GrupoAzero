@@ -30,7 +30,8 @@ class ShipmentsController extends Controller
         $path = 'Embarques/' . $name;
         $extension = pathinfo($path, PATHINFO_EXTENSION);
 
-        if(Storage::putFileAs('/public/' . 'Embarques/', $file, $name )){
+        //if(Storage::putFileAs('/public/' . 'Embarques/', $file, $name )){
+        if(Storage::putFileAs('public/Embarques/', $file, $name )){
             $shipment = Shipment::create([
                 'file' => $path,
                 'order_id' => $order->id,
@@ -57,15 +58,21 @@ class ShipmentsController extends Controller
         $role = auth()->user()->role;
         $department = auth()->user()->department;
         // dd($order->purchaseorder);
+        $logs=[];
 
-        return view('orders.show', compact('order', 'role', 'department'));
+        return view('orders.show', compact('order', 'role', 'department','logs'));
     }
 
     public function shipmentEvidence(Request $request)
     {
         // dd($request->all());
         $order = Order::find($request->order);
-
-        return view('shipments.evidence', compact('order'));
+        
+       // $shipmentM = new Shipment();
+       //var_dump($order->id);
+        $shipments = Shipment::inOrder($order->id);
+       // var_dump($shipments);
+        //var_dump($shipments[0]);
+        return view('shipments.evidence', compact('order', 'shipments'));
     }
 }

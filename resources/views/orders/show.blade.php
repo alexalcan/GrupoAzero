@@ -43,6 +43,7 @@
                 </div>
             </div>
             <div class="card-body ">
+              
                 <div class="row">
                     <label class="col-sm-2 col-form-label">Favorito</label>
                     <div class="col-sm-7">
@@ -57,7 +58,7 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <div class="row">
                     <label class="col-sm-2 col-form-label">Sucursal</label>
                     <div class="col-sm-7">

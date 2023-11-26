@@ -49,6 +49,8 @@
                                     </div>
                                 @endif
                                 {{-- Hacer favorito --}}
+                                
+                                 
                                 <div class="row">
                                     <label class="col-sm-2 col-form-label">Favorito</label>
                                     <div class="col-sm-7">
@@ -63,6 +65,8 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                
                                 {{-- fin de hacer favorito --}}
                                 {{-- Añadir Orden de Requisición --}}
                                 @if ( !$order->purchaseorder && ($role->name == "Administrador" || $department->name == "Compras" || $department->name == "Ventas") )
