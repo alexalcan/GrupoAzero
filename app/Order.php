@@ -61,6 +61,10 @@ class Order extends Model
     {
         return $this->hasOne(Debolution::class);
     }
+    public function debolutions()
+    {
+        return $this->hasMany(Debolution::class);
+    }
 
     public function purchaseorder()
     {

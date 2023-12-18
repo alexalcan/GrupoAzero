@@ -63,6 +63,13 @@ Route::group(['middleware' => 'auth'], function () {
     
     Route::get('reportes','ReportesController@index')->name('reportes');
     Route::post('reportes/reporte','ReportesController@reporte')->name('reporte');
+    
+    
+    Route::get('order/attachlist', 'OrderController@attachlist')->name("attachlist");
+    Route::post('order/attachpost', 'OrderController@attachpost');
+    Route::get('order/attachdev', 'OrderController@attachdev');
+    Route::get('order/attachdelete', 'OrderController@attachdelete');
+    
 });
 
 // Para generar el storage link

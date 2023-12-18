@@ -41,7 +41,7 @@
                             <select name='tipo' class="form-control">
                              	<option value=''>Elegir tipo</option>
                              	<option value='Ordenes'>Reporte de Órdenes</option>
-                             	<option value='Requisiciones'>Reporte de Requisiciones</option>
+                             	<!--  <option value='Requisiciones'>Reporte de Requisiciones</option>  -->
                              </select>
                              <br/>
                              <label>Tipo</label>

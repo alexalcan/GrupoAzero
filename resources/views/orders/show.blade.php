@@ -9,7 +9,7 @@
                 <div class="row">
                     <div class="col-md-4 col-sm-12 col-xs-12 text-left">
                         <h4>Pedido {{ $order->invoice }} {{ $order->delete ? ' - Archivada' : '' }}</h4>
-                        <p class="card-category"> Detalles e historial</p>
+                        <p class="card-category"> Detalles e historial </p>
                     </div>
                     <div class="col-md-8 col-sm-12 col-xs-12 text-right">
                         <a href="{{ url()->previous() }}" class="btn btn-sm btn-primary">
@@ -320,16 +320,17 @@
 
                 {{-- Mostrar evidencia de material terminado --}}
                 @if ( $order->shipments->count() > 0 )
-                    <div class="row">
+    	
+                    <div class="row" style="padding:0px 0px 0px 16%;">
                         <label class="col-sm-2 col-form-label">Evidencia de salida del material</label>
                         <div class="col-sm-10"></div>
                             @foreach ($order->shipments as $shipment)
-                                <div class="col-sm-4">
+                                <div class="col-sm-3">
                                     <a data-toggle="modal" data-target="#shipments{{ $shipment->id }}">
                                         @if ( pathinfo($shipment->file, PATHINFO_EXTENSION) == "png" )
-                                            <img src="{{ asset('storage') }}/{{ $shipment->file }}" alt="" style="width: 100%">
+                                            <img src="{{ asset('storage') }}/{{ $shipment->file }}" alt="" style="width: 12vw">
                                         @else
-                                            <embed src="{{ asset('storage') }}/{{ $shipment->file }}" alt="" style="width: 100%">
+                                            <embed src="{{ asset('storage') }}/{{ $shipment->file }}" alt="" style="width: 12vw">
                                         @endif
 
                                         <p>{{ $shipment->file }}</p>
@@ -589,12 +590,14 @@
                 {{-- Fin de Rebilling --}}
 
                 {{-- Evidencias de Devoluciones --}}
-                @if ( $order->debolution )
+                @if ( $order->debolutions )
                     <div class="row">
                         <label class="col-sm-2 col-form-label">Devoluciones</label>
                         <div class="col-sm-10">
                             <p>Evidencias</p>
-                            @foreach ($order->debolution->evidences as $evidence)
+                            @foreach ($order->debolutions as $debolution)
+                            @foreach ($debolution->evidences as $evidence)
+        
                                 <div class="col-sm-5">
                                     <a data-toggle="modal" data-target="#debolution{{ $evidence->id }}">
                                         @if ( pathinfo($evidence->file, PATHINFO_EXTENSION) == "png" )
@@ -635,7 +638,9 @@
                                     </div>
                                 </div> --}}
                             @endforeach
+                            @endforeach
                             <p>Notas</p>
+                            @if ($order->debolution) 
                             @foreach ($order->debolution->repayments as $repayment)
                                 <div class="col-sm-5">
                                     <a data-toggle="modal" data-target="#repayment{{ $repayment->id }}">
@@ -669,6 +674,9 @@
                                     </div>
                                 </div> --}}
                             @endforeach
+                            @endif
+                            
+                            
                         </div>
                     </div>
                 @endif
@@ -733,9 +741,10 @@
                                                             </button>
                                                             </div>
                                                             <div class="modal-body">
+                                                          
                                                                 @foreach ($partial->pictures as $picture)
                                                                     <div class="card" style="width: 100%;">
-                                                                        <img class="card-img-top" src="{{ asset('storage') }}/{{ $picture->picture }}" alt="Card image cap">
+                                                                        <img class="card-img-top" src="{{ asset('storage') }}/{{ $picture->picture }}" alt="Card image cap" style="max-height:100px; max-width:100px">
                                                                         <div class="card-body">
                                                                         <p class="card-text">Entregado: {{ $picture->created_at->toDateTimeString() }} por {{ $picture->user->name }}</p>
                                                                         </div>

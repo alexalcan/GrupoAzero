@@ -19,7 +19,7 @@
                                 <div class="col-sm-7">
                                     <div class="">
                                         <label for="picture">Click para subir o tomar foto</label>
-                                        <input type="file" name="picture" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera" required>
+                                        <input type="file" name="picture" class="form-control-file" id="picture"  accept="capture=camera,image/*,.pdf"  required>
                                     </div>
                                 </div>
                             </div>

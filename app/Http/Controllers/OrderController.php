@@ -42,10 +42,13 @@ class OrderController extends Controller
         $busquedaFactura = trim($request->busquedaFactura);
         $busquedaCliente = trim($request->busquedaCliente);
         $busquedaSucursal = trim($request->busquedaSucursal);
+        $busquedaEstatus = trim($request->busquedaEstatus);
 
         $fecha = $request->fecha;
         $fechaDos = $request->fechaDos;
         $mensaje = NULL;
+        
+        $statuses = Status::all();
         //$orders = Order::where('delete', NULL)->paginate(15);
         //$orders=[];
         $role = auth()->user()->role;
@@ -74,6 +77,11 @@ class OrderController extends Controller
             $ordersbuilder->where('office', 'LIKE', '%'.$busquedaSucursal.'%');
         }
         
+        if(!empty($busquedaEstatus)){
+            $textos []=$busquedaEstatus;
+            $ordersbuilder->where('office', 'LIKE', '%'.$busquedaEstatus.'%');
+        }
+        
         if(!empty($fecha) && empty($fechaDos)){
             $ordersbuilder->whereDate('created_at', Carbon::parse($request->fecha)->toDateString());
         }
@@ -97,11 +105,12 @@ class OrderController extends Controller
         
         //$total = 1500;
        //var_dump($orders);
+      
         $busquedas = ["order"=>$busquedaOrden, "factura"=>$busquedaFactura, "cliente"=>$busquedaCliente,
-            "sucursal"=>$busquedaSucursal, "fecha"=>$fecha, "fechaDos"=>$fechaDos
+            "sucursal"=>$busquedaSucursal, "fecha"=>$fecha, "fechaDos"=>$fechaDos, "estatus"=>$busquedaEstatus
         ];
         
-        return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'fechaDos', 'mensaje','pag','rpp','total',"busquedas"));
+        return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'fechaDos', 'mensaje','pag','rpp','total',"busquedas","statuses"));
         
         
         /*
@@ -683,31 +692,26 @@ class OrderController extends Controller
             $action = $action . ', se actualizó orden de fabricación ' . $request->manufacturingOrder . ', se añadió un archivo';
         }
 
+        
+        
+        
+
+        
+        
         // Evidencia para salida a ruta
         if($request->status_id == 5){
-            $file = $request->file('routeEvidence');
-            if($file){
-                $name = str_replace(' ','-', $request->invoice .'-'.$file->getClientOriginalName());
-                $path = 'Embarques/' . $name;
-                $extension = pathinfo($path, PATHINFO_EXTENSION);
-            }else{
-                $name = NULL;
-                $path = NULL;
-                $extension = NULL;
-            }
-            $action = $action . ', pedido sale a ruta';
-            if($file){
-                Storage::putFileAs('/public/' . 'Embarques/', $file, $name );
-                $shipment = Shipment::create([
-                    'file' => $path,
-                    'order_id' => $order->id,
-                    'created_at' => now(),
-                ]);
-                $action = $action . ', se subió evidencia con extensión '. $extension;
-            }else{
-                $action = $action . ', no se subió evidencia';
-            }
+        $numev = 0 ;    
+        $numev += $this->StoreRouteEvidence($request, $order,  "1");   
+        $numev += $this->StoreRouteEvidence($request, $order,  "2");  
+        $numev += $this->StoreRouteEvidence($request, $order,  "3");  
+        $numev += $this->StoreRouteEvidence($request, $order,  "4");  
+        $numev += $this->StoreRouteEvidence($request, $order,  "5");  
+    
+        $action .= ', pedido sale a ruta , ';
+        $action .= !empty( $numev ) ? 'se subieron '. $numev .' evidencias.' : 'no se subieron evidencias.';
+        
         }
+        
 
         // Cancelación de orden
         if( $request->status_id == 7 ){
@@ -778,7 +782,8 @@ class OrderController extends Controller
         }
         // Devolución de orden
         if( $request->status_id == 9){
-            $file = $request->file('debolution');
+            /*
+            $file = $request->file('debolution1');
             if($file){
                 $name = str_replace(' ','-', $request->invoice .'-'.$file->getClientOriginalName());
                 $path = 'Devoluciones/' . $name;
@@ -808,6 +813,31 @@ class OrderController extends Controller
             }else{
                 $action = $action . ', no se subió archivo';
             }
+            */
+            
+            //CREATE DEVOLUCTION
+            $debolution = Debolution::create([
+                'file' => NULL,
+                'order_id' => $order->id,
+                'reason_id' => $request->debolution_reason_id,
+                'created_at' => now(),
+            ]);
+            
+            $devolutionId = intval($debolution->id);
+            
+            $numDevo = 0 ;
+            $numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "1"); 
+            $numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "2");
+            $numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "3");
+            $numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "4");
+            $numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "5");
+            
+            $razon = Reason::find($request->debolution_reason_id);
+            $razon = $razon->reason;
+            $action .= ', se devolvió debido a un '. $razon;
+            $action .= !empty($numDevo) ? ', se subieron '.$numDevo.' archivos' : ', no se subió archivo';
+            
+            //*****************************************************************************
         }
 
         // Orden de Requisición
@@ -936,7 +966,13 @@ class OrderController extends Controller
                 $partialID->update([
                     'status_id' => $request->stPartValue_1
                 ]);
-                if( $request->partImg_1 ){
+                if( !empty($request->partImg_1_1) || !empty($request->partImg_1_2) || !empty($request->partImg_1_3) || !empty($request->partImg_1_4) || !empty($request->partImg_1_5)  ){
+                    $this->StorePartialImg($request, $partialID->id, "partImg_1");
+                    $partialID->update([
+                        'status_id' => 6
+                    ]);
+                    $action.=" img parcial 1 ";
+                    /*
                     $hoy = date("Y-m-d H:i:s");
                     $file = $request->file('partImg_1');
                     $name = $hoy . '-' . $file->getClientOriginalName();
@@ -950,6 +986,7 @@ class OrderController extends Controller
                     $partialID->update([
                         'status_id' => 6
                     ]);
+                    */
                 }
             }
             if( $request->stPartID_2 ){
@@ -959,7 +996,13 @@ class OrderController extends Controller
                 $partialID->update([
                     'status_id' => $request->stPartValue_2
                 ]);
-                if( $request->partImg_2 ){
+                if( !empty($request->partImg_2_1) || !empty($request->partImg_2_2) || !empty($request->partImg_2_3) || !empty($request->partImg_2_4) || !empty($request->partImg_2_5)  ){
+                    $this->StorePartialImg($request, $partialID->id, "partImg_2");
+                    $partialID->update([
+                        'status_id' => 6
+                    ]);
+                    $action.=" img parcial 2 ";
+                    /*
                     $hoy = date("Y-m-d H:i:s");
                     $file = $request->file('partImg_2');
                     $name = $hoy . '-' . $file->getClientOriginalName();
@@ -973,6 +1016,7 @@ class OrderController extends Controller
                     $partialID->update([
                         'status_id' => 6
                     ]);
+                    */
                 }
             }
             if( $request->stPartID_3 ){
@@ -982,7 +1026,13 @@ class OrderController extends Controller
                 $partialID->update([
                     'status_id' => $request->stPartValue_3
                 ]);
-                if( $request->partImg_3 ){
+                if( !empty($request->partImg_3_1) || !empty($request->partImg_3_2) || !empty($request->partImg_3_3) || !empty($request->partImg_3_4) || !empty($request->partImg_3_5) ){
+                    $this->StorePartialImg($request, $partialID->id, "partImg_3");
+                    $partialID->update([
+                        'status_id' => 6
+                    ]);
+                    $action.=" img parcial 3 ";
+                    /*
                     $hoy = date("Y-m-d H:i:s");
                     $file = $request->file('partImg_3');
                     $name = $hoy . '-' . $file->getClientOriginalName();
@@ -996,6 +1046,7 @@ class OrderController extends Controller
                     $partialID->update([
                         'status_id' => 6
                     ]);
+                    */
                 }
             }
             if( $request->stPartID_4 ){
@@ -1005,7 +1056,13 @@ class OrderController extends Controller
                 $partialID->update([
                     'status_id' => $request->stPartValue_4
                 ]);
-                if( $request->partImg_4 ){
+                if( !empty($request->partImg_14_1) || !empty($request->partImg_4_2) || !empty($request->partImg_4_3) || !empty($request->partImg_4_4) || !empty($request->partImg_4_5)  ){
+                    $this->StorePartialImg($request, $partialID->id, "partImg_4");
+                    $partialID->update([
+                        'status_id' => 6
+                    ]);
+                    $action.=" img parcial 4 ";
+                    /*
                     $hoy = date("Y-m-d H:i:s");
                     $file = $request->file('partImg_4');
                     $name = $hoy . '-' . $file->getClientOriginalName();
@@ -1019,6 +1076,7 @@ class OrderController extends Controller
                     $partialID->update([
                         'status_id' => 6
                     ]);
+                    */
                 }
             }
             if( $request->stPartID_5 ){
@@ -1028,7 +1086,14 @@ class OrderController extends Controller
                 $partialID->update([
                     'status_id' => $request->stPartValue_5
                 ]);
-                if( $request->partImg_5 ){
+                if( !empty($request->partImg_5_1) || !empty($request->partImg_5_2) || !empty($request->partImg_5_3) || !empty($request->partImg_5_4) || !empty($request->partImg_5_5)  ){
+                    $this->StorePartialImg($request, $partialID->id, "partImg_5");
+                    $partialID->update([
+                        'status_id' => 6
+                    ]);
+                    $action.=" img parcial 5 ";
+                    
+                    /*
                     $hoy = date("Y-m-d H:i:s");
                     $file = $request->file('partImg_5');
                     $name = $hoy . '-' . $file->getClientOriginalName();
@@ -1042,6 +1107,7 @@ class OrderController extends Controller
                     $partialID->update([
                         'status_id' => 6
                     ]);
+                    */
                 }
             }
             $action = $action . '. Actualización de parciales';
@@ -1062,6 +1128,387 @@ class OrderController extends Controller
 
         return redirect()->route('orders.index');
     }
+    
+    
+    
+    
+    function StoreRouteEvidence(Request $request,  $order, string $num="") : int {
+        $file = $request->file('routeEvidence'.$num);
+        $numSubidos = 0 ;
+        
+        if($file){
+            $name = str_replace(' ','-', $request->invoice .'_'.$num.'-'.$file->getClientOriginalName());
+            $path = 'Embarques/' . $name;
+            //$extension = pathinfo($path, PATHINFO_EXTENSION);
+        }else{
+            $name = NULL;
+            $path = NULL;
+            //$extension = NULL;
+        }
+
+        if($file){
+
+            Storage::putFileAs('/public/' . 'Embarques/', $file, $name );
+            Shipment::create([
+                'file' => $path,
+                'order_id' => $order->id,
+                'created_at' => now(),
+            ]);
+            $numSubidos=1;
+        }
+        
+        return $numSubidos;
+    }
+    
+    
+    
+    function StoreDebolution(Request $request, $order, int $devolutionId, string $num) : int {
+        $number=0;      
+        $path="";
+        $name="";
+        //SAVE FILE
+        $file = $request->file("debolution".$num);
+
+        if($file){
+            $name = str_replace(' ','-', $request->invoice .'-'.$num.'-'.$file->getClientOriginalName());
+            $path = 'Devoluciones/' . $name;
+        }else{
+            return 0;
+        }     
+
+        $isvalid = is_file($file->getRealPath());
+        
+        if($file && $isvalid && !empty($path) && !empty($name)){      
+            //Storage::putFileAs('/public/' . 'Devoluciones/', $file, $name );
+      
+            $file->storeAs('/public/Devoluciones',$name);
+            Evidence::create([
+                'file' => $path,
+                'debolution_id' => $devolutionId
+            ]);
+            $number=1;
+        }
+        
+        return $number;
+    }
+    
+    
+    function StorePartialImg(Request $request, int $partialID, string $fieldName) : void {
+        $hoy = date("Ymd_His");
+        $max=5;
+        for($m=0; $m < $max ; $m++){
+
+            $file = $request->file($fieldName . "_". $m);
+            if(empty($file)){continue;}
+            $name = $hoy . '-' . $m . '-'. $file->getClientOriginalName();
+            $path = 'Images/' . $name;
+            Storage::putFileAs('/public/' . 'Images/', $file, $name );
+            Picture::create([
+                'picture' => $path,
+                'user_id' => auth()->user()->id,
+                'partial_id' => $partialID
+            ]);    
+            //echo "picture: ".$path." $name"."_".$m." partial_id: ".$partialID."|";
+        }
+
+    }
+    
+    
+    
+    
+    
+    public function attachdev(Request $request){
+        $catalog = $request->catalog;
+        $order_id = $request->order_id;
+        $partial_id = $request->partial_id;
+        $cancelation_id = $request->cancelation_id;
+        $rebilling_id = $request->rebilling_id;
+        $debolution_id = $request->debolution_id;
+        $rel = $request->rel;
+        
+        $urlParams = [];
+        $urlParams["rel"]=$rel;
+        $urlParams["catalog"]=$catalog;
+        if(!empty($order_id)){$urlParams["order_id"]=$order_id;}
+        if(!empty($partial_id)){$urlParams["partial_id"]=$partial_id;}
+        if(!empty($cancelation_id)){$urlParams["cancelation_id"]=$cancelation_id;}
+        if(!empty($rebilling_id)){$urlParams["rebilling_id"]=$rebilling_id;}
+        if(!empty($debolution_id)){$urlParams["debolution_id"]=$debolution_id;}
+        
+        return view('orders.attachdev', compact('catalog','urlParams','rel') );
+    }
+    
+    
+    public function attachlist(Request $request){
+        
+        //$fav = Follow::where('user_id', auth()->user()->id)->where('order_id', $order->id)->first();
+        $list=[];
+        
+        $catalog = $request->catalog;
+        $order_id = $request->order_id;
+        $partial_id = $request->partial_id;
+        $cancelation_id = $request->cancelation_id;
+        $rebilling_id = $request->rebilling_id;
+        $debolution_id = $request->debolution_id;
+        $rel = $request->rel;
+
+
+        if(empty($catalog)){return "?";}
+        
+        if($catalog==="evidence"){
+            if(!empty($cancelation_id)){
+                $list = Evidence::where("cancelation_id",$cancelation_id)->get();
+            }
+            elseif(!empty($rebilling_id)){
+                $list = Evidence::where("rebilling_id",$rebilling_id)->get();
+            }
+            elseif(!empty($debolution_id)){
+                $list = Evidence::where("debolution_id",$debolution_id)->get();
+            }
+            else{
+                return "?r";
+            }
+        }
+        elseif($catalog==="pictures"){
+            if(!empty($order_id)){
+                $list = Picture::where("order_id",$order_id)->get();
+            }
+            elseif(!empty($partial_id)){
+                $list = Picture::where("partial_id",$partial_id)->get();
+            }
+            else{
+                return "?r";
+            }
+        }
+        elseif($catalog==="shipments"){
+            if(!empty($order_id)){
+                $list = Shipment::where("order_id",$order_id)->get();
+            }
+            else{
+                return "?r";
+            }
+        }
+        else{
+            return "?c";
+        }      
+        
+        $urlParams = [];
+        $urlParams["rel"]=$rel;
+        $urlParams["catalog"]=$catalog;
+        if(!empty($order_id)){$urlParams["order_id"]=$order_id;}
+        if(!empty($partial_id)){$urlParams["partial_id"]=$partial_id;}
+        if(!empty($cancelation_id)){$urlParams["cancelation_id"]=$cancelation_id;}
+        if(!empty($rebilling_id)){$urlParams["rebilling_id"]=$rebilling_id;}
+        if(!empty($debolution_id)){$urlParams["debolution_id"]=$debolution_id;}
+        $url = url('order/attachlist?'.http_build_query($urlParams));
+     
+        return view('orders.attachlist', compact('list','catalog','url','rel','urlParams'));
+    }
+    
+    
+    
+    public function attachpost(Request $request){
+       // $order = Order::find($id);
+       // $status = Status::find($request->status_id);
+        $user = User::find(auth()->user()->id);
+        
+        $ahora = date("Y-m-d H:i:s");
+        
+        $catalog = $request->catalog;
+        $order_id = $request->order_id;
+        $partial_id = $request->partial_id;
+        $cancelation_id = $request->cancelation_id;
+        $rebilling_id = $request->rebilling_id;
+        $debolution_id = $request->debolution_id;
+        
+        $identfield = "?";
+        $ident=0;
+        $identt="x";
+        $folder="xx";
+        
+        if(!empty($order_id)){
+            $identfield="order_id";
+            $ident = $order_id;
+            $identt="o";
+            $folder="Images";
+        }
+        if(!empty($partial_id)){
+            $identfield="partial_id";
+            $ident = $partial_id;
+            $identt="p";
+            $folder="Images";
+        }
+        if(!empty($cancelation_id)){
+            $identfield="cancelation_id";
+            $ident = $cancelation_id;
+            $identt="c";
+            $folder="Cencelaciones";
+        }
+        if(!empty($rebilling_id)){
+            $identfield="rebilling_id";
+            $ident = $rebilling_id;
+            $identt="r";
+            $folder="Refacturaciones";
+        }
+        if(!empty($debolution_id)){
+            $identfield="debolution_id";
+            $ident = $debolution_id;
+            $identt="d";
+            $folder="Devoluciones";
+        }
+        
+        
+        $RE=new \stdClass();
+        $RE->value="";
+        $RE->status=0;
+        $RE->error="";
+        
+        if(empty($ident)){
+            $RE->error="Falta valor de orden o parcial.";
+            return json_encode($RE); 
+        }
+        
+        if($catalog === "pictures"){            
+          
+            $file = $request->file("upload");
+            if(empty($file)){$RE->error="No se recibió imagen";}
+
+            $name = $identt . "-" . $ident . '-' . $file->getClientOriginalName();   
+            
+            $numExists = Picture::where($identfield,intval($ident))->count();
+            
+            if($numExists == 0){
+                $RE->status = 0 ;
+                $RE->error="El registro no existe";
+                return json_encode($RE); 
+            }
+            
+            Storage::putFileAs('/public/'.$folder.'/', $file, $name );            
+            
+            Picture::create([
+                'picture' => $folder.'/' . $name,
+                'user_id' => intval($user->id),
+                $identfield => intval($ident),
+                "created_at" => $ahora,
+                "updated_at" => $ahora
+            ]);  
+            
+            $RE->status=1;
+            $RE->value=$name;
+            return json_encode($RE);  
+        }
+        
+        else if($catalog === "evidence"){
+            
+            $file = $request->file("upload");
+            if(empty($file)){$RE->error="No se recibió imagen o documento";}
+            
+            $name = $identt . "-" . $ident . '-' . $file->getClientOriginalName();
+            
+            $numExists = Evidence::where($identfield,intval($ident))->count();
+            
+            if($numExists == 0){
+                $RE->status = 0 ;
+                $RE->error="El registro no existe";
+                return json_encode($RE);
+            }
+            
+            Storage::putFileAs('/public/'.$folder.'/', $file, $name );
+            
+            Evidence::create([
+                'file' => $folder.'/' . $name,
+                'user_id' => intval($user->id),
+                $identfield => intval($ident),
+                "created_at" => $ahora,
+                "updated_at" => $ahora
+            ]);
+            
+            $RE->status=1;
+            $RE->value=$name;
+            return json_encode($RE);  
+            
+        }
+        
+        else if($catalog === "shipments"){
+            
+            $file = $request->file("upload");
+            if(empty($file)){$RE->error="No se recibió imagen o documento";}
+            
+            $name = $identt . "-" . $ident . '-' . $file->getClientOriginalName();
+            
+            $numExists = Shipment::where($identfield,intval($ident))->count();     
+            
+            
+            if($numExists == 0){
+                $RE->status = 0 ;
+                $RE->error="El registro no existe";
+                return json_encode($RE);
+            }
+            
+            Storage::putFileAs('/public/'.$folder.'/', $file, $name );
+            
+            Shipment::create([
+                'file' => $folder.'/' . $name,
+                $identfield => intval($ident),
+                "created_at" => $ahora,
+                "updated_at" => $ahora
+            ]);
+            
+            $RE->status=1;
+            $RE->value=$name;
+            return json_encode($RE);
+            
+        }
+
+      
+          
+    }
+    
+    
+
+    
+    
+    public function attachdelete(Request $request, $id=0){
+        // $order = Order::find($id);
+        // $status = Status::find($request->status_id);
+        $user = User::find(auth()->user()->id);
+        if(empty($user->id)){return "";}
+        
+        $catalog = $request->catalog;
+        $id = $request->id;
+       // $order_id = $request->order_id;
+        //$partial_id = $request->partial_id;
+       // $ident = !empty($order_id) ? $order_id : $partial_id;
+        //$identfield = !empty($order_id) ? "order_id" : "partial_id";
+        $id = intval($id);
+        
+        $RE=new \stdClass();
+        $RE->value=$id;
+        $RE->status=0;
+        $RE->error="";
+        
+        if($catalog =="pictures"){
+        $img = Picture::find($id);
+        $img->delete($id);
+        $RE->status=1;
+        return json_encode($RE);  
+        }
+        elseif($catalog =="evidence"){
+            $img = Evidence::find($id);
+            $img->delete($id);
+            $RE->status=1;
+            return json_encode($RE);
+        }
+        elseif($catalog =="shipments"){
+            $img = Shipment::find($id);
+            $img->delete($id);
+            $RE->status=1;
+            return json_encode($RE);
+        }
+        
+    }
+    
+    
 
     /**
      * Remove the specified resource from storage.

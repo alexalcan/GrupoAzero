@@ -3,6 +3,7 @@
 @section('content')
 
 <link href="{{ route("welcome")."/css/paginacion.css" }}" rel="stylesheet" />
+<link href="{{ route("welcome")."/css/orders.css" }}" rel="stylesheet" />
 
     <div class="content">
         <div class="container-fluid">
@@ -66,6 +67,7 @@
                                             value="<?php echo App\Libraries\Tools::valor("fechaDos",""); ?>" />
                                         </div>
                                     </div>
+                                    <!-- 
                                     <div class="col-1">
                                         <div class="form-check text-center">
                                             <button type="submit" class="btn btn-white btn-round btn-just-icon">
@@ -73,6 +75,7 @@
                                             </button>
                                         </div>
                                     </div>
+                                    -->
                                     <div class="col-12">
                                         <div class="input-group no-border">
                                             <div class="col-3">
@@ -91,13 +94,30 @@
                                                 <input type="text" name="busquedaSucursal" class="form-control" placeholder="Buscar por sucursal" style=""
                                                  value="<?php echo App\Libraries\Tools::valor("sucursal",""); ?>">
                                             </div>
+                                            
+                                            <div class="col-3">
+                                               
+                                                 <select name='busquedaEstatus'>
+                                                 <option value=''> Cualquier estatus</option>
+                                                  @foreach ($statuses as $status)
+                                                <option value="{{ $status->id }}">{{ $status->name }}</option>
+                                            		@endforeach
+                                                 </select>
+                                                 <label>Buscar por estatus</label>
+                                           </div>
 
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <br>
-
+							
+							<div class="col-2">
+							<button type="submit" class="btn btn-white btn-round btn-just-icon">
+                                                <i class="material-icons">search</i>
+                            </button>
+                            </div>
+							
                         </div>
                         @if ($fecha || $texto)
                             <div class="row">
@@ -176,20 +196,33 @@
                                     <td class="text-right">
                                         {{-- Alerta de pedido fabricado, recordar subir foto al salir a ruta --}}
                                         @if ( $order->status->name ==  'Fabricado')
-                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Recuerda que para salir a ruta debes tomar evidencias">
+                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm tte"  data-placement="top" title="Recuerda que para salir a ruta debes tomar evidencias">
                                                 <span class="material-icons">
                                                     priority_high
                                                 </span>
+                                                
+                                                
+                                                <div class='toolTipExtra alert'>
+                                                Recuerda que para salir a ruta debes tomar evidencias
+                                                </div>
+                                                
                                                 {{-- {{ $order->partials->count() }} --}}
                                             </a>
                                         @endif
                                         {{-- Fin de alerta de pedido fabricado --}}
                                         {{-- Pedido con parciales --}}
                                         @if ( $order->partials->count() > 0 )
-                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Pedido con {{ $order->partials->count() }} entregas parciales">
+                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm tte"  data-placement="top" title="Pedido con {{ $order->partials->count() }} entregas parciales">
                                                 <span class="material-icons">
                                                     alt_route
                                                 </span>
+                                                <div class='toolTipExtra'>
+                                                <p class='em'>Pedido con {{ $order->partials->count() }} entregas parciales</p>
+                                                @foreach ($order->partials as $parti) 
+                                                	<p>{{$parti->invoice}}</p>
+                                                @endforeach
+                                                </div>
+                                                
                                                 {{ $order->partials->count() }}
                                             </a>
                                         @endif
@@ -205,10 +238,17 @@
                                         {{-- Fin de pedido a crédito --}}
                                         {{-- Pedido con orden de fabricación --}}
                                         @if ( $order->manufacturingorder )
-                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Con orden de fabricación {{ $order->manufacturingorder->number }}">
+                                            <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-primary btn-link btn-sm tte"  data-placement="top" title="Con orden de fabricación {{ $order->manufacturingorder->number }}">
                                                 <span class="material-icons">
                                                     precision_manufacturing
                                                 </span>
+                                                
+                                                <div class="toolTipExtra">
+                                                <div class='em'>Con órden de fabricacion</div>
+                                                <p> {{ $order->manufacturingorder->number }}</p>
+                                                </div>
+                                                
+                                                
                                             </a>
                                         @endif
                                         {{-- Fin de pedido con orden de fabricación --}}
@@ -281,11 +321,17 @@
                                                 </a>
                                             @endif
                                             @if ( $order->status_id == 7 && $role->name == "Administrador" && $order->cancelation->evidences->count() > 0 )
-                                                <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Existe evicencia o razón de cancelación">
+                                                <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary btn-link btn-sm tte" data-placement="top" title="Existe evicencia o razón de cancelación">
                                                     <span class="material-icons">
                                                         description
                                                     </span>
-                                                    {{ $order->cancelation->evidences->count() }}
+                                                    <div class="toolTipExtra">
+                                                    <div class="em">Existe {{ $order->cancelation->evidences->count() }} evicencia o razón de cancelación</div>
+                                                    @foreach ($order->cancelation->evidences as $evid) 
+                                                    	<p><img src="{{  asset('storage/'.$evid->file) }}" height="50" /> &nbsp; Cancelación # {{ $evid->cancelation_id }}</p>
+                                                    @endforeach
+                                                    </div>
+                                                    
                                                 </a>
                                             @endif
                                             {{-- Fin Evidencia de cancelacion --}}
@@ -308,32 +354,46 @@
                                                     </span>
                                                     {{ $order->rebilling->repayments->count() }}
                                                 </a>
-                                            @endif --}}
+                                            @endif 
                                             {{-- Fin Subir foto de nota de devolución o crédito --}}
                                             {{-- Evidencias --}}
                                             {{-- @if ( $order->status_id == 8 && $role->name == "Administrador" && $order->rebilling->evidences->count() == 0 ) --}}
-                                            @if ( $order->status_id == 8 && $role->name == "Administrador" )
+                             
+                                            @if ( $order->status_id == 8 && $role->name == "Administrador"  &&  (empty($order->rebilling->evidences) || $order->rebilling->evidences->count() == 0) )
                                                 <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir evicencia refacturación">
                                                     <span class="material-icons">
                                                         description
                                                     </span>
                                                 </a>
                                             @endif
-                                            {{-- @if ( $order->status_id == 8 && $role->name == "Administrador" && $order->rebilling->evidences->count() > 0 )
-                                                <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Existe evicencia o razón de refacturación">
+                                            
+                                            @if ( $order->status_id == 8 && $role->name == "Administrador" && !empty($order->rebilling->evidences) && $order->rebilling->evidences->count() > 0 )
+                                                <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-primary btn-link btn-sm tte"  data-placement="top" title="Existe evidencia o razón de refacturación" >
                                                     <span class="material-icons">
                                                         description
                                                     </span>
-                                                    {{ $order->rebilling->evidences->count() }}
+                                                    
+                                                    <div class="toolTipExtra">
+                                                    <div class="em">{{ $order->rebilling->evidences->count()  }} evidenciasde refacturación</div>
+                                                    @foreach ($order->rebilling->evidences as $ev) 
+                                                    	<p><img src='{{ asset("storage/".$ev->file) }}' height='50' />  &nbsp; {{ $ev->rebilling_id }}</p>
+                                                    @endforeach
+                                                    </div>
+                                                  
+                                                    
+                                                    
                                                 </a>
-                                            @endif --}}
+                                        	@endif  
+                                            
+                                            
                                             {{-- Fin evidencias --}}
                                         {{-- Fin rebillings --}}
+                                        
 
-                                        {{-- 8. Devoluciones --}}
+                                        {{-- 9. Devoluciones --}}
                                             {{-- Subir foto de nota de devolución o crédito --}}
                                             @if ( $order->status_id == 9 && $role->name == "Administrador" && ($order->debolution->repayments->count() == 0) )
-                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir foto de reembolso o de devolución de crédito">
+                                                <a href="{{ route('orders.show', $order->id) }}" type="submit" class="btn btn-sm btn-danger btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Subir foto de reembolso o de devolución de crédito 9">
                                                     <span class="material-icons">
                                                         photo_camera
                                                     </span>
@@ -369,10 +429,21 @@
 
                                         {{-- Fin evidencia de cancelación --}}
                                         {{-- Ver y editar --}}
-                                        <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Notas">
+                                        <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-link btn-sm tte"  data-placement="top" title="Notas">
                                             <span class="material-icons">note</span>
-                                            {{ $order->notes->count() }}
+                                            
+                                            <div class="toolTipExtra">
+                                            <p class="em">{{ $order->notes->count() }} Notas</p>
+                                            @foreach ($order->notes as $tnote)
+                                           	 <p>{{ $tnote->note }}</p>
+                                            @endforeach
+                                            </div> 
+                                            
                                         </a>
+                             
+                                        
+                                        
+                                        
                                         @if ( $role->name == "Administrador" || $department->name == "Ventas" || $department->name == "Embarques" || $department->name == "Fabricación" || $department->name == "Compras")
                                             <a href="{{ route('orders.edit', $order->id) }}" class="btn btn-primary btn-link btn-sm" data-toggle="tooltip" data-placement="top" title="Editar">
                                                 <span class="material-icons">
@@ -465,7 +536,11 @@
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
     })
+    
+
+    
 </script>
+<script type='text/javascript' src='{{route("welcome")}}/js/tooltipExtra.js'></script>
 
 <script type="text/javascript">
     function addInvoice() {

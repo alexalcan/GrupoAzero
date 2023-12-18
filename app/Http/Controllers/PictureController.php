@@ -43,7 +43,7 @@ class PictureController extends Controller
         // dd($request->all());
 
         $order = Order::find($request->order_id);
-        $hoy = date("Y-m-d H:i:s");
+        $hoy = date("Y-m-d_H-i-s");
         $status = 6;
         $statusName = 'Entregado';
         $action = 'El pedido se entregó';

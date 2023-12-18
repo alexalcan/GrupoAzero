@@ -39,7 +39,7 @@
                                     <div class="col-sm-7">
                                         <div class="">
                                             <label for="picture">Archivo</label>
-                                            <img src="{{ asset('storage') ."/". $shipments[$a-1]->file }}" />
+                                            <img src="{{ asset('storage') ."/". $shipments[$a-1]->file }}" style="max-height:90px" />
                                         </div>
                                     </div>
                                 </div>                            	

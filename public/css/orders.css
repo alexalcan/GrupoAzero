@@ -1,0 +1,43 @@
+.tte{
+	position:relative;
+}
+
+
+
+.toolTipExtra{
+	border:#ccc 1px solid;
+	padding:3px 10px 5px 10px;
+	font-size:.9rem;
+	display:block;
+	position:absolute;
+	bottom:-30px;
+	right:0px;
+	background:#fff;
+	z-index:100;
+	border-radius:5px;
+	color:#666;
+	text-align:left;
+	min-width:20rem;
+	max-width:50vw;
+	white-space:wrap;
+	box-shadow:#aaa 3px 4px 4px;
+	cursor:auto;
+}
+
+.toolTipExtra p{
+	margin:0;
+	padding:.2rem 1rem;
+	border-bottom:#ddd 1px dotted;
+}
+.toolTipExtra .em{
+	letter-spacing:1pt;
+	font-size:.8rem;
+	padding:0rem 1rem .2rem 1rem;
+	font-style:italic;
+	color:#333;
+}
+
+.toolTipExtra.alert{
+	color:#C7202A;
+	font-size:1.1rem;
+}

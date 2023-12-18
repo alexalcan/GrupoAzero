@@ -221,10 +221,44 @@
                                             <div class="col-sm-7">
                                                 <div class="">
                                                     <label for="picture">Fotografía o PDF</label>
-                                                    <input type="file" name="routeEvidence" class="form-control-file" id="picture" accept="image/*" capture="camera">
+                                                    <input type="file" name="routeEvidence1" accept="capture=camera,image/*" class="form-control-file" id="picture"  >
+                                                </div>
+                                            </div>
+                                          
+                                            
+                                            
+                                        </div>
+                                        
+                                        
+                                       @for ($i=2; $i <= 10 ; $i++)
+                                       <div class="row col-sm-12 rutaev" rel="{{ $i }}">
+                                            <label class="col-sm-2 col-form-label">
+                                                <span class="material-icons">
+                                                    warning
+                                                </span>
+                                                Material listo {{ $i }}
+                                            </label>
+                                            <div class="col-sm-7">
+                                                <div class="">
+                                                    <label for="picture">Fotografía o PDF {{ $i }}</label>
+                                                    <input type="file" name="routeEvidence{{$i}}" class="form-control-file" id="picture"  accept="capture=camera,image/*">
                                                 </div>
                                             </div>
                                         </div>
+                                       @endfor
+                                                                              
+
+                                        
+                                        <div class="row col-sm-12" id='rowAgregadorRouteEvidence' style='margin-top:10px'>
+                                        <label  class="col-sm-2 col-form-label">
+                                        Agregar Evidencia
+                                        </label>
+                                        <div class="col-sm-7">
+                                        <label for='agregadorRouteEvidence'></label>
+                                        <button id='agregadorRouteEvidence'> + Imagen </button>
+                                        </div>
+                                        </div>
+                                        
                                     </div>
                                     {{-- Fin opcional en ruta --}}
                                     {{-- Opcional al cancelar --}}
@@ -249,7 +283,7 @@
                                             <div class="col-sm-4">
                                                 <div class="">
                                                     <label for="picture">Fotografía o PDF</label>
-                                                    <input type="file" name="cancelation" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera">
+                                                    <input type="file" name="cancelation" class="form-control-file" id="picture"   accept="capture=camera,image/*">
                                                 </div>
                                             </div>
                                         </div>
@@ -277,7 +311,7 @@
                                             <div class="col-sm-4">
                                                 <div class="">
                                                     <label for="picture">Fotografía o PDF</label>
-                                                    <input type="file" name="rebilling" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera">
+                                                    <input type="file" name="rebilling" class="form-control-file" id="picture"  accept="capture=camera,image/*">
                                                 </div>
                                             </div>
                                         </div>
@@ -305,9 +339,30 @@
                                             <div class="col-sm-4">
                                                 <div class="">
                                                     <label for="picture">Fotografía o PDF del material</label>
-                                                    <input type="file" name="debolution" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera">
+                                                    <input type="file" name="debolution1" class="form-control-file" id="picture"  accept="capture=camera,image/*">
                                                 </div>
+                                                
+                                                
+                                                
+                                                @for ($i=2; $i <= 5; $i++)
+                                                 <div class="pmuploader" rel="{{ $i }}" group='devo'>
+                                                    <label for="picture">Fotografía o PDF {{ $i }}</label>
+                                                    <input type="file" name="debolution{{ $i }}" class="form-control-file" id="picture"  accept="capture=camera,image/*">
+                                                </div>
+                                                @endfor
+                                                
+                                                
+                                                <div class="rowUploaderAdder" group='devo'>
+                                                <br/>
+                                                	<button class="UploaderAdder" group='devo'>Agregar Imagen</button>
+                                                </div>
+                                                
                                             </div>
+                                            
+                                            
+                                       
+                                            
+                                            
                                         </div>
                                     </div>
                                     {{-- Fin opcional devolución --}}
@@ -329,7 +384,7 @@
                                                             <p>{{$order->manufacturingorder->document}}</p>
                                                         @else
                                                             <label for="picture">Subir orden de fabricación</label>
-                                                            <input type="file" name="manufacturingFile" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera" required="true" aria-required="true">
+                                                            <input type="file" name="manufacturingFile" class="form-control-file" id="picture"   accept="capture=camera,image/*" required="true" aria-required="true">
                                                         @endif
                                                     </div>
                                                 </div>
@@ -349,7 +404,7 @@
                                                 <div class="col-sm-4">
                                                     <div class="">
                                                         <label for="picture">Subir orden de fabricación</label>
-                                                        <input type="file" name="manufacturingFile" class="form-control-file" id="picture" accept="image/*,.pdf" capture="camera">
+                                                        <input type="file" name="manufacturingFile" class="form-control-file" id="picture"   accept="capture=camera,image/*">
                                                     </div>
                                                 </div>
                                             </div>
@@ -472,8 +527,27 @@
                                                                     <div class="form-check">
                                                                         <label for="">Evidencia de salida</label>
                                                                         <input type="hidden" name="partImgID_{{ $count+1 }}" value="{{ $partial->id }}">
-                                                                        <input type="file" name="partImg_{{ $count+1 }}" class="form-control-file" accept="image/*">
+                                                                        <input type="file" name="partImg_{{ $count+1 }}_0" class="form-control-file" accept="capture=camera,image/*">
                                                                     </div>
+                                                                    
+                                                                    
+                                                                    
+                                                                    @for ($i=2; $i <= 5; $i++)
+                                                                     <div class="form-check pmuploader" rel="{{ $i }}" group="pes{{$count+1}}">
+                                                                        <label for="picture">Evidencia de salida {{ $i }}</label>
+                                                                        <input type="file" name="partImg_{{ $count+1 }}_{{ ($i-1) }}" class="form-control-file" id="picture"  accept="capture=camera,image/*">
+                                                                    </div>
+                                                                    @endfor                                                                    
+                                                                    
+                                                                    <div class="rowUploaderAdder" group='pes{{$count+1}}' style='text-align:left'>
+                                                                    <br/>
+                                                                    	<button class="UploaderAdder" group="pes{{$count+1}}">Agregar Imagen</button>
+                                                                    </div>
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
                                                                 </td>
                                                             @endif
                                                             @if ( $partial->status->name == 'Entregado' )
@@ -650,6 +724,70 @@
         // console.log(selected);
 
     }
+
+    function RutaEvidencias(){
+		$(".rutaev").hide();
+		
+        }
+    function AddRutaEvidencia(){
+		var lastRel = 1;
+		var r=2;
+			$(".rutaev").each(function(){
+				if($(this).is(":visible")){lastRel=r;}
+				r++;
+			});
+		
+			var nextRel = lastRel+1;
+			if(nextRel > 10 ){HideRutaEvidenciaAdder();return;}
+
+			$(".rutaev[rel='"+nextRel+"']").slideDown();
+			if(nextRel > 9 ){HideRutaEvidenciaAdder();}
+        }
+
+   function HideRutaEvidenciaAdder(){
+       $("#rowAgregadorRouteEvidence").hide();
+       }
+
+	$("#agregadorRouteEvidence").click(function(e){
+		e.preventDefault();
+		AddRutaEvidencia();
+		});
+    RutaEvidencias();
+
+
+
+    function MultiUploads(){
+		$(".pmuploader").hide();
+		
+        }
+    function AddUploader(group){
+		var lastRel = 1;
+		var r=2;
+			$(".pmuploader[group='"+ group +"']").each(function(){
+				if($(this).is(":visible")){lastRel=r;}
+				r++;
+			});
+		
+			var nextRel = lastRel+1;
+			if(nextRel > 5 ){HideUploaderAdder( group ); return;}
+//console.log(nextRel);
+			$(".pmuploader[group='"+ group +"'][rel='"+nextRel+"']").slideDown();
+			if(nextRel > 4 ){HideUploaderAdder( group );}
+        }
+
+   function HideUploaderAdder(group){
+       $(".rowUploaderAdder[group='"+ group +"']").hide();
+       }
+
+	$(".UploaderAdder").click(function(e){
+		e.preventDefault();
+		var group = $(this).attr("group");
+		AddUploader(group);
+		});
+	
+	MultiUploads();
+	
+    
 </script>
 
 <script type="text/javascript">
