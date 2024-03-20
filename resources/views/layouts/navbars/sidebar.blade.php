@@ -37,6 +37,14 @@
                         <p>{{ __('Pedidos') }}</p>
                     </a>
                 </li>
+
+                <li class="nav-item{{ $activePage == 'orders' ? ' active' : '' }}">
+                    <a class="nav-link" href="{{ url('pedidos2') }}">
+                        <i class="material-icons">receipt</i>
+                        <p>{{ __('Pedidos NUEVO') }}</p>
+                    </a>
+                </li>
+
             @endif
             {{-- @if ( auth()->user()->role->name != "Flotilla" ) --}}
                 <li class="nav-item{{ $activePage == 'follows' ? ' active' : '' }}">

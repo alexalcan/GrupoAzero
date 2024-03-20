@@ -74,6 +74,8 @@ Route::group(['middleware' => 'auth'], function () {
     
 });
 
+require_once "pedidos2.php";
+
 // Para generar el storage link
 // Route::get('storage-link', function(){
 //     Artisan::call('storage:link');

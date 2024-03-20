@@ -1,0 +1,274 @@
+form{
+    margin:0px;
+    padding:0px;
+}
+
+.formaBuscar{
+
+    padding:10px 20px;
+}
+
+
+.terminoBox{
+    display: grid;
+    grid-template-columns: 1fr 5rem;
+    gap:10px;
+}
+.terminoBox input[type='text']{
+    border:#aaa 1px solid;
+    border-radius:9px;
+    font-size:1.2rem;
+    color:#999;
+    padding:.5rem 2rem;
+    background:#fff;
+    min-width:80px;
+}
+.terminoBox input[type='submit']{
+    padding:.5rem .2rem;
+}
+
+#MuestraFecha{
+    display: inline-block;
+    font-weight: bold;
+    text-align: center;
+    color:#666;
+    font-size:1.1rem;
+    text-decoration: none;
+    padding:.4rem 1rem;
+    border:#999 2px solid;
+    border-radius:5px;
+    box-shadow: #ddd 0px 0px 2px;
+    background-color: #eee;
+}
+label[for='fechas']{
+    margin:30px 0px 0px 0px;
+}
+
+.Avanzados{
+    display:flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    align-items: start;
+    margin:20px 0px 0px 0px;
+}
+.Avanzados fieldset{
+    padding:20px;
+    text-align:left;
+}
+.Avanzados legend{
+    font-size:1.2rem;
+    font-weight: bold;
+    color:#999;
+    margin:0;
+}
+.Avanzados label{
+    color:#666;
+}
+
+
+
+.fechasNotas{
+    font-size:.85rem;
+    color:#999;
+}
+
+.fechasBox{
+    text-align:center;
+}
+.divFechas{
+    height:5px;
+}
+#fechas{
+    opacity:0;
+    filter:"alpha(0)";
+    height:5px;
+    font-size:3px;
+}
+
+a.toggleLink{
+    font-size:1.1rem;
+    color:#993333;
+    text-decoration:underline;
+    text-underline-offset: .2em;
+}
+
+
+
+
+
+.Pedido{
+    margin:10px 10px 20px 0px;
+    padding:20px;
+    border:#ccc 1px solid;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    box-shadow: #999 1px 2px 5px;
+    background-color: #fff;
+    position:relative;
+}
+.Pedido .estatus{
+position:absolute;
+top:0px;
+right:10px;
+border-bottom:#fff 1px solid;
+border-right:#fff 1px solid;
+border-bottom-right-radius: 11px;
+box-shadow: #666 2px 3px 1px;
+padding:4px 10px 8px 10px;
+background:green;
+color:#fff;
+width:12rem;
+}
+.Pedido .estatus.E1{
+    background:#999;  
+}
+.Pedido .estatus.E2{
+    background:#903282;  
+}
+.Pedido .estatus.E3{
+    background:#88cc88;  
+}
+.Pedido .estatus.E4{
+    background:#45981e;  
+}
+.Pedido .estatus.E5{
+    background:#32977c;  
+}
+.Pedido .estatus.E6{
+    background:#2a712a;  
+}
+.Pedido .estatus.E7{
+    background:#7c1c27;  
+}
+.Pedido .estatus.E8{
+    background:#669966;  
+}
+.Pedido .estatus.E9{
+    background:#7f5613;  
+}
+
+
+
+.Pedido .Elementos{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr 12rem;
+    grid-template-areas:"fol fac suc ." "cli mas ed ico";
+    align-items: start;
+    gap:2px;
+}
+.Pedido .datito{
+    font-size:1rem;
+    font-weight: bold;
+    color:#666;
+}
+.Pedido label{
+    display:block;
+    font-size:.8rem;
+    font-weight: normal;
+}
+
+    .Elementos [rel='folio']{
+    grid-area:fol;
+    }
+    .Elementos [rel='factura']{
+        grid-area:fac; 
+    }
+    .Elementos [rel='sucursal']{
+        grid-area:suc;
+    }
+    .Elementos [rel='cliente']{
+        grid-area:cli;
+    }
+    .Elementos [rel='mas']{
+        grid-area:mas;
+    }
+    .Elementos [rel='edit']{
+        grid-area:ed;
+    }
+    .Elementos [rel='icons']{
+        grid-area:ico;
+    }
+
+    .Elementos [rel='mas'] a{
+        display:inline-block;
+        padding:.2rem 1rem .4rem 1rem;
+        font-size:1rem;
+        text-decoration:none;
+        color:#444;
+        border:#999 1px solid;
+        border-radius:7px;
+    }
+
+    a.editar{
+        display: inline-block;
+        background-image: url(btn_editar.png);
+        background-position: top 8px left 6px;
+        background-size:auto 22px ;
+        background-repeat: no-repeat;
+        padding:8px 20px 6px 36px;
+
+        font-size:20px;
+        text-decoration:none;
+        color:#666;
+        border:#999 1px solid;
+        border-radius:7px;
+    }
+
+
+.iconSet{
+    display:flex;
+    justify-content: flex-end;
+    align-items:start;
+    gap:10px;
+}
+.iconSet a{
+    box-shadow: #eee 0px 1px 2px;
+    width:22px;
+    height:22px;
+    background-color: burlywood;
+}
+
+
+@media screen and (max-width:700px) {
+    
+    .Pedido .Elementos{
+        display:grid;
+        grid-template-columns: 1fr 1fr 12rem;
+        grid-template-areas:"fol fac ." "suc cli cli" "mas ed ico";
+
+    }
+
+
+}
+
+
+@media screen and (max-width:560px) {
+
+    .formaBuscar{
+
+        padding:10px 0px;
+    }
+    
+    .Pedido .Elementos{
+        display:grid;
+        grid-template-columns: 1fr 9rem;
+        grid-template-areas:"fol fac" "suc cli" "mas ed" "ico ico";
+        margin-top:2rem;
+        row-gap: 12px;
+        column-gap:8px;
+    }
+    .iconSet{
+        justify-content: center;
+        gap:10px;
+    }
+
+    .Elementos [rel='mas'] a{
+        padding:.2rem .2rem .4rem .2rem;    
+    }
+
+    a.editar{
+        padding:8px 6px 6px 32px;   
+    }
+
+
+}
