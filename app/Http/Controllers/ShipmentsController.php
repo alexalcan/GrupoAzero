@@ -8,6 +8,7 @@ use App\Shipment;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+//use Illuminate\Support\Facades\Redirect;
 
 class ShipmentsController extends Controller
 {
@@ -25,7 +26,10 @@ class ShipmentsController extends Controller
         $request->file;
         $file = $request->file('file');
         $action = 'Evidencia de material terminado';
+            if(empty($file)){
+            return redirect()->to("orders");
 
+            }
         $name = str_replace(' ','-', $order->invoice .'-'.$file->getClientOriginalName());
         $path = 'Embarques/' . $name;
         $extension = pathinfo($path, PATHINFO_EXTENSION);

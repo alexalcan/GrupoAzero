@@ -24,7 +24,7 @@ color:#fff;
 
 ul.paginacion li{
 display:inline-block;
-margin:2px 8px 2px 0px;
+margin:2px 12px 2px 0px;
 list-style:none;
 padding:0px 0px;
 color:#fff;
@@ -64,5 +64,5 @@ height:20px;
 
 ul.paginacion li.steps a{
 	display:inline-block;
-	margin:0px 5px;
+	margin:0px 10px;
 }

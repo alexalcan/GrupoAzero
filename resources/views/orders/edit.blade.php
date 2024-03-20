@@ -210,7 +210,31 @@
                                 {{-- Fin de estatus --}}
                                 {{-- Opciones de visibilidad de acuerdo al estatus --}}
                                     {{-- Opcional en ruta --}}
-                                    <div class="row" id="route" style="display: none">
+                                    <?php 
+                                    //var_dump($order->status_id);
+                                    $rutaDisplay = ($order->status_id == 5 && !empty($order->shipments)) ? "": "style='display:none'"; 
+                      
+                              //var_dump($rutaDisplay);
+                                    ?>
+                                    <div class="row" id="route" {!! $rutaDisplay !!}>
+                                    
+                                    <div class="row col-sm-12">
+                                            <label class="col-sm-2 col-form-label">
+                                                <span class="material-icons">
+                                                    warning
+                                                </span>
+                                                Material listo
+                                            </label>
+                                            <div class="col-sm-7 debdiv">
+                           
+                                            <section class='attachList' rel='ever' uploadto="{{ url('order/attachpost?catalog=shipments') }}" 
+href="{{ url('order/attachlist?rel=ever&catalog=shipments&order_id='.$order->id) }}"></section>   
+                                          
+                                            </div>
+                                    </div>
+                                    
+                                    
+                                    <!-- 
                                         <div class="row col-sm-12">
                                             <label class="col-sm-2 col-form-label">
                                                 <span class="material-icons">
@@ -258,6 +282,7 @@
                                         <button id='agregadorRouteEvidence'> + Imagen </button>
                                         </div>
                                         </div>
+                                        -->
                                         
                                     </div>
                                     {{-- Fin opcional en ruta --}}
@@ -309,16 +334,25 @@
                                                 </div>
                                             </div>
                                             <div class="col-sm-4">
+                                                
+                                                 
                                                 <div class="">
                                                     <label for="picture">Fotografía o PDF</label>
                                                     <input type="file" name="rebilling" class="form-control-file" id="picture"  accept="capture=camera,image/*">
                                                 </div>
+                                                
+                                                
                                             </div>
                                         </div>
                                     </div>
                                     {{-- Fin opcional refacturación --}}
                                     {{-- Opcional al devolución --}}
-                                    <div class="row" id="devolReason" style="display: none">
+                                    <?php 
+                                    $deborId = !empty($order->debolution) ? $order->debolution->reason_id : 0 ;
+                  
+                                    $deboRowDisplay = (empty($deborId) && $order->status_id == 9 ) ? "" : "style='display:none'" ;            
+                                                ?>
+                                    <div class="row" id="devolReason" {!! $deboRowDisplay !!} >
                                         <div class="row col-sm-12">
                                             <label class="col-sm-2 col-form-label">
                                                 <span class="material-icons">
@@ -328,15 +362,29 @@
                                             </label>
                                             <div class="col-sm-5">
                                                 <div class="form-group bmd-form-group is-filled">
+                                                
                                                     <select name="debolution_reason_id" id="reason_id" class="form-control">
                                                         <option value="1" selected><b>Selecciona una razón...</b></option>
                                                         @foreach ($reasons as $reason)
-                                                            <option value="{{ $reason->id }}">{{ $reason->reason }}</option>
+                                                            <option {{ ($deborId == $reason->id) ? "selected='selected'" : "" }} value="{{ $reason->id }}">{{ $reason->reason }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="col-sm-4">
+                     
+                                            @if (!empty($order->debolution) && $order->status_id == 9)
+                                            <?php //var_dump($order->debolution); ?>
+                                            <section class='attachList' rel='debo'  uploadto="{{ url('order/attachpost?catalog=evidence') }}" 
+href="{{ url('order/attachlist?rel=debo&catalog=evidence&debolution_id='. $order->debolution->id) }}"></section>
+                                            @else
+                                            <section class='attachList adder' rel='debo' adder='{{ url("order/debolutioncreatefor?order_id=".$order->id) }}' uploadto="{{ url('order/attachpost?catalog=evidence') }}" 
+href="{{ url('order/attachlist?rel=debo&catalog=evidence') }}"></section>
+                                            @endif
+                                            
+                                            
+                                            
+                                            <!-- 
                                                 <div class="">
                                                     <label for="picture">Fotografía o PDF del material</label>
                                                     <input type="file" name="debolution1" class="form-control-file" id="picture"  accept="capture=camera,image/*">
@@ -356,7 +404,7 @@
                                                 <br/>
                                                 	<button class="UploaderAdder" group='devo'>Agregar Imagen</button>
                                                 </div>
-                                                
+                                                -->
                                             </div>
                                             
                                             
@@ -367,7 +415,7 @@
                                     </div>
                                     {{-- Fin opcional devolución --}}
                                     {{-- Opcional al Orden de fabricación --}}
-                                    @if ( $order->manufacturingorder )
+                                    @if ( $order->manufacturingorder && $order->status_id == 3 )
                                         <div class="row" >
                                             <div class="row col-sm-12">
                                                 <label class="col-sm-2 col-form-label">
@@ -390,6 +438,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div id="manufacturingSection" comment="this exists to avoid a js error if not present"></div>
                                     @else
                                         <div class="row" id="manufacturingSection" style="display: none">
                                             <div class="row col-sm-12">
@@ -466,7 +515,7 @@
                                     @endif
                                     <div class="row">
                                         <div class="col-sm-2 col-form-label">
-                                            <a class="btn btn-sm btn-primary" style="color: white" onclick="AgregarCampos();">
+                                            <a class="btn btn-sm btn-primary" style="color: white" onclick="AgregarCampos()">
                                                 <span class="material-icons">
                                                     add
                                                 </span>
@@ -496,7 +545,7 @@
                                                 </thead>
                                                 <tbody>
                                                     @foreach ($order->partials as $count => $partial)
-                                                        <tr>
+                                                        <tr rel='{{$partial->id}}'>
                                                             <td>
                                                                 {{-- <a href="{{ route('partials.show', $partial->id) }}" class="btn btn-primary btn-link btn-sm"> --}}
                                                                     <p >{{ $partial->invoice }}</p>
@@ -505,7 +554,7 @@
                                                             <td>
                                                                 {{-- <a href="{{ route('partials.show', $partial->id) }}" class="btn btn-primary btn-link btn-sm"> --}}
                                                                     <input type="hidden" name="stPartID_{{ $count+1 }}" value="{{ $partial->id }}">
-                                                                    <select name="stPartValue_{{ $count+1 }}" id="stPartValue_{{ $count+1 }}" class="form-control" >
+                                                                    <select name="stPartValue_{{ $count+1 }}" id="stPartValue_{{ $count+1 }}" class="form-control stPartSelector" >
                                                                         <option value="{{ $partial->status->id }}" selected><b>{{ $partial->status->name }}</b></option>
                                                                         @foreach ($statuses as $status)
                                                                             <option value="{{ $status->id }}">{{ $status->name }}</option>
@@ -524,6 +573,12 @@
                                                             </td> --}}
                                                             @if ( $partial->status->name == 'En ruta' )
                                                                 <td  class="text-center">
+                                                                
+                                                                
+                                                                <section class='attachList' rel='evp{{$partial->id}}' uploadto="{{ url('order/attachpost?catalog=pictures') }}" 
+href="{{ url('order/attachlist?rel=evp'.$partial->id.'&catalog=pictures&partial_id='.$partial->id) }}"></section>
+                                                                
+                                                                <!--  
                                                                     <div class="form-check">
                                                                         <label for="">Evidencia de salida</label>
                                                                         <input type="hidden" name="partImgID_{{ $count+1 }}" value="{{ $partial->id }}">
@@ -543,10 +598,8 @@
                                                                     <br/>
                                                                     	<button class="UploaderAdder" group="pes{{$count+1}}">Agregar Imagen</button>
                                                                     </div>
-                                                                    
-                                                                    
-                                                                    
-                                                                    
+                                                                 -->   
+
                                                                     
                                                                 </td>
                                                             @endif
@@ -616,6 +669,10 @@
         }
     }
 </script> --}}
+
+
+
+
 <script type="text/javascript">
     function addOC() {
         element = document.getElementById("purchaseSpace");
@@ -660,6 +717,10 @@
             element.style.display='none';
             element = document.getElementById("manufacturingSection");
             element.style.display='none';
+
+
+            AttachList("ever");
+            
         }
         if( status_id == 5 && credit == true ){
             alert('Para pedidos por cobrar o pedidos programados es necesario ligar a una factura');
@@ -725,6 +786,9 @@
 
     }
 
+
+
+    /*
     function RutaEvidencias(){
 		$(".rutaev").hide();
 		
@@ -786,20 +850,31 @@
 		});
 	
 	MultiUploads();
-	
-    
-</script>
+	*/
 
-<script type="text/javascript">
+
+    
+	function actualizar(ob){
+		//PLACEHOLDER
+		console.log(ob);
+		var val = $(ob).val();
+		if(val==5){
+			FormaAgregarParcial(5);
+			}
+		
+		}
+
+	
     var nextinput = {{ $order->partials->count() }};
     function AgregarCampos(){
         nextinput++;
         campo = ``;
+        console.log(nextinput);
         if(nextinput < 6){
             campo = `
             <div class="col-sm-8">
                 <div class="form-group bmd-form-group is-filled">
-                    <input class="form-control" name="folio`+nextinput+`" id="input-address" type="text" placeholder="Folio `+nextinput+`" value="" required="true" aria-required="true">
+                    <input class="form-control " rel="folioInput" name="folio`+nextinput+`" id="input-address" type="text" placeholder="Folio `+nextinput+`" value="" required="true" aria-required="true">
                 </div>
             </div>
             <div class="col-sm-6">
@@ -811,10 +886,157 @@
                 </select>
             </div>
             `;
+          
         $("#campos").append(campo);
         }
     }
+
+
+   function FormaAgregarParcial(statusId){
+		var h = "<div id='FormaNuevoParcial'>";
+		//h+="<input type='text' name='folio' size='48' maxlength='110' />";
+		//h+= "<div>"+statusId+"</div>";
+		h+="<input type='button' class='btn' id='AgregadorDeParcial' onclick='AgregarParcial("+statusId+")' value='Agregar Imagenes' />";
+   		//h+="<p><button onclick='MiModalCerrar()'>Cancelar</button></p>";
+   		h+="</div>";
+		//MiModal(h);
+		$("#campos").append(h);
+       }
+
+
+    function AgregarParcial(statusId){
+        var folio = $("[rel='folioInput']").val();
+        if(typeof(folio)=="" || folio==""){
+			alert("Por favor indica un folio");
+			return;
+            }
+
+     
+	$.ajax({
+		url:"{{ url('order/partialcreatefor') }}",
+		data:{"order_id":"{{$order->id}}","status_id":statusId,"folio":folio},
+		dataType:"json",
+		success:function(json){
+			if(json.status==1){
+				//AgregarParcialRow(json.value);
+				AgregarParcialAttachlist(json.value);
+				}
+			else{
+				alert(json.errors);
+				}
+			}
+		});
+
+        
+    }
+
+    function AgregarParcialAttachlist(parcialId){
+        var ht = "<section class='attachList' rel='evp"+parcialId+"' uploadto='{{ url('order/attachpost?catalog=pictures') }}'" ;
+        ht += "href='{{ url('order/attachlist') }}?rel=evp"+parcialId+"&catalog=pictures&partial_id="+parcialId+"'></section>";
+        $("#campos").append(ht);
+        AttachList("evp"+parcialId);
+        $("[rel='folioInput']").prop("name","folioInput");
+        $("#AgregadorDeParcial").remove();
+        }
+
+    /*    
+    function AgregarParcialRow(parcialId){
+        var newTr = "<tr jsCreated='true'><td  class='text-center'>";
+        newTr +="<input type='text' class='form-control' name='folioNew' size='48' maxlength='190' />";
+        newTr += "<section class='attachList' rel='evp"+parcialId+"' uploadto='{{ url('order/attachpost?catalog=pictures') }}'" ;
+        newTr += "href='{{ url('order/attachlist?rel=evp"+parcialId+"&catalog=pictures&partial_id="+parcialId+"'></section>";
+        newTr += "</td></tr>";
+
+        var toNum = $("table#orders").length;
+        	if(toNum<1){CrearTableParciales();}
+        	
+    	$("table#orders body").append( newTr );
+		$("[name='folioNew']").focus();
+        }
+
+        function CrearTableParciales(){
+           var h =' <div class="row"><label class="col-sm-2 col-form-label">Parciales </label>';
+            h+='<div class="col-sm-10"><table class="table data-table" id="orders">';
+            h+='<thead><tr><th >Folio</th><th >Estatus</th><th class="text-center">Acciones</th>';
+            h+='</tr></thead><tbody></tbody></table></div></div>';
+
+           $(".card_body").append(h);
+            }
+    */
+
+
+<?php $t=10; ?>
+$(document).ready(function(){
+
+    @foreach ($order->partials as $part)
+    	@if ( $part->status->name == 'En ruta' )
+    	AttachList("evp{{$part->id}}");
+		@endif
+    @endforeach
+
+
+    var deboHasAdder = $(".attachList[rel='debo']").hasClass("adder");
+	    if(!deboHasAdder){
+	        AttachList("debo");
+		    }
+	var routeVisible = $("#route").is(":visible");
+		if(routeVisible){
+			AttachList("ever");
+			}
+    
+    $("[name='debolution_reason_id']").change(function(){        
+
+        if(!deboHasAdder){return;}
+        
+    		var href = $(".attachList[rel='debo']").attr("adder");
+    		var val = $(this).val();
+    		href += "&reason_id=" + val ;
+    		
+            $.ajax({
+                url:href,
+                type:"get",
+                dataType:"json",
+                success:function(json){
+                    if(json.status==1){
+                        
+                        var href = $(".attachList[rel='debo']").attr("href");
+                        $(".attachList[rel='debo']").attr("href", href + "&debolution_id=" + json.value);
+                        AttachList("debo");
+                    }
+                    
+                }
+            });
+    });
+
+
+    $(".stPartSelector").change(function(){
+        var val = $(this).val();
+        if(val==5){
+            let cnfText ="Cambiar estatus a En Ruta y agregar imágenes de evidencia de shipment.";
+            if(!confirm(cnfText)){
+                return;
+            }
+        var partid = $(this).closest("tr").attr("rel");    
+        var ht = "<section class='attachList' rel='evp"+partid+"' uploadto='{{ url('order/attachpost?catalog=pictures') }}'" ;
+        ht += "href='{{ url('order/attachlist') }}?rel=evp"+partid+"&catalog=pictures&partial_id="+partid+"'></section>";
+
+        var nextTd = $(this).closest("td").next("td");
+        //console.log(nextTd);
+            if(nextTd.length < 1){
+                $(this).closest("tr").append("<td></td>");    
+            }
+        $(this).closest("td").next("td").html(ht);
+        AttachList("evp"+partid);    
+        }
+    });
+    
+    console.log("attachlist!");
+});
+    
 </script>
+
+<script type='text/javascript' src='{{ url("/")."/js/attachlist.js" }}'></script>
+<link rel="stylesheet" href="{{ url('/') }}/css/attachlist.css" >
 
 @endpush
 

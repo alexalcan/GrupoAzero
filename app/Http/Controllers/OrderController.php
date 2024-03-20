@@ -36,6 +36,7 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
+
         // dd($request->all());
         $textos = [];
         $busquedaOrden = trim($request->busquedaOrden);
@@ -49,6 +50,7 @@ class OrderController extends Controller
         $mensaje = NULL;
         
         $statuses = Status::all();
+  
         //$orders = Order::where('delete', NULL)->paginate(15);
         //$orders=[];
         $role = auth()->user()->role;
@@ -104,277 +106,13 @@ class OrderController extends Controller
         $orders = $ordersbuilder->get();
         
         //$total = 1500;
-       //var_dump($orders);
+  
       
         $busquedas = ["order"=>$busquedaOrden, "factura"=>$busquedaFactura, "cliente"=>$busquedaCliente,
             "sucursal"=>$busquedaSucursal, "fecha"=>$fecha, "fechaDos"=>$fechaDos, "estatus"=>$busquedaEstatus
         ];
         
         return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'fechaDos', 'mensaje','pag','rpp','total',"busquedas","statuses"));
-        
-        
-        /*
-        if ($busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL && $fecha == NULL && $fechaDos == NULL){
-            // $orders = Order::paginate(15);
-            return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'mensaje'));
-        }else{
-            // Busqueda por fecha
-            if ($fecha && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL){
-                $orders = Order::where('delete', NULL)
-                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-                            echo "UNO";
-                            die();
-            }
-            if ($fecha && $fechaDos && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL){
-                $orders = Order::where('delete', NULL)
-                            ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
-                            ->orderBy('created_at', 'asc')
-                            ->paginate(1500);   
-            }
-            // Busqueda combinada
-            // una fecha y folio
-            if ($fecha && $busquedaOrden && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL && $fechaDos == NULL){
-                $texto = $texto.' '.$busquedaOrden;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
-                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // fecha, folio y factura
-            if ($fecha && $busquedaOrden && $busquedaFactura && $busquedaCliente == NULL && $busquedaSucursal == NULL && $fechaDos == NULL){
-                $texto = $texto.' '.$busquedaOrden.', '.$busquedaFactura;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
-                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
-                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // fecha, folio, factura y cliente
-            if ($fecha && $busquedaOrden && $busquedaFactura && $busquedaCliente && $busquedaSucursal == NULL && $fechaDos == NULL){
-                $texto = $texto.' '.$busquedaOrden.', '.$busquedaFactura.', '.$busquedaCliente;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
-                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
-                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
-                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // fecha, folio, factura, cliente, sucursal
-            if ($fecha && $busquedaOrden && $busquedaFactura && $busquedaCliente && $busquedaSucursal && $fechaDos == NULL){
-                $texto = $texto.' '.$busquedaOrden.', '.$busquedaFactura.', '.$busquedaCliente.', '.$busquedaSucursal;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
-                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
-                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
-                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
-                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // Fecha y factura
-            if ($fecha && $busquedaOrden == NULL && $busquedaFactura && $busquedaCliente == NULL && $busquedaSucursal == NULL && $fechaDos == NULL){
-                $texto = $texto.' '.$busquedaFactura.', '.$busquedaCliente.', '.$busquedaSucursal;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
-                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // Fecha y cliente
-            if ($fecha && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente && $busquedaSucursal == NULL && $fechaDos == NULL){
-                $texto = $texto.' '.$busquedaCliente;
-                $orders = Order::where('delete', NULL)
-                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
-                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // Fecha y sucursal
-            if ($fecha && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal && $fechaDos == NULL){
-                $texto = $texto.' '.$busquedaSucursal;
-                $orders = Order::where('delete', NULL)
-                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
-                            ->whereDate('created_at', Carbon::parse($request->fecha)->toDateString())
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // rango de fechas
-            if ($fecha && $fechaDos && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL){
-                $orders = Order::where('delete', NULL)
-                            ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
-                            ->orderBy('created_at', 'asc')
-                            ->paginate(1500);
-            }
-            // fechas y folio
-            if ($fecha && $fechaDos && $busquedaOrden && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL){
-                $texto = $texto.' '.$busquedaOrden;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
-                            ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
-                            ->orderBy('created_at', 'asc')
-                            ->paginate(1500);
-            }
-            // Fechas y factura
-            if ($fecha && $fechaDos && $busquedaOrden == NULL && $busquedaFactura && $busquedaCliente == NULL && $busquedaSucursal == NULL){
-                $texto = $texto.' '.$busquedaFactura;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
-                            ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
-                            ->orderBy('created_at', 'asc')
-                            ->paginate(1500);
-            }
-            // Fechas y cliente
-            if ($fecha && $fechaDos && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente && $busquedaSucursal == NULL){
-                $texto = $texto.' '.$busquedaCliente;
-                $orders = Order::where('delete', NULL)
-                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
-                            ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
-                            ->orderBy('created_at', 'asc')
-                            ->paginate(1500);
-            }
-            // Fechas y sucursal
-            if ($fecha && $fechaDos && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal){
-                $texto = $texto.' '.$busquedaSucursal;
-                $orders = Order::where('delete', NULL)
-                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
-                            ->whereBetween('created_at', [Carbon::parse($request->fecha)->toDateString(), Carbon::parse($request->fechaDos)->toDateString()])
-                            ->orderBy('created_at', 'asc')
-                            ->paginate(1500);
-            }
-
-            // Busqueda de ordenes
-            // Individuales
-            // Solo folio
-            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal == NULL) {
-                $texto = $texto.' '.$busquedaOrden;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // Folio y factura
-            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden && $busquedaFactura && $busquedaCliente == NULL && $busquedaSucursal == NULL) {
-                $texto = $texto.' '.$busquedaOrden;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
-                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // Folio y cliente
-            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden && $busquedaFactura == NULL && $busquedaCliente && $busquedaSucursal == NULL) {
-                $texto = $texto.' '.$busquedaOrden.', '.$busquedaCliente;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
-                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // Folio y sucursal
-            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal) {
-                $texto = $texto.' '.$busquedaOrden.', '.$busquedaSucursal;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
-                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // Folio, factura y cliente
-            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden && $busquedaFactura && $busquedaCliente && $busquedaSucursal == NULL) {
-                $texto = $texto.' '.$busquedaOrden.' '.$busquedaFactura.' '.$busquedaCliente;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
-                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
-                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // Factura
-            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura && $busquedaCliente == NULL && $busquedaSucursal == NULL) {
-                $texto = $texto.' '.$busquedaFactura;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // Factura y cliente
-            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura && $busquedaCliente && $busquedaSucursal == NULL) {
-                $texto = $texto.' '.$busquedaFactura.' '.$busquedaCliente;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
-                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // Factura cliente y sucursal
-            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura && $busquedaCliente && $busquedaSucursal) {
-                $texto = $texto.' '.$busquedaFactura.' '.$busquedaCliente.' '.$busquedaSucursal;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
-                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
-                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // Factura y sucursal
-            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura && $busquedaCliente == NULL && $busquedaSucursal) {
-                $texto = $texto.' '.$busquedaFactura.' '.$busquedaSucursal;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
-                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // Cliente
-            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente && $busquedaSucursal == NULL) {
-                $texto = $texto.' '.$busquedaCliente;
-                $orders = Order::where('delete', NULL)
-                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // Cliente y sucursal
-            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente && $busquedaSucursal) {
-                $texto = $texto.' '.$busquedaCliente.' '.$busquedaSucursal;
-                $orders = Order::where('delete', NULL)
-                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
-                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            // Sucursal
-            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden == NULL && $busquedaFactura == NULL && $busquedaCliente == NULL && $busquedaSucursal) {
-                $texto = $texto.' '.$busquedaSucursal;
-                $orders = Order::where('delete', NULL)
-                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-
-
-            // Todas
-            if ($fecha == NULL && $fechaDos == NULL && $busquedaOrden && $busquedaFactura && $busquedaCliente && $busquedaSucursal) {
-                $texto = $texto.' '.$busquedaOrden.', '.$busquedaFactura.', '.$busquedaCliente.', '.$busquedaSucursal;
-                $orders = Order::where('delete', NULL)
-                            ->where('invoice', 'LIKE', '%'.$busquedaOrden.'%')
-                            ->where('invoice_number', 'LIKE', '%'.$busquedaFactura.'%')
-                            ->where('client', 'LIKE', '%'.$busquedaCliente.'%')
-                            ->where('office', 'LIKE', '%'.$busquedaSucursal.'%')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(1500);
-            }
-            
-
-            return view('orders.index', compact('orders', 'role', 'department', 'texto', 'fecha', 'fechaDos', 'mensaje'));
-        }
-
-        */
-
     }
 
     /**
@@ -701,11 +439,11 @@ class OrderController extends Controller
         // Evidencia para salida a ruta
         if($request->status_id == 5){
         $numev = 0 ;    
-        $numev += $this->StoreRouteEvidence($request, $order,  "1");   
-        $numev += $this->StoreRouteEvidence($request, $order,  "2");  
-        $numev += $this->StoreRouteEvidence($request, $order,  "3");  
-        $numev += $this->StoreRouteEvidence($request, $order,  "4");  
-        $numev += $this->StoreRouteEvidence($request, $order,  "5");  
+        //$numev += $this->StoreRouteEvidence($request, $order,  "1");   
+        //$numev += $this->StoreRouteEvidence($request, $order,  "2");  
+        //$numev += $this->StoreRouteEvidence($request, $order,  "3");  
+        //$numev += $this->StoreRouteEvidence($request, $order,  "4");  
+        //$numev += $this->StoreRouteEvidence($request, $order,  "5");  
     
         $action .= ', pedido sale a ruta , ';
         $action .= !empty( $numev ) ? 'se subieron '. $numev .' evidencias.' : 'no se subieron evidencias.';
@@ -823,14 +561,14 @@ class OrderController extends Controller
                 'created_at' => now(),
             ]);
             
-            $devolutionId = intval($debolution->id);
+            //$devolutionId = intval($debolution->id);
             
             $numDevo = 0 ;
-            $numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "1"); 
-            $numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "2");
-            $numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "3");
-            $numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "4");
-            $numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "5");
+            //$numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "1"); 
+            //$numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "2");
+            //$numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "3");
+            //$numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "4");
+            //$numDevo += $this->StoreDebolution( $request, $order, $devolutionId, "5");
             
             $razon = Reason::find($request->debolution_reason_id);
             $razon = $razon->reason;
@@ -1332,25 +1070,25 @@ class OrderController extends Controller
             $identt="o";
             $folder="Images";
         }
-        if(!empty($partial_id)){
+        elseif(!empty($partial_id)){
             $identfield="partial_id";
             $ident = $partial_id;
             $identt="p";
             $folder="Images";
         }
-        if(!empty($cancelation_id)){
+        elseif(!empty($cancelation_id)){
             $identfield="cancelation_id";
             $ident = $cancelation_id;
             $identt="c";
             $folder="Cencelaciones";
         }
-        if(!empty($rebilling_id)){
+        elseif(!empty($rebilling_id)){
             $identfield="rebilling_id";
             $ident = $rebilling_id;
             $identt="r";
             $folder="Refacturaciones";
         }
-        if(!empty($debolution_id)){
+        elseif(!empty($debolution_id)){
             $identfield="debolution_id";
             $ident = $debolution_id;
             $identt="d";
@@ -1371,15 +1109,25 @@ class OrderController extends Controller
         if($catalog === "pictures"){            
           
             $file = $request->file("upload");
-            if(empty($file)){$RE->error="No se recibió imagen";}
+            if(empty($file)){
+                $RE->error="No se recibió imagen";
+                $RE->status=0;
+                return json_encode($RE);
+            }
 
-            $name = $identt . "-" . $ident . '-' . $file->getClientOriginalName();   
+            $name = $identt . "-" . $ident . '-' . date("dHis") .".". $file->getClientOriginalExtension() ;   
             
-            $numExists = Picture::where($identfield,intval($ident))->count();
+            $numExists=0;
+            if($identfield=="order_id"){
+                $numExists = Order::where("id", intval($ident))->count();
+            }elseif($identfield=="partial_id"){
+                $numExists = Partial::where("id", intval($ident))->count();
+            }
+            
             
             if($numExists == 0){
                 $RE->status = 0 ;
-                $RE->error="El registro no existe";
+                $RE->error="El registro $identfield = $ident no existe";
                 return json_encode($RE); 
             }
             
@@ -1402,14 +1150,26 @@ class OrderController extends Controller
             
             $file = $request->file("upload");
             if(empty($file)){$RE->error="No se recibió imagen o documento";}
+            //$file->getClientOriginalName()
+            $name = $identt . "-" . $ident . '-' .date("dHis") .".". $file->getClientOriginalExtension() ;
             
-            $name = $identt . "-" . $ident . '-' . $file->getClientOriginalName();
+            $numExists=0;
+            switch($identfield){
+                case "cancelation_id": 
+                    $numExists = Cancelation::where("id",$ident)->count();
+                    break;
+                case "rebilling_id":
+                    $numExists = Rebilling::where("id",($ident))->count();
+                    break;
+                case "debolution_id":
+                    $numExists = Debolution::where("id",($ident))->count();
+                    break;
+            }
             
-            $numExists = Evidence::where($identfield,intval($ident))->count();
             
             if($numExists == 0){
                 $RE->status = 0 ;
-                $RE->error="El registro no existe";
+                $RE->error="El registro $identfield = $ident no existe";
                 return json_encode($RE);
             }
             
@@ -1430,29 +1190,31 @@ class OrderController extends Controller
         }
         
         else if($catalog === "shipments"){
-            
+            $folder="Embarques";
             $file = $request->file("upload");
             if(empty($file)){$RE->error="No se recibió imagen o documento";}
+            //$file->getClientOriginalName()
+            $name = $identt . "-" . $ident . '-' . date("dHis").".".$file->getClientOriginalExtension();
             
-            $name = $identt . "-" . $ident . '-' . $file->getClientOriginalName();
-            
-            $numExists = Shipment::where($identfield,intval($ident))->count();     
+            $numExists = Order::where("id", $ident)->count();     
             
             
             if($numExists == 0){
                 $RE->status = 0 ;
-                $RE->error="El registro no existe";
+                $RE->error="El registro $identfield = $ident no existe";
                 return json_encode($RE);
             }
             
             Storage::putFileAs('/public/'.$folder.'/', $file, $name );
             
+            //$shipmentExists = Shipment::where($identfield,$ident)->get();
             Shipment::create([
                 'file' => $folder.'/' . $name,
                 $identfield => intval($ident),
                 "created_at" => $ahora,
                 "updated_at" => $ahora
             ]);
+                       
             
             $RE->status=1;
             $RE->value=$name;
@@ -1464,7 +1226,70 @@ class OrderController extends Controller
           
     }
     
+    public function debolutioncreatefor(Request $request){
+        $ahora = date("Y-m-d H:i:s");
+        
+        $order_id = $request->order_id;
+        $reason_id = $request->reason_id;
+        
+        $RE= new \stdClass();
+        
+        $existeNum = Debolution::where("order_id",$order_id)->get();
+        if(count($existeNum) > 0 ){
+            $elId = $existeNum[0]->id;
+            $RE->value=$elId;
+            $RE->status=1;
+            return json_encode($RE);
+        }
+        
+        $newId = Debolution::create([
+            'order_id'=> $order_id,
+            'reason_id'=> $reason_id,
+            'created_at'=>$ahora,
+            'updated_at'=>$ahora
+        ])->id;
+        
+        
+        
+        if(empty($newId)){
+            $RE->status = 0;
+            $RE->value= 0;
+        }else{
+            $RE->status = 1;
+            $RE->value = $newId;
+        }
+
+        return json_encode($RE);
+    }
     
+    
+    public function partialcreatefor(Request $request){
+        $ahora = date("Y-m-d H:i:s");
+        
+        $order_id = $request->order_id;
+        $status_id = $request->status_id;
+        $invoice = $request->folio;
+        
+        $RE= new \stdClass();   
+        
+        $newId = Partial::create([
+            'order_id'=> $order_id,
+            'status_id'=> $status_id,
+            "invoice" => $invoice,
+            'created_at'=>$ahora,
+            'updated_at'=>$ahora
+        ])->id;        
+        
+        if(empty($newId)){
+            $RE->status = 0;
+            $RE->value= 0;
+        }else{
+            $RE->status = 1;
+            $RE->value = $newId;
+        }
+        
+        return json_encode($RE);
+    }
 
     
     
@@ -1489,18 +1314,33 @@ class OrderController extends Controller
         
         if($catalog =="pictures"){
         $img = Picture::find($id);
+        if(empty($img)){
+            $RE->status=0;
+            $RE->error="Imagen no encontrada en base de datos";
+            return json_encode($RE);
+        }
         $img->delete($id);
         $RE->status=1;
         return json_encode($RE);  
         }
         elseif($catalog =="evidence"){
             $img = Evidence::find($id);
+            if(empty($img)){
+                $RE->status=0;
+                $RE->error="Evidencia no encontrada en base de datos";
+                return json_encode($RE);
+            }
             $img->delete($id);
             $RE->status=1;
             return json_encode($RE);
         }
         elseif($catalog =="shipments"){
             $img = Shipment::find($id);
+            if(empty($img)){
+                $RE->status=0;
+                $RE->error="Evidencia de embarque no encontrada en base de datos";
+                return json_encode($RE);
+            }
             $img->delete($id);
             $RE->status=1;
             return json_encode($RE);

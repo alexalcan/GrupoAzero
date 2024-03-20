@@ -1,0 +1,110 @@
+.attachList{
+border:#444 1px dotted;
+padding:20px;
+background:#f3f3f3;
+}
+.attachList ul{
+display:flex;
+flex-wrap:wrap;
+justify-content:flex-start;
+align-items:flex-start;
+column-gap:18px;
+row-gap:10px;
+}
+.attachList .attachitem{
+display:block;
+width:180px;
+display:grid;
+grid-template-columns:1fr 36px;
+list-style:none;
+padding:5px 2px 5px 10px;
+margin:0;
+
+}
+.attachList .attachitem a{
+text-decoration:none;
+color:#444;
+}
+.attachList .attachitem.deletable{
+background:#eeaaaa;
+}
+
+.attachList .atticon{
+max-width:154px;
+height:104px;
+z-index:20;
+cursor:pointer;
+border:#aaa 3px double;
+box-shadow:#ddd 1px 1px 2px;
+}
+.attachList .atticon.doc{
+border:none;
+box-shadow:none;
+}
+.attachList .atticon img{
+max-width:140px;
+height:100px;
+}
+
+.attachList .delspace{
+text-align:left;
+}
+
+.attachList a.delatt{
+display:inline-block;
+padding:2px 0px;
+width:24px;
+text-align:center;
+font-size:12px;
+background:red;
+color:#fff;
+border-radius:19px;
+box-shadow:#666 1px 1px 2px;
+text-decoration:none;
+font-family:Arial,sans-serif;
+font-weight:bold;
+
+}
+.attachList a.delatt:hover{
+box-shadow:#666 0px 0px 2px;
+}
+
+.attachList .attachMonitor{
+font-size:1.2rem;
+color:#884444;
+
+}
+
+.attachList .attachAddBox{
+	display:flex;
+	flex-wrap:wrap;
+	justify-content:flex-start;
+	align-items:start;
+	gap:20px;
+}
+
+
+
+.mimodalBack{
+	display:flex;
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	background:#333;
+	opacity:.5;
+	filter:"alpha(50)";
+	justify-content:center;
+	align-items:center;
+	z-index:100;
+}
+.mimodal{
+	display:block;
+	background:#fff;
+	border:#000 2px solid;
+	border-radius:7px;
+	position:absolute;
+	top:20px;
+	left:2vw;
+}

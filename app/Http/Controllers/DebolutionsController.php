@@ -22,6 +22,8 @@ class DebolutionsController extends Controller
     public function index()
     {
         //
+
+        return redirect()->to("orders");
     }
 
     /**
@@ -158,8 +160,8 @@ class DebolutionsController extends Controller
         $orders = Order::all();
         $role = auth()->user()->role;
         $department = auth()->user()->department;
-
-        return view('orders.index', compact('orders', 'role', 'department'));
+        return redirect()->to("orders");
+        //return view('orders.index', compact('orders', 'role', 'department'));
     }
 
     /**

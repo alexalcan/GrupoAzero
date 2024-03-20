@@ -1,7 +1,16 @@
 @extends('layouts.app', ['activePage' => 'orders', 'titlePage' => __('Pedidos')])
 
 @section('content')
-
+<?php 
+$statuses = isset($statuses) ? $statuses : []; 
+$rpp = isset($rpp) ? $rpp : 10;
+$total = isset($total) ? $total : 0;
+$pag = isset($pag) ? $pag : 1 ; 
+$mensaje = isset($mensaje) ? $mensaje : "";
+$fecha = isset($fecha) ? $fecha :"";
+$fechaDos = isset($fechaDos) ? $fechaDos :"";
+$texto = isset($texto) ? $texto :"";
+?>
 <link href="{{ route("welcome")."/css/paginacion.css" }}" rel="stylesheet" />
 <link href="{{ route("welcome")."/css/orders.css" }}" rel="stylesheet" />
 
@@ -41,7 +50,7 @@
                         @csrf
                         @method('get')
                         <?php 
-               
+                        $busquedas = isset($busquedas) ? $busquedas: [] ;
                         App\Libraries\Tools::valores($busquedas);
                         
                         ?>
@@ -52,7 +61,9 @@
                                         <div class="form-group no-border">
                                             <!-- <label class="label-control">Buscar por fecha</label> -->
                                             <input type="text" name="fecha" class="form-control datetimepicker " placeholder="Fecha o fecha inicial..." 
-                                            value="<?php echo App\Libraries\Tools::valor("fecha",""); ?>"/>
+                                            value="<?php 
+                                            //echo App\Libraries\Tools::valor("fecha","");
+                                             ?>"/>
                                         </div>
                                     </div>
                                     <div class="col-1">
@@ -64,7 +75,9 @@
                                         <div class="form-group no-border">
                                             <!-- <label class="label-control">Buscar por fecha</label> -->
                                             <input type="text" name="fechaDos" class="form-control datetimepicker" placeholder="Fecha final (opcional)..."
-                                            value="<?php echo App\Libraries\Tools::valor("fechaDos",""); ?>" />
+                                            value="<?php 
+                                            //echo App\Libraries\Tools::valor("fechaDos",""); 
+                                            ?>" />
                                         </div>
                                     </div>
                                     <!-- 
@@ -80,19 +93,27 @@
                                         <div class="input-group no-border">
                                             <div class="col-3">
                                                 <input type="text" name="busquedaOrden" class="form-control" placeholder="Buscar por folio" 
-                                                value="<?php echo App\Libraries\Tools::valor("order",""); ?>" />
+                                                value="<?php 
+                                                //echo App\Libraries\Tools::valor("order",""); 
+                                                ?>" />
                                             </div>
                                             <div class="col-3">
                                                 <input type="text" name="busquedaFactura"  class="form-control" placeholder="Buscar por factura" style="" 
-                                                 value="<?php echo App\Libraries\Tools::valor("factura",""); ?>">
+                                                 value="<?php 
+                                                 //echo App\Libraries\Tools::valor("factura",""); 
+                                                 ?>">
                                             </div>
                                             <div class="col-3">
                                                 <input type="text" name="busquedaCliente" class="form-control" placeholder="Buscar por cliente" style=""  
-                                                value="<?php echo App\Libraries\Tools::valor("cliente",""); ?>">
+                                                value="<?php 
+                                                //echo App\Libraries\Tools::valor("cliente",""); 
+                                                ?>">
                                             </div>
                                             <div class="col-3">
                                                 <input type="text" name="busquedaSucursal" class="form-control" placeholder="Buscar por sucursal" style=""
-                                                 value="<?php echo App\Libraries\Tools::valor("sucursal",""); ?>">
+                                                 value="<?php 
+                                                 //echo App\Libraries\Tools::valor("sucursal",""); 
+                                                 ?>">
                                             </div>
                                             
                                             <div class="col-3">

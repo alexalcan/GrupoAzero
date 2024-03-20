@@ -12,6 +12,7 @@
     </div>
     <div class='hrbar'></div>
     <div class="sidebar-wrapper">
+        
         <ul class="nav">
             <li class="nav-item{{ $activePage == 'dashboard' ? ' active' : '' }}">
                 <a class="nav-link" href="{{ route('home') }}">
@@ -19,8 +20,8 @@
                     <p>{{ __('Dashboard') }}</p>
                 </a>
             </li>
-            
-           @if ( auth()->user()->role->name != "Administrator" )
+
+           @if ( auth()->user()->role->name == "Administrador" )
                 <li class="nav-item{{ $activePage == 'reportes' ? ' active' : '' }}">
                     <a class="nav-link" href="{{ route('reportes') }}">
                         <i class="material-icons">receipt</i>

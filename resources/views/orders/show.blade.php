@@ -202,7 +202,7 @@
                                 <div class="col-sm-5">
                                     @if ( $order->purchaseorder->document )
                                         <a data-toggle="modal" data-target="#document{{ $order->purchaseorder->id }}">
-                                            @if ( pathinfo($order->purchaseorder->document, PATHINFO_EXTENSION) == "png" )
+                                            @if ( in_array(pathinfo($order->purchaseorder->document, PATHINFO_EXTENSION), ["png","jpg","jpeg"]) )
                                                 <img src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
                                             @else
                                                 <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
@@ -214,7 +214,7 @@
                                 <div class="col-sm-5">
                                     @if ( $order->purchaseorder->requisition )
                                         <a data-toggle="modal" data-target="#purchaseorder{{ $order->purchaseorder->id }}">
-                                            @if ( pathinfo($order->purchaseorder->requisition, PATHINFO_EXTENSION) == "png" )
+                                            @if ( in_array(pathinfo($order->purchaseorder->requisition, PATHINFO_EXTENSION) ,["png","jpg","jpeg"]) )
                                                 <img src="{{ asset('storage') }}/{{ $order->purchaseorder->requisition }}" alt="" style="width: 100%">
                                             @else
                                                 <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->requisition }}" alt="" style="width: 100%">
@@ -234,7 +234,7 @@
                                     </button>
                                     </div>
                                     <div class="modal-body">
-                                        @if ( pathinfo($order->purchaseorder->document, PATHINFO_EXTENSION) == "png" )
+                                        @if ( in_array(pathinfo($order->purchaseorder->document, PATHINFO_EXTENSION), ["png","jpg","jpeg"]) )
                                             <img src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%">
                                         @else
                                             <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->document }}" alt="" style="width: 100%; height: 600px;">
@@ -256,7 +256,7 @@
                                     </button>
                                     </div>
                                     <div class="modal-body">
-                                        @if ( pathinfo($order->purchaseorder->document, PATHINFO_EXTENSION) == "png" )
+                                        @if ( in_array(pathinfo($order->purchaseorder->document, PATHINFO_EXTENSION), ["png","jpg","jpeg"]) )
                                             <img src="{{ asset('storage') }}/{{ $order->purchaseorder->requisition }}" alt="" style="width: 100%">
                                         @else
                                             <embed src="{{ asset('storage') }}/{{ $order->purchaseorder->requisition }}" alt="" style="width: 100%; height: 600px;">
@@ -282,7 +282,7 @@
                             <div class="col-sm-5">
                                 @if ( $order->manufacturingorder->document )
                                     <a data-toggle="modal" data-target="#manufacturing{{ $order->manufacturingorder->id }}">
-                                        @if ( pathinfo($order->manufacturingorder->document, PATHINFO_EXTENSION) == "png" )
+                                        @if ( in_array(pathinfo($order->manufacturingorder->document, PATHINFO_EXTENSION), ["png","jpg","jpeg"]) )
                                             <img src="{{ asset('storage') }}/{{ $order->manufacturingorder->document }}" alt="" style="width: 100%">
                                         @else
                                             <embed src="{{ asset('storage') }}/{{ $order->manufacturingorder->document }}" alt="" style="width: 100%">
@@ -301,7 +301,7 @@
                                     </button>
                                     </div>
                                     <div class="modal-body">
-                                        @if ( pathinfo($order->manufacturingorder->document, PATHINFO_EXTENSION) == "png" )
+                                        @if ( in_array(pathinfo($order->manufacturingorder->document, PATHINFO_EXTENSION) , ["png","jpg","jpeg"]) )
                                             <img src="{{ asset('storage') }}/{{ $order->manufacturingorder->document }}" alt="" style="width: 100%">
                                         @else
                                             <embed src="{{ asset('storage') }}/{{ $order->manufacturingorder->document }}" alt="" style="width: 100%; height: 600px;">
@@ -326,8 +326,9 @@
                         <div class="col-sm-10"></div>
                             @foreach ($order->shipments as $shipment)
                                 <div class="col-sm-3">
-                                    <a data-toggle="modal" data-target="#shipments{{ $shipment->id }}">
-                                        @if ( pathinfo($shipment->file, PATHINFO_EXTENSION) == "png" )
+                                
+                                    <a data-toggle="modal" data-target="#shipments{{ $shipment->id }}"> 
+                                        @if ( in_array(pathinfo($shipment->file, PATHINFO_EXTENSION), ["png","jpg","jpeg"]) )
                                             <img src="{{ asset('storage') }}/{{ $shipment->file }}" alt="" style="width: 12vw">
                                         @else
                                             <embed src="{{ asset('storage') }}/{{ $shipment->file }}" alt="" style="width: 12vw">
@@ -346,7 +347,7 @@
                                         </button>
                                         </div>
                                         <div class="modal-body">
-                                            @if ( pathinfo($shipment->file, PATHINFO_EXTENSION) == "png" )
+                                            @if ( in_array(pathinfo($shipment->file, PATHINFO_EXTENSION), ["png","jpg","jpeg"]) )
                                                 <img src="{{ asset('storage') }}/{{ $shipment->file }}" alt="" style="width: 100%">
                                             @else
                                                 <embed src="{{ asset('storage') }}/{{ $shipment->file }}" alt="" style="width: 100%; height: 600px;">
@@ -381,7 +382,7 @@
                                         @else
                                             <h1>imagen</h1>
                                         @endif --}}
-                                        <embed src="{{ asset('storage') }}/{{ $picture->picture }}" alt="" style="width: 100%">
+                                        <img src="{{ asset('storage') }}/{{ $picture->picture }}" alt="" style="width: 100%">
                                         <p>{{ $picture->picture }}</p>
                                     </a>
                                 </div>
@@ -395,7 +396,7 @@
                                         </button>
                                         </div>
                                         <div class="modal-body">
-                                            <embed src="{{ asset('storage') }}/{{ $picture->picture }}" alt="" style="width: 100%; height: 600px;">
+                                            <img src="{{ asset('storage') }}/{{ $picture->picture }}" alt="" style="width: 100%; height: 600px;">
                                         </div>
                                         <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -425,7 +426,7 @@
                                 @foreach ($order->cancelation->evidences as $evidence)
                                     <div class="col-sm-5">
                                         <a data-toggle="modal" data-target="#cancelation{{ $evidence->id }}">
-                                            @if ( pathinfo($evidence->file, PATHINFO_EXTENSION) == "png" )
+                                            @if ( in_array(pathinfo($evidence->file, PATHINFO_EXTENSION),[ "png","jpg","jpeg"]) )
                                                 <img src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
                                             @else
                                                 <embed src="{{ asset('storage') }}/{{ $evidence->file }}" alt="" style="width: 100%">
@@ -721,9 +722,38 @@
                                             {{-- Acciones --}}
                                             <td class="text-center">
                                                 @if ( $partial->status->name == 'En ruta' )
+                                                @if ($partial->pictures->count() < 1) 
                                                     <span class="material-icons">
                                                         local_shipping
                                                     </span>
+                                                @else 
+                                                
+                                                    @foreach ($partial->pictures as $picture)
+                                                        <a data-toggle="modal" data-target="#modalPartialER{{$picture->id}}" style="display:inline-block; margin:0px 20px 20px;"><img src="{{ asset('storage') . '/' . $picture->picture }}" height="90" /></a>
+
+                                                        <div class="modal fade" id="modalPartialER{{$picture->id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                            <h5 class="modal-title" id="exampleModalLabel">Parcial: {{ $partial->invoice }}</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                            <img src="{{ asset('storage') . '/' . $picture->picture }}" style="max-height:400px" />
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                                            </div>
+                                                        </div>
+                                                        </div>
+                                                        </div>
+
+
+                                                    @endforeach
+                                                @endif 
+
                                                 @endif
                                                 @if ( $partial->status->name == 'Entregado' )
                                                     <a type="button" class="btn btn-sm btn-primary btn-link btn-sm" data-toggle="modal" data-target="#partialImg{{ $partial->id }}">

@@ -69,6 +69,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('order/attachpost', 'OrderController@attachpost');
     Route::get('order/attachdev', 'OrderController@attachdev');
     Route::get('order/attachdelete', 'OrderController@attachdelete');
+    Route::get("order/debolutioncreatefor", "OrderController@debolutioncreatefor");
+    Route::get("order/partialcreatefor", "OrderController@partialcreatefor");
     
 });
 
