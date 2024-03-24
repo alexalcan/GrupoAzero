@@ -1,0 +1,55 @@
+#dialogoBg{
+    display:block;
+    position:fixed;
+    width:100%;
+    height:100%;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background: #333;
+    opacity:.5;
+    z-index:200;
+}
+
+
+#dialogoWrapper{
+position: absolute;
+background:transparent;
+top:0;
+left:0;
+width:100%;
+height:100%;
+display: flex;
+justify-content: center;
+align-items: center;
+z-index:201;
+}
+
+
+#dialogo{
+width:60vw;
+background:#fff;
+border-radius:5px;
+box-shadow:#111 3px 3px 6px;
+position:relative;
+}
+#dialogo .tit{
+    padding:.5rem 2rem;
+    display:none;
+}
+#dialogo .botClose{
+    background: url(btn_close.png) center center no-repeat;
+    background-size: 90%;
+    width:26px;
+    height:26px;
+    cursor:pointer;
+    display:block;
+    position:absolute;
+    top:3px;
+    right:10px;
+}
+#dialogo .content{
+    padding:20px;
+    margin:10px 0px 0px;
+}

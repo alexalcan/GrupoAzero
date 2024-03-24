@@ -8,37 +8,108 @@ use Illuminate\Support\Facades\DB;
 
 class Pedidos2 extends Model
 {
+    public static $total = 0;
+    public static $rpp=10;
+
     protected $fillable = [
      //   'file', 'order_id', 'created_at'
     ];
 
 
     public static function uno(int $order_id=0) : object {
-        $list = DB::table('orders')->where("id",$order_id)->get();
+        $q="SELECT o.*,
+        s.name AS status_name   
+        FROM orders o
+        JOIN statuses s ON s.id = o.status_id 
+        WHERE o.id = '$order_id'";
+        $list = DB::select(DB::raw($q));
+       // $list = DB::table('orders')->where("id",$order_id)->get();
         return !empty($list) ? $list[0] : [];
     }
 
-    public static function Lista(string $termino, string $desde, string $hasta, int $pag=1) : array {
-        $rpp=20;
-        $ini= ($pag>1) ? ($pag*$rpp)-1 : 0;
+    public static function Lista(int $pag, string $termino, string $desde, string $hasta, 
+    array $status=[], array $subprocesos=[], array $origen=[], array $sucursal=[]) : array {
 
-        $wheres=[];
+        $ini= ($pag>1) ? ($pag -1) * self::$rpp : 0;
+
+        $wheres=["o.created_at BETWEEN '$desde' AND '$hasta'"];
+
         if(!empty($termino)){
             $wheres[]="(o.office LIKE '%$termino%' OR o.invoice LIKE '%$termino%' OR o.invoice_number LIKE '%$termino%' OR o.client LIKE '%$termino%')";
         }
+        if(!empty($status)){
+            $wheres[]="o.status_id  IN (".implode(",",$status).")";
+        }
+        if(!empty($subprocesos)){
+            $wheres[]="(SELECT COUNT(*) FROM order_events oe WHERE oe.id_order = o.id AND oe.id_event IN(".implode(",",$subprocesos)."))";
+        }
+        if(!empty($origen)){
+            $orarr=[];
+            foreach($origen as $ori){$orarr[]="'$ori'";}
+            $wheres[]="o.origin IN (".implode(",",$orarr).")";
+        }
+        if(!empty($sucursal)){
+            $suarr=[];
+            foreach($sucursal as $su){$suarr[]="'$su'";}
+            $wheres[]="o.office IN (".implode(",",$suarr).")";
+        }
         $wherestring = implode(" AND ",$wheres);
 
-        $list = DB::select(DB::raw("SELECT 
+        //QUERY TOTAL
+        $listt = DB::select(DB::raw("SELECT 
+        COUNT(*) AS tot
+        FROM orders o 
+        WHERE ". $wherestring));
+
+        self::$total = !empty($listt) ? $listt[0]->tot : 0 ;
+
+        //QUERY MAIN***********
+        $q = "SELECT 
         o.*
-FROM orders o 
-WHERE 
-o.created_at BETWEEN '$desde' AND '$hasta'".
-(!empty($wherestring) ? " AND  $wherestring" : "")
-." LIMIT $ini, $rpp"));
+        FROM orders o 
+        WHERE 
+        ". $wherestring  ." ORDER BY updated_at DESC LIMIT ".$ini.", ". self::$rpp;
+    //echo $q;
+        $list = DB::select(DB::raw($q));
         
     return $list;
     }
 
+
+    public static function Statuses() : array {
+         return DB::table('statuses')->where("v2",1)->get()->toArray();
+    }
+    public static function StatusesCat(string $default="") : array{
+        $arr=[];
+        if(!empty($default)){$arr[""]=$default;}
+        $list = self::Statuses();
+        foreach($list as $li){
+            $arr[$li->id]=$li->name;
+        }
+    return $arr;
+    }
+
+    public static function Events() : array {
+        return DB::table('events')->get()->toArray();
+   }
+   public static function EventsCat(string $default="") : array{
+       $arr=[];
+       if(!empty($default)){$arr[""]=$default;}
+       $list = self::Events();
+       foreach($list as $li){
+           $arr[$li->id]=$li->name;
+       }
+   return $arr;
+   }
+
+
+
+   public static function LogsDe(int $id) : array{
+    return DB::table("logs")
+    ->select(["logs.*","users.name AS user"])
+    ->join("users","users.id","=","logs.user_id")->where("logs.order_id",$id)
+    ->orderBy("logs.created_at","DESC")->get()->toArray();
+   }
 
 
 }

@@ -8,3 +8,17 @@
 .right{
     text-align: right;
 }
+
+
+a.powerLink, a.powerLink:not([href]), a.powerLink:not([tabindex]){
+    color:#C72029;
+    letter-spacing: .1rem;
+    font-size:1.1rem;
+    text-decoration: underline;
+    text-underline-offset: .2rem;
+}
+
+
+.Cuerpo{
+    padding:0px 20px 20px 20px;
+}

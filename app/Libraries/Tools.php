@@ -2,6 +2,8 @@
 
 namespace App\Libraries;
 
+use \DateTime;
+
 class Tools{
     
     public static $_valores = []; 

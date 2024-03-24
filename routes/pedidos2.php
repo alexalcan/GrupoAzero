@@ -11,6 +11,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('pedidos2/lista', 'Pedidos2Controller@lista');
 
 	Route::get('pedidos2/pedido/{id}', 'Pedidos2Controller@pedido');
+	Route::get('pedidos2/masinfo/{id}', 'Pedidos2Controller@masinfo');
 	//Route::put('profile', ['as' => 'profile.update', 'uses' => 'ProfileController@update']);
 	//Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'ProfileController@password']);
 

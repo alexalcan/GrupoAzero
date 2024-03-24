@@ -51,27 +51,46 @@ class Pedidos2Controller extends Controller
     public function lista(Request $request){
 
 
-        $termino = $request->input("termino");
-        $termino = !empty($termino) ? $termino : "";
-        $desde = $request->input("desde");
-        $hasta = $request->input("hasta");
+        $termino = (string)$request->query("termino","");
+        $fechas = (string)$request->query("fechas","");
+
+        $fechaspts= explode(" - ",$fechas);
+        //var_dump($fechaspts);
+        if(count($fechaspts) == 2) {
+            $desde = trim($fechaspts[0]);
+            $hasta = trim($fechaspts[1]);
+        }else{
+            $fob = new \DateTime();
+            $hasta = $fob->format("Y-m-d 23:59:59");
+            $fob->modify("-7 day");
+            $desde = $fob->format("Y-m-d 00:00:00");
+        }
+//var_dump($desde);
+
+
+        $status = (array)$request->query("st");
+        $subprocesos = (array)$request->query("sp");
+        $origen = (array)$request->query("or");
+        $sucursal = (array)$request->query("suc");
+        //var_dump($sucursal);
+
+        $pag = $request->query("p",1);
+        $pag = !empty($pag) ? $pag : 1 ;
+
 
         $statuses = Status::all();
-        $lista=Pedidos2::Lista($termino,$desde,$hasta,1);
+        $lista=Pedidos2::Lista($pag,$termino,$desde,$hasta, $status,$subprocesos,$origen,$sucursal);
 
         $estatuses = [];
         foreach($statuses as $st){
             $estatuses[$st->id]=$st->name;
         }
 
-        $h="";
-        foreach($lista as $item){
-        $h.= view("pedidos2.pedido_item",compact("item","estatuses"));
-        }
-        if(count($lista)==0){
-            echo "<p>No se encontraron resultados con esos filtros.</p>";
-        }
-        return $h;
+        $total = Pedidos2::$total;
+        $rpp = Pedidos2::$rpp;
+
+        echo view("pedidos2.lista",compact("lista","estatuses","total","rpp","pag"));
+
     }
 
 
@@ -80,6 +99,15 @@ class Pedidos2Controller extends Controller
         $pedido = Pedidos2::uno($id);
 
         return view('pedidos2.pedido', compact('id','pedido'));
+    }
+
+
+    public function masinfo($id){
+
+        $pedido = Pedidos2::uno($id);
+        $logs = Pedidos2::LogsDe($id);
+
+        return view('pedidos2.masinfo', compact('id','pedido',"logs"));      
     }
 
 

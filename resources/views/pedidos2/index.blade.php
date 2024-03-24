@@ -1,9 +1,14 @@
+<?php
+use App\Pedidos2;
+?>
 @extends('layouts.app', ['activePage' => 'orders', 'titlePage' => __('Administrar Pedidos')])
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/pedidos2/general.css') }}" />
 <link rel="stylesheet" href="{{ asset('css/pedidos2/index.css') }}" />
 <link rel="stylesheet" href="{{ asset('js/drp/daterangepicker.css') }}" />
+<link rel="stylesheet" href="{{ asset('css/paginacion.css') }}" />
+<link rel="stylesheet" href="{{ asset('css/piedramuda.css') }}" />
 <main class="content">
     <div class="card">
     <div class="card-header card-header-primary">
@@ -15,7 +20,8 @@
 
 
 
-    <form method="get" enctype="multipart/form-data">
+    <form id="fbuscar" action="{{ url('pedidos2/lista') }}" method="get" enctype="multipart/form-data">
+        <input type="hidden" name="p" value="1" />
         <section class="formaBuscar">
             <div class="terminoBox">
                 <input type="text" name="termino"  maxlength="90" />
@@ -35,46 +41,57 @@
             
             <div class="Fila center" id="MuestraAvanzada"><a class='toggleLink' tabindex="3">Búsqueda Avanzada</a></div>
 
+            <?php
+        $statuses = Pedidos2::StatusesCat();
+        $events = Pedidos2::EventsCat();
+            ?>
+            
             <aside class="Avanzados">
+                <div class="AvanzadosSet">
                 <fieldset>
                     <legend>Status</legend>
-                    <div><input type="checkbox" name="status[]" value="G"><label>Pedido generado</label></div>
-                    <div><input type="checkbox" name="status[]" value="R"><label>Recibido por embarque</label></div>
-                    <div><input type="checkbox" name="status[]" value="R"><label>En fabricación</label></div>
-                    <div><input type="checkbox" name="status[]" value="R"><label>Fabricado</label></div>
+                    @foreach ($statuses as $k=>$v)
+                    <div class="checkpair"><input type="checkbox" name="st[]" value="{{ $k }}" id="st_{{ $v }}"> <label for="st_{{ $v }}">{{ $v }}</label></div>
+                    @endforeach 
+
                 </fieldset>
                 <fieldset>
                     <legend>Subprocesos</legend>
-                    <div><input type="checkbox" name="subproceso[]" value="G"><label>Orden de Fabricación</label></div>
-                    <div><input type="checkbox" name="subproceso[]" value="R"><label>OC/Orden Interna</label></div>
+                    @foreach ($events as $k=>$v)
+                    <div class="checkpair"><input type="checkbox" name="sp[]" value="{{ $k }}" id="sp_{{ $v }}"> <label for="sp_{{ $v }}">{{ $v }}</label></div>
+                    @endforeach
                 </fieldset>
                 <fieldset>
                     <legend>Origen</legend>
-                    <div><input type="checkbox" name="origen[]" value="G"><label>Cotización</label></div>
-                    <div><input type="checkbox" name="origen[]" value="R"><label>Factura</label></div>
-                    <div><input type="checkbox" name="origen[]" value="R"><label>Req Interna</label></div>
+                    <div class="checkpair"><input type="checkbox" name="or[]" value="C" id="or_C"> <label for="or_C">Cotización</label></div>
+                    <div class="checkpair"><input type="checkbox" name="or[]" value="F" id="or_F"> <label for="or_F">Factura</label></div>
+                    <div class="checkpair"><input type="checkbox" name="or[]" value="I" id="or_I"> <label for="or_I">Req Interna</label></div>
                 </fieldset>
                 <fieldset>
                     <legend>Sucursal</legend>
-                    <div><input type="checkbox" name="sucursal[]" value="G"><label>San Pablo</label></div>
-                    <div><input type="checkbox" name="sucursal[]" value="R"><label>La Noria</label></div>
+                    <div class="checkpair"><input type="checkbox" name="suc[]" value="San Pablo" id="suc_S"> <label for="suc_S">San Pablo</label></div>
+                    <div class="checkpair"><input type="checkbox" name="suc[]" value="La Noria" id="suc_N"> <label for="suc_N">La Noria</label></div>
                 </fieldset>
-
+                </div>
+                <div class="Fila center"><input type="button" value="Buscar" onclick="GetLista()" /> </div>
             </aside>
+            
             
             <div class="Fila center" id="MuestraSimple"><a class='toggleLink' tabindex="4">Búsqueda Simple</a></div>
         
         </section>
 
-
         </form>
 
-        <div class="container-fluid">
+
+
+
+    </div>
+
+
+    <div class="container-fluid">
         <div class="right Fila"><button>Crear Nuevo Pedido</button></div>    
     </div>
-
-    </div>
-
 
 
         <section id="Lista">
@@ -91,7 +108,10 @@
 @push('js')
 {{-- Comment --}}
 <script type="text/javascript" src="{{ asset('js/drp/moment.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/jquery.form.js') }}"></script>
 <script type="text/javascript" src="{{ asset('js/drp/daterangepicker.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/piedramuda.js') }}"></script>
+
 <script>
 $(document).ready(function(){
 
@@ -155,6 +175,31 @@ $(document).ready(function(){
         GetLista();
     });
 
+    $("body").on("click", ".paginacion a", function(e){
+        e.preventDefault();
+        let rel=$(this).attr("rel");
+
+        GetLista(parseInt(rel));
+    });
+
+    $("body").on("click", ".masinfo", function(e){
+        e.preventDefault();
+        let href=$(this).attr("href");
+
+        MiModal.showBg();
+
+        $.ajax({
+            url:href,
+            error:function(err){alert(err.statusText);},
+            type:"get",
+            success:function(h){            
+            MiModal.content(h);
+            MiModal.width ="75vw";
+            MiModal.show();
+            }
+        });
+    });
+
     GetLista();
 
 });
@@ -171,9 +216,32 @@ function MuestraSimple(){
 }
 
 
-function GetLista(){
+
+function GetLista(p){
+    if(typeof(p)=="undefined"){p=1;}
+
+    $("#fbuscar [name='p']").val(p);
+
+    $("#Lista").html("<p>Cargando...</p>");
+
+    $("#fbuscar").ajaxSubmit({
+        error:function(err){alert(err.statusText);},
+        success:function(h){
+        $("#Lista").html(h);
+        }
+    });
+
+}
+
+function GetListaPre(p){
+    if(typeof(p)=="undefined"){p=0;}
+    
     let href = $("[name='listaUrl']").val();
     let datos = GeneraFiltros();
+    if(p>0){
+        datos["p"]=p;
+    }
+    
 
     $("#Lista").html("<p>Cargando...</p>");
     $.ajax({
