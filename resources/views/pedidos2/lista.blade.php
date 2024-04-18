@@ -1,5 +1,7 @@
 <?php
 use App\Libraries\Paginacion;
+
+
 ?>
 @foreach ($lista as $item)
 

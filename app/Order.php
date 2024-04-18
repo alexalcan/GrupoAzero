@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 class Order extends Model
 {
     protected $fillable = [
-        'office', 'invoice', 'invoice_number', 'client', 'credit', 'status_id', 'delete'
+        'office', 'invoice', 'invoice_number', 'client', 'credit', 'status_id', 'delete','origin'
     ];
     
     public static function countAll(){

@@ -90,7 +90,7 @@ use App\Pedidos2;
 
 
     <div class="container-fluid">
-        <div class="right Fila"><button>Crear Nuevo Pedido</button></div>    
+        <div class="right Fila"><button class="nuevo" href="{{ url('pedidos2/nuevo') }}">Crear Nuevo Pedido</button></div>    
     </div>
 
 
@@ -198,6 +198,10 @@ $(document).ready(function(){
             MiModal.show();
             }
         });
+    });
+
+    $(".nuevo").click(function(){
+        window.location.href = $(this).attr("href");
     });
 
     GetLista();

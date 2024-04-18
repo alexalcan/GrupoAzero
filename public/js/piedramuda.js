@@ -58,3 +58,29 @@ exit:function(){
 }
 
 }
+
+
+
+/* @returns {boolean} True if the device is a mobile or tablet, false otherwise.
+*/
+function isMobileOrTablet() {
+   const userAgent = navigator.userAgent.toLowerCase();
+   const mobileKeywords = ["mobile", "android", "iphone", "ipad"];
+   const tabletKeywords = ["tablet", "ipad"];
+
+   // Check for mobile keywords
+   for (let keyword of mobileKeywords) {
+       if (userAgent.includes(keyword)) {
+           return true;
+       }
+   }
+
+   // Check for tablet keywords
+   for (let keyword of tabletKeywords) {
+       if (userAgent.includes(keyword)) {
+           return true;
+       }
+   }
+
+   return false;
+}

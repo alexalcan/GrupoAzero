@@ -22,3 +22,10 @@ a.powerLink, a.powerLink:not([href]), a.powerLink:not([tabindex]){
 .Cuerpo{
     padding:0px 20px 20px 20px;
 }
+
+.Eleccion{
+    display:flex;
+    justify-content: center;
+    gap:10px;
+    flex-wrap:wrap;
+}

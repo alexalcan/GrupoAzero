@@ -32,10 +32,12 @@ class Pedidos2 extends Model
 
         $ini= ($pag>1) ? ($pag -1) * self::$rpp : 0;
 
-        $wheres=["o.created_at BETWEEN '$desde' AND '$hasta'"];
+        $wheres=["o.created_at BETWEEN '$desde 00:00:00' AND '$hasta 23:59:59'"];
 
         if(!empty($termino)){
-            $wheres[]="(o.office LIKE '%$termino%' OR o.invoice LIKE '%$termino%' OR o.invoice_number LIKE '%$termino%' OR o.client LIKE '%$termino%')";
+            $wheres[]="(o.office LIKE '%$termino%' OR o.invoice LIKE '%$termino%' 
+            OR o.invoice_number LIKE '%$termino%' OR o.client LIKE '%$termino%' 
+            OR p.number LIKE '%termino%' OR q.number LIKE '%$termino%')";
         }
         if(!empty($status)){
             $wheres[]="o.status_id  IN (".implode(",",$status).")";
@@ -57,16 +59,25 @@ class Pedidos2 extends Model
 
         //QUERY TOTAL
         $listt = DB::select(DB::raw("SELECT 
-        COUNT(*) AS tot
+        COUNT(*) AS tot 
         FROM orders o 
+        LEFT JOIN purchase_orders p ON p.order_id = o.id 
+        LEFT JOIN quotes q ON q.order_id = o.id 
         WHERE ". $wherestring));
 
         self::$total = !empty($listt) ? $listt[0]->tot : 0 ;
 
         //QUERY MAIN***********
         $q = "SELECT 
-        o.*
+        o.*,
+        p.number AS requisition_code, 
+        p.document AS document,
+        p.requisition AS requisition_document,
+        q.number AS quote, 
+        q.document quote_document 
         FROM orders o 
+        LEFT JOIN purchase_orders p ON p.order_id = o.id 
+        LEFT JOIN quotes q ON q.order_id = o.id 
         WHERE 
         ". $wherestring  ." ORDER BY updated_at DESC LIMIT ".$ini.", ". self::$rpp;
     //echo $q;

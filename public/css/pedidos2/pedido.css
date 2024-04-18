@@ -16,7 +16,105 @@
     margin:0px 20px 20px 20px
 }
 
+.MiniInfo .block{
+    display:block;
+}
 
+
+
+
+.Eleccion .Tipo{
+    padding:.4rem .8rem;
+    color:#666;
+    font-size:1rem;
+    cursor: pointer;
+}
+.Eleccion .Tipo.activo{
+background: #666;
+color:#eee;
+}
+
+
+.Eleccion .Accion{
+    padding:.4rem .8rem;
+    color:#666;
+    font-size:1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    border:#444 2px solid;
+    border-radius:3px;
+    box-shadow: #666 2px 2px 4px;
+    transition: background-color ease-in 400ms;
+}
+.Eleccion .Accion.activo{
+background-color: #666;
+color:#eee;
+}
+
+#AccionSection{
+    margin:20px 0px;
+}
+#AccionSection form{
+    text-align:center;
+}
+.AccionForm{
+    width:60vw;
+    text-align:left;
+    margin:0px auto;
+}
+
+a.cancelar{
+    padding:.4rem 1.2rem;
+    color:#bb4444;
+    font-size:1.1rem;
+    font-weight: normal;
+    cursor: pointer;
+    border:#cc4444 2px solid;
+    border-radius:3px;
+}
+
+
+.SubAccion{
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap:20px;
+}
+.SubAccion button{
+    padding:.3rem .5rem;
+    color:#666;
+    font-size:1.21rem;
+    font-weight: bold;
+    cursor: pointer;
+    border:#444 2px solid;
+    border-radius:3px;
+    box-shadow: #666 2px 1px 2px;
+    transition: background-color ease-in 400ms;
+}
+.SubAccion button.activo{
+    background-color: #666;
+    color:#eee;
+}
+
+
+.Tiposet{
+    padding:20px;
+}
+.Tiposet dl{
+  display:grid;
+  grid-template-columns: 9rem 1fr;
+  gap:20px;
+}
+.Tiposet dl input{
+    width:100%;
+}
+.Tiposet textarea{
+    width:100%;
+}
+
+.Tiposet.or{
+    display:none;
+}
 
 
 .FormRow{
@@ -26,45 +124,91 @@
 }
 
 .BigEstatus{
-    padding:1rem 2rem;
+    padding:1rem 1rem;
     background: #eee;
     display:flex;
     justify-content: center;
     align-items: center;
-    margin:10px 40px;
-    border-radius:15px;
+    margin:10px auto;
+    border-radius:25px;
     border:#fff 3px double;
+    letter-spacing: .1rem;
+    width:40vw;
 }
 .BigEstatus span{
     font-size:1.5rem;
     color:#222;
 }
+
 .BigEstatus.E1{
-    background:#999;  
+    background:#bbb;  
+    background: linear-gradient(0deg, #bbbbbb 0%, #bbbbbb 50%, #dddddd 100%);
 }
 .BigEstatus.E2{
     background:#903282;  
+    color:#fff;
+    background: linear-gradient(0deg, #903282 0%, #903282 50%, #a04292 100%);
 }
+.BigEstatus.E2 span{ color:#fff;}
 .BigEstatus.E3{
     background:#88cc88;  
+    background: linear-gradient(0deg, #88cc88 0%, #88cc88 50%, #A8EcA8 100%);
 }
 .BigEstatus.E4{
     background:#45981e;  
+    background: linear-gradient(0deg, #45981e 0%, #45981e 50%, #65B83e 100%);
 }
+.BigEstatus.E4 span{ color:#fff;}
+
 .BigEstatus.E5{
     background:#32977c;  
+    background: linear-gradient(0deg, #32977c 0%, #32977c 50%, #52B79c 100%);
 }
-.BigEstatu.E6{
+.BigEstatus.E6{
     background:#2a712a;  
+
+    background: linear-gradient(0deg, #2a712a 0%, #2a712a 50%, #4a914a 100%);
 }
+.BigEstatus.E6 span{    color:#fff;}
+
 .BigEstatus.E7{
     background:#7c1c27;  
+    color:#fff;
+    background: linear-gradient(0deg, #7c1c27 0%, #7c1c27 50%, #9c3c47 100%);
 }
+.BigEstatus.E7 span{    color:#fff;}
 .BigEstatus.E8{
-    background:#669966;  
+    background:#4a80d7;  
+    background: linear-gradient(0deg, #4a80d7 0%, #4a80d7 50%, #6aA0F7 100%);
 }
 .BigEstatus.E9{
-    background:#7f5613;  
+    background:#c27568;  
+    background: linear-gradient(0deg, #c27568 0%, #c27568 50%, #E29588 100%);
 }
 
 
+.Proceso{
+    margin:20px 20px;
+    padding:0px 20px 20px 20px;
+    border-bottom: #666 2px dashed;
+}
+
+@media screen and (max-width:600px) {
+    
+.Tiposet{
+    padding:0px;
+}
+
+.Tiposet dl{
+    display:grid;
+    grid-template-columns: 6rem 1fr;
+  }
+
+  .BigEstatus{
+    width:auto;
+    padding:1rem 2rem;
+  }
+
+
+
+}

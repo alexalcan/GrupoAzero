@@ -230,9 +230,12 @@ width:12rem;
 
         font-size:20px;
         text-decoration:none;
-        color:#666;
-        border:#999 1px solid;
+        color:#666699;
+        border:#666 3px solid;
         border-radius:7px;
+        letter-spacing: 1pt;
+        text-transform: uppercase;
+        font-weight: bold;
     }
 
 
@@ -297,6 +300,10 @@ width:12rem;
 
     }
 
+    a.editar{
+        padding:8px 5px 6px 30px;   
+        font-size:18px;
+    }
 
 #dialogoWrapper #dialogo{
     width:90vw;
@@ -355,10 +362,12 @@ width:12rem;
     }
 
     a.editar{
-        padding:8px 6px 6px 32px;   
+        padding:8px 4px 6px 28px;   
+        font-size:16px;
+        letter-spacing: auto;
     }
 
-
+  
 
 
     

@@ -64,16 +64,34 @@ class Tools{
      * @param integer $maxLength
      * @return
      */
-    public static function limpia($string,$filter,$maxLength=0){
+    public static function limpia(string $string,  $filter, int $maxLength=0) : string  {
     $val = filter_var($string,$filter);
     $val = is_string($val)?$val:"";
 
-        if(is_string($val) && $maxLength>0 && strlen($val)>0){$val = substr($val,0,$maxLength);}
+        if($maxLength > 0 && strlen($val) > 0){$val = substr($val,0,$maxLength);}
 
     return $val;
     }
+
+    public static function _string(string $string, int $maxLength=0) : string{
+        $val = filter_var($string,FILTER_SANITIZE_ENCODED, FILTER_FLAG_ENCODE_HIGH);
+        $val = is_string($val)?$val:"";
     
+            if($maxLength > 0 && strlen($val) > 0){$val = substr($val,0,$maxLength);}
     
+        return $val;
+    }
+    public static function _int(string $string) : int{
+        return (int)self::limpia($string,FILTER_SANITIZE_NUMBER_INT);
+    }
+    public static function _float(string $string) : float{
+        return (float)self::limpia($string,FILTER_SANITIZE_NUMBER_FLOAT);
+    }
+    public static function _email(string $string) : string{
+        return (float)self::limpia($string,FILTER_SANITIZE_EMAIL,90);
+    }
+
+
     
     /**
      * tools::fechaIso()
