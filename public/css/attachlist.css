@@ -1,22 +1,28 @@
 .attachList{
 margin:0;
-padding:10px;
+padding:10px 0px 20px 0px;
 background:#eeeeee;
 background: linear-gradient(0deg, #eeeeee 0%, #f6f6f6 50%, #ffffff 100%);
+
 }
 .attachList ul{
 display:flex;
 flex-wrap:wrap;
-justify-content:space-around;
+justify-content:flex-start;
 align-items:flex-start;
-column-gap:18px;
-row-gap:10px;
+column-gap:10px;
+row-gap:6px;
 margin:0;
 padding:0px;
+
+
+max-height:120px;
+overflow-x: hidden;
+overflow-y: auto;
 }
 .attachList .attachitem{
 display:block;
-width:180px;
+
 display:grid;
 grid-template-columns:1fr 36px;
 list-style:none;
@@ -37,8 +43,9 @@ max-width:154px;
 height:104px;
 z-index:20;
 cursor:pointer;
-border:#aaa 3px double;
+background-color: #eee;
 box-shadow:#ddd 1px 1px 2px;
+text-align:center;
 }
 .attachList .atticon.doc{
 border:none;
@@ -87,6 +94,7 @@ color:#884444;
 	justify-content:flex-start;
 	align-items:start;
 	gap:20px;
+	margin:10px 0px 5px 0px;
 }
 
 

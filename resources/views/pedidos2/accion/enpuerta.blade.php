@@ -6,16 +6,16 @@
 <input type="hidden" name="paso" value="1"/>
 <input type="hidden" name="shipment" value="0"/>
 <nav class="SubAccion">
-    <button rel="shipment" class="setto" val="1">Envio</button>
-    <button rel="shipment" class="setto" val="1">Entrega Directa</button>
+    <button rel="shipment" class="setto" val="1">Chofer Entrega</button>
+    <button rel="shipment" class="setto" val="0">Cliente Recoge</button>
 </nav>
 
 @elseif ($paso == 2)
-<section class='attachList' rel='ever' uploadto="{{ url('pedidos2/attachlist?catalog=pictures&order_id='.$order->id) }}" 
+<section class='attachList form-control' rel='ever' uploadto="{{ url('pedidos2/attachlist?catalog=pictures&order_id='.$order->id) }}" 
 href="{{ url('pedidos2/attachlist?rel=ever&catalog=pictures&order_id='.$order->id) }}"></section> 
 
 <aside class="AccionForm">
-    <div class="Fila"><input type="submit" name="sb" value="Guardar" /> </div>
+    <div class="Fila"><input type="submit" name="sb" class="form-control" value="Guardar" /> </div>
 </aside>
 
 @endif

@@ -19,79 +19,145 @@ $statuses = Pedidos2::StatusesCat();
 <link rel="stylesheet" href="{{ asset('css/pedidos2/general.css?x='.rand(0,999)) }}" />
 <link rel="stylesheet" href="{{ asset('css/pedidos2/pedido.css?x='.rand(0,999)) }}" />
 <link rel="stylesheet" href="{{ asset('css/attachlist.css?x='.rand(0,999)) }}" />
+<link rel="stylesheet" href="{{ asset('css/piedramuda.css?x='.rand(0,999)) }}" />
 
 <main class="content">
 
 
 
 
-    <div class="card">
 
-    <div class="card-header card-header-primary">
-        <div class="Fila">
-            <h4 class="card-title">Pedido {{ $pedido->invoice }}</h4>
-         </div>
+    <div class="card Fila">
+        <center> <a class="regresar" href="{{ url('pedidos2') }}">&laquo; Regresar</a> </center>
     </div>
 
-<p>&nbsp;</p>
+
+    <div class="card">
+
+        <div class="card-header card-header-primary">
+            <div class="Fila">
+                <h4 class="card-title">Pedido {{ $pedido->invoice }}</h4>
+            </div>
+        </div>
+
+        <div>&nbsp;</div>
 
     <form action="{{ url('pedidos2/guardar/'.$pedido->id) }}">
 
         <fieldset class='MainInfo'>
-        <div class='FormRow'><label>Folio</label><input type="text" name="invoice_number" value="{{$pedido->invoice_number}}" /></div>
-        <div class='FormRow'><label># Factura</label><input type="text" name="invoice" value="{{$pedido->invoice}}" /></div>
-        <div class='FormRow'><label>Cliente</label><input type="text" name="client" value="{{$pedido->client}}" /></div>
-        <div class='FormRow'><label></label><span><input type="submit" name="sb" value="Guardar" /> <input type="button" name="cn" value="Cancelar" onclick="EsconderMainInfo()" /></span></div>
+        <div class='FormRow'>
+            <label>Folio Cotización</label>
+            <input type="text" class="form-control" name="invoice_number" value="{{$pedido->invoice}}" />
+        </div>
+        <div class='FormRow'>
+        <label># Factura</label>
+        <input type="text" class="form-control" name="invoice" value="{{$pedido->invoice_number}}" />
+    </div>
+        <div class='FormRow'>
+            <label>Cliente</label>
+            <input type="text" class="form-control" name="client" value="{{$pedido->client}}" />
+        </div>
+        <div class='FormRow'>
+            <label></label>
+            <span>
+                <input type="submit" name="sb" class="form-control" value="Guardar" /> 
+                <input type="button" name="cn" class="form-control" value="Cancelar" onclick="EsconderMainInfo()" />
+            </span></div>
         </fieldset>
 
         
 
         <fieldset class='MiniInfo'>
-            <div><label>Folio</label><span>{{$pedido->invoice_number}}</span></div>
-            <div><label># Factura</label><span>{{$pedido->invoice}}</span></div>
+            <div><label>Folio Cotización</label>
+            <span>{{$pedido->invoice}} 
+                 @if (!empty($quote->document))
+                &nbsp; <a class="pdf" href="{{ asset('storage/'.$quote->document) }}"></a>
+                @endif 
+
+            </span>
+        </div>
+            <div>
+                <label># Factura</label><span>{{$pedido->invoice_number}}
+                <?php 
+                //var_dump($purchaseOrder) 
+                ?>
+                @if (!empty($purchaseOrder->document))
+                &nbsp; <a class="pdf" href="{{ asset('storage/'.$purchaseOrder->document) }}"></a>
+                @endif 
+
+            </span>
+            </div>
             <div><label>Cliente</label><span>{{$pedido->client}}</span></div>
+            <!--
             <div class="block"><a class="powerLink" onclick="MostrarMainInfo()">Cambiar datos principales</a></div>
+-->
         </fieldset>
 
+    <div class="padded">
+        <a class="powerLink modalShow" href="{{  url('pedidos2/historial/'.$pedido->id) }}">Historial</a>
+        
+    </div>
         
     </form>
 
+    <div class="Fila">User Rol {{$user->role->name}} Department:{{$user->department->name}}</div>
     
+
     <div class="BigEstatus E{{ $pedido->status_id }}"><span >{{$pedido->status_name}}</span></div>
     <div class="center">Último cambio: {{$pedido->updated_at}}</div>
 
-    <div class="Cuerpo">
-        
+
+    <div class="Cuerpo" id="CuerpoActualizar">
         
 
-        @if ($pedido->status_id != 9)
-        <h4 class="Fila card-title">Actualizar</h4>
-        <p>Mantén presionada la acción que quieres realizar.</p>
-        @endif
 
+
+        
 
         <div class="Eleccion">
         @if ($pedido->status_id == 1)
         <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=recibido') }}">Recibido por embarques</a>
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=ordenf') }}">Orden fabricación</a>
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a>
+
+        <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
+            @if ($pedido->origin=="R")
+            <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=sm') }}">Salida de Material</a>
+            @endif
+
         @elseif ($pedido->status_id == 2)
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=ordenf') }}">Orden fabricación</a>
+        <!-- Recibido por embarques -->
+
         <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a>
         <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
+  
+            @if ($pedido->origin=="R")
+        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=sm') }}">Salida de Material</a>
+            @endif
+
         @elseif ($pedido->status_id == 3)
+        <!-- En fabricación -->
         <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a>
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
+        <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> -->
+
         @elseif ($pedido->status_id == 4)
+        <!-- Fabricado -->
 
         <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
+
+        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=requisicion') }}">+ Requisicion</a>
+
+
         @elseif ($pedido->status_id == 5)
+        <!-- En Ruta -->
         <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=entregar') }}">Entregado</a>
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=devolucion') }}">Devolución</a>   
+        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=devolucion') }}">Devolución</a>  
+
         @elseif ($pedido->status_id == 6)
+        <!-- Entregado -->
         <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=devolucion') }}">Devolución</a>
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=refacturar') }}">Refacturación</a>      
+        <!-- solo despues cancelacion <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=refacturar') }}">Refacturación</a>  -->
+
         @elseif ($pedido->status_id == 7)
+        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=refacturar') }}">Refacturación</a>
 
         @elseif ($pedido->status_id == 8)
  
@@ -99,51 +165,74 @@ $statuses = Pedidos2::StatusesCat();
 
         </div>
 
-
-
-        <div id="AccionSection">
-
-
-        </div>
+    
 
 
 
-        <div>
-            <a href="{{  url('pedidos2/historial') }}">Historial</a>
-        </div>
 
-    </div>
+
+
+
+
+
 
 
 
 </div>
 
-
-<div class="card Fila">
-    <center> <a href="{{ url('pedidos2') }}">&laquo; Regresar</a> </center>
-
 </div>
+
+
+
 
 
 
 <div class="card">
-    <div class="card-header card-header-primary">
-        <div class="Fila">
-            <h4 class="card-title">Procesos</h4>
-         </div>
+    <div class="headersub">
+    Parciales
     </div>
 
-    @foreach ($shipments as $ship)
-    <section class='Proceso'>
-        <h3>Shipment #{{ $ship->id }}</h3>
+    <aside class="Eleccion">
+    <a class="NParcial Candidato subp" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=parcial') }}">+ Parcial</a>
 
-        <section class='attachList' rel='ship{{ $ship->id }}' 
-        uploadto="{{ url('pedidos2/attachpost?catalog=pictures&shipment_id='.$ship->id) }}" 
-        href="{{ url('pedidos2/attachlist?rel=ship'. $ship->id .'&catalog=pictures&shipment_id='.$ship->id) }}"></section> 
- 
+    </aside>
 
-    </section>
-    @endforeach
+    <div id="ParcialesDiv" href="{{ url('pedidos2/sparciales_pedido/'.$pedido->id) }}"></div>
+
+    
+</div>
+
+
+
+
+
+
+
+<div class="card">
+    <div class="headersub">
+     Procesos
+    </div>
+
+    <div class="Eleccion ">
+
+        <a class="Candidato" rel="smaterial" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=smaterial') }}">+ Salida de Material</a>
+        <a class="Candidato" rel="requisicion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=requisicion') }}">+ Requisición</a>
+        <a class="Candidato" rel="ordenf" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=ordenf') }}">+ Orden de fábrica</a>
+        @if ($pedido->status_id == 7) 
+        <a class="Candidato" rel="devolucion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=devolucion') }}">Devolución</a> 
+        @endif
+    </div>
+
+
+    <div id="SmaterialDiv" href="{{ url('pedidos2/smaterial_lista/'.$pedido->id) }}"></div>
+
+    <div id="RequisicionDiv" href="{{ url('pedidos2/requisicion_lista/'.$pedido->id) }}"></div>
+
+    <div id="OrdenfDiv" href="{{ url('pedidos2/ordenf_lista/'.$pedido->id) }}"></div>
+
+    <div id="DevolucionDiv" href="{{ url('pedidos2/devolucion_lista/'.$pedido->id) }}"></div>
+
+
 
 
     @if ($hayEntrega == true)
@@ -155,19 +244,9 @@ $statuses = Pedidos2::StatusesCat();
     </section>
     @endif
 
-    <p>&nbsp;</p>
-</div>
 
 
-
-
-
-<div class="card">
-    <div class="card-header card-header-primary">
-        <div class="Fila">
-            <h4 class="card-title">Parcial</h4>
-         </div>
-    </div>
+    <?php echo view("pedidos2/pedido/debolution",compact("shipments","user","pictures","evidences","debolutions"));  ?>
 
     <p>&nbsp;</p>
 </div>
@@ -175,11 +254,24 @@ $statuses = Pedidos2::StatusesCat();
 
 
 
-@if ($role->name == "Administrador")
+
+
+
+
+
+
+@if ( in_array($user->department->id,[2, 3, 5, 7]))
+
     <div class="card">
 
         <div class='center Fila'>
-            <a class="cancelar" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=cancelar') }}">Cancelar</a>
+            @if ($pedido->status_id != 7)
+            <a class="cancelar" title="¿Confirma que desea eliminar este pedido?" 
+            href="{{ url('pedidos2/cancelar/'.$pedido->id) }}">Cancelar</a>
+            @elseif ($pedido->status_id == 7 && $role->name == "Administrador")
+            <a class="cancelar" title="¿Confirma que desea quitar la cancelación de este pedido?" 
+            href="{{ url('pedidos2/descancelar/'.$pedido->id) }}">DesCancelar</a>
+            @endif
         </div>
 
     </div>
@@ -187,17 +279,17 @@ $statuses = Pedidos2::StatusesCat();
 
 </main>
 
-{{ $id }}
 
-<?php var_dump($pedido); ?>
+
+<?php //var_dump($pedido); ?>
 
 @endsection
 
 @push('js')
 <!-- <script type="text/javascript" src="{{asset('js/jquery.mobile-1.4.5.js')}}"></script>-->
 <script type="text/javascript" src="{{asset('js/jquery.form.js')}}"></script>
-<script type="text/javascript" src="{{asset('js/piedramuda.js')}}"></script>
-<script type="text/javascript" src="{{asset('js/attachlist2.js')}}"></script>
+<script type="text/javascript" src="{{asset('js/piedramuda.js?x='.rand(0,999))}}"></script>
+<script type="text/javascript" src="{{asset('js/attachlist2.js?x='.rand(0,999))}}"></script>
 <script>
 $(document).ready(function(){
     
@@ -208,20 +300,21 @@ $(document).ready(function(){
 
     let isMobile = isMobileOrTablet();
 if(isMobile){
-    SetEleccionAccionListenerMobile();
+   // SetEleccionAccionListenerMobile();
 }else{
-    SetEleccionAccionListener();
+   // SetEleccionAccionListener();
 }
 
 
 
-$("body").on('touchstart',".Eleccion .Accion", function(){
-    console.log("touchstart");
-});
+
 
 
 $(".Eleccion .Accion").click(function(e){
     e.preventDefault();
+    $(".Eleccion .Accion").removeClass("activo");
+    $(this).addClass("activo");
+    AccionPresionado(this);
 });
 
 
@@ -232,53 +325,197 @@ $(".attachList").each(function(){
 });
 
 
+$("a.cancelar").click(function(e){
+    e.preventDefault();
+
+    let tit = $(this).attr("title");
+    if(!confirm(tit)){return false;}
+
+    let href=$(this).attr("href");
+    window.location.href=href;
 });
 
 
-function SetEleccionAccionListener(){
-    $("body").on('mousedown',".Eleccion .Accion" ,function() {
-    console.log("mt");
-    $(".Eleccion .Accion").removeClass("activo");
-    $(this).addClass("activo");
-    AccionPresionado(this);
-    timeoutAccion = setTimeout(AccionPresionadoLlena, 600);
-
-}).on('mouseup mouseleave', ".Eleccion .Accion" , function() {
-    $(".Eleccion .Accion").removeClass("activo");
-    if(timeoutAccion){
-        clearTimeout(timeoutAccion);        
-    } 
+$("body").on("click", ".modalShow", function(e){
+    e.preventDefault();
+    let href =$(this).attr("href");
+    $.ajax({
+        url:href,
+        success:function(h){
+            MiModal.content(h);
+            MiModal.show();
+        }
+    });
 });
-}
 
-function SetEleccionAccionListenerMobile(){
-    let botones = document.getElementsByClassName("Accion");
-    for(b in botones){
 
-        const boton = botones[b];
-        if(typeof(boton.addEventListener)=="undefined"){continue;}
 
-        boton.addEventListener('touchstart',(e)=>{
-            e.preventDefault();
-            e.stopPropagation();
-            AccionPresionado(e.target);
-            timeoutAccion = setTimeout(AccionPresionadoLlena, 600, boton);
-            $(".Eleccion .Accion").removeClass("activo").removeClass("completo");
-          //  $(".Eleccion .Accion").removeClass("activo");
-            $(e.target).addClass("activo");
-        });
-        boton.addEventListener('touchend',(e)=>{
-            e.preventDefault();
-            e.stopPropagation();
-            
-            $(".Eleccion .Accion").not(".completo").removeClass("activo");
-                if(timeoutAccion){
-                 clearTimeout(timeoutAccion);        
-                } 
-        });        
+$(".NParcial").click(function(e){
+e.preventDefault();
+let href = $(this).attr("href");
+AjaxGet(href,FormaNuevoParcial);
+});
+
+
+$("body").on("click",".editarparcial",function(e){
+e.preventDefault();
+AjaxGet($(this).attr("href"),FormaEditarParcial);
+});
+$("body").on("click",".editarsm",function(e){
+e.preventDefault();
+AjaxGet($(this).attr("href"),FormaEditarSmaterial);
+});
+
+
+$(".Candidato").click(function(e){
+e.preventDefault();
+let href = $(this).attr("href");
+let rel = $(this).attr("rel");
+    if(rel == "smaterial"){
+        AjaxGet(href,FormaNuevoSmaterial);
+    }
+    else if(rel == "requisicion"){
+        AjaxGet(href,FormaNuevoRequisicion);     
+    }
+    else if(rel == "ordenf"){
+        AjaxGet(href,FormaNuevoOrdenf);        
+    }
+    else if(rel == "devolucion"){
+        AjaxGet(href,FormaNuevoDevolucion);        
     }
 
+});
+
+
+
+CargarParciales();
+CargarSmateriales();
+
+
+//$("#CuerpoActualizar").hide();
+
+
+});
+
+
+
+function FormaNuevoParcial(h){
+    MiModal.content(h);
+    MiModal.show();
+
+    FormaNuevoParcial2();
 }
+function FormaNuevoParcial2(){
+    $("#FSetAccion").ajaxForm({
+        error:function(err){alert(err.statusText);}, 
+        success:function(h){
+            MiModal.content(h);
+            MiModal.show();            
+
+            if($("#atlSlot").length>0){
+            let uploadto = $("#atlSlot").attr("uploadto");
+            let listHref = $("#atlSlot").attr("listHref");
+            let val = $("#atlSlot").attr("val");
+            AttachListCreate("#atlSlot","nparc",uploadto, listHref,"pictures","partial_id", val, "edit");
+            }              
+
+            $("input[name='parcialterminar']").click(function(){
+                MiModal.exit();
+                CargarParciales();
+            });     
+
+        }
+    });
+}
+
+
+function FormaEditarParcial(h){
+    MiModal.content(h);
+   // MiModal.after = FormaEditarParcial2;
+    MiModal.show();
+
+    $("#FSetAccion").ajaxForm({
+        error:function(err){alert(err.statusText);}, 
+        dataType:"json",
+        success:function(json){
+            if(json.status==1){
+                MiModal.exit();
+                CargarParciales();
+            }else{
+                console.log(json);
+            }
+        }
+    });
+
+    let uploadto = $("#atlSlot").attr("uploadto");
+    let listHref = $("#atlSlot").attr("listHref");
+    let val = $("#atlSlot").attr("val");
+    AttachListCreate("#atlSlot","edparcial",uploadto, listHref,"pictures","partial_id", val, "edit"); 
+}
+
+
+
+function FormaNuevoSmaterial(h){
+    MiModal.content(h);
+    MiModal.show();
+
+    FormaNuevoSmaterial2();
+}
+function FormaNuevoSmaterial2(){
+
+    if($("#atlSlot").length>0){
+        let uploadto = $("#atlSlot").attr("uploadto");
+        let listHref = $("#atlSlot").attr("listHref");
+        let val = $("#atlSlot").attr("val");
+        let event = $("#atlSlot").attr("event");
+        AttachListCreate("#atlSlot","nsmat",uploadto, listHref,"pictures","smaterial_id", val, "edit", event); 
+    }              
+
+    $("input[name='parcialterminar']").click(function(){
+        MiModal.exit();
+        CargarSmateriales();
+    });  
+    $("body").bind("MiModal-exit",function(){
+        CargarSmateriales();
+        $("body").unbind("MiModal-exit");
+    });
+
+    $("#FSetAccion").ajaxForm({
+        error:function(err){alert(err.statusText);}, 
+        success:function(h){
+            MiModal.content(h);
+            MiModal.show();     
+            FormaNuevoSmaterial2();    
+        }
+    });
+
+}
+
+
+function FormaEditarSmaterial(h){
+    MiModal.content(h);
+    MiModal.show();
+
+    $("#FSetAccion").ajaxForm({
+        error:function(err){alert(err.statusText);}, 
+        dataType:"json",
+        success:function(json){
+            if(json.status==1){
+                MiModal.exit();
+                CargarSmateriales();
+            }else{
+                console.log(json);
+            }
+        }
+    });
+
+    let uploadto = $("#atlSlot").attr("uploadto");
+    let listHref = $("#atlSlot").attr("listHref");
+    let val = $("#atlSlot").attr("val");
+
+    AttachListCreate("#atlSlot","edsm_"+val,uploadto, listHref,"pictures","smaterial_id", val, "edit"); 
+}
+
 
 
 
@@ -303,17 +540,21 @@ function SetEleccionAccionListenerMobile(){
     type:"get",
     error:function(err){alert(err.statusText);},
     success:function(h){
-       ACCIONHTML=h;
+        AccionPresionadoLlena(ob, h);
     }
    });
 
  }
 
 
- function AccionPresionadoLlena(ob){
+ function AccionPresionadoLlena(ob,html){
     if(typeof(ob)=="undefined"){ob=null;}
     $(ob).addClass("completo");
-    $("#AccionSection").html(ACCIONHTML);
+    //$("#AccionSection").html(html);
+
+    MiModal.content(html);
+    MiModal.show();
+    //MiModal(html);
     FormaAccionSet();
  }
  function FormaAccionSet(){
@@ -341,6 +582,8 @@ function SetEleccionAccionListenerMobile(){
         $(this).closest("form").submit();
     });
 
+
+    //???????????
     $("#AccionSection .attachList").each(function(){
     AttachList($(this).attr("rel"));
     });
@@ -356,11 +599,56 @@ function AccionPaso(href){
     error:function(err){alert(err.statusText);},
     success:function(h){
         $("#AccionSection").html(h);
-        FormaAccionSet();
+
+        MiModal.content(h);
+        MiModal.post(FormaAccionSet);
+        MiModal.show();
+
         }
    });
 
  }
+
+
+ function MostrarActualizar(){
+    $("#CuerpoActualizar").slideDown();
+ }
+
+
+function CargarParciales(){
+    let href = $("#ParcialesDiv").attr("href");
+
+    $.ajax({
+        url:href,
+        error:function(err){alert(err.statusText);},
+        success:function(h){
+            $("#ParcialesDiv").html(h);
+            $("#ParcialesDiv .attachList").each(function(){
+                AttachList($(this).attr("rel"));
+            });
+        }
+    });
+    
+}
+
+function CargarSmateriales(){
+    let href = $("#SmaterialDiv").attr("href");
+
+    $.ajax({
+        url:href,
+        error:function(err){alert(err.statusText);},
+        success:function(h){
+            $("#SmaterialDiv").html(h);
+            $("#SmaterialDiv .attachList").each(function(){
+                AttachList($(this).attr("rel"));
+            });
+        }
+    });
+    
+}
+
+
+
 
 </script>    
 @endpush

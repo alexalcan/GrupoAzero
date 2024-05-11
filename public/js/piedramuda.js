@@ -1,14 +1,16 @@
-const MiModal = {
+const MiModal =  {
 width:"",
 title:"",
 
-post:null,
+after: null,
 
-contHtml:"",
+contHtml: "",
 
-content:function(h){this.contHtml=h;},
+constructor(){},
 
-showBg:function(){
+content: function(h){this.contHtml=h;},
+
+showBg: function(){
     let dn = $("#dialogoBg").length;
     if(dn==0){
         $("body").append("<div id='dialogoBg'></div>");
@@ -17,7 +19,7 @@ showBg:function(){
     }    
 },
 
-show:function(directHtml){
+show: function(directHtml){
     if(typeof(directHtml)=="undefined"){directHtml="";}
     let dbn = $("#dialogoBg").length;
     if(dbn==0){
@@ -41,18 +43,21 @@ show:function(directHtml){
         if(this.width.length>0){
             $("#dialogo").css("width",this.width);
         }
+      
 
-    let doPost = this.post;
     $("#dialogo").slideDown(400,function(){
-        if(doPost!=null){doPost();}
+
+        if(this.after !== null){this.after();}
     });
 
     
 },
-exit:function(){    
+
+exit : function(){    
     $("#dialogo").slideUp(400,()=>{
         $("#dialogoWrapper").remove();
         $("#dialogoBg").remove();
+        $("body").trigger("MiModal-exit");
     });
     
 }
@@ -83,4 +88,53 @@ function isMobileOrTablet() {
    }
 
    return false;
+}
+
+
+function AjaxGet(href,callback, datos){
+    if(typeof(datos)=="undefined"){datos = {};}
+
+    $.ajax({
+        url:href,
+        method:"get",
+        data:datos,
+        error:function(err){alert(err.statusText);},
+        success:function(h){
+            if(typeof(callback)!="undefined"){
+                callback(h);
+            }
+        }
+    });
+}
+function AjaxGetJson(href,callback, datos){
+    if(typeof(datos)=="undefined"){datos = {};}
+
+    $.ajax({
+        url:href,
+        method:"get",
+        data:datos,
+        dataType:"json",
+        error:function(err){alert(err.statusText);},
+        success:function(json){
+            if(typeof(callback)!="undefined"){
+                callback(json);
+            }
+        }
+    });
+}
+function AjaxPostJson(href,datos,callback){
+    if(typeof(datos)=="undefined"){datos = {};}
+
+    $.ajax({
+        url:href,
+        method:"post",
+        data:datos,
+        dataType:"json",
+        error:function(err){alert(err.statusText);},
+        success:function(json){
+            if(typeof(callback)!="undefined"){
+                callback(json);
+            }
+        }
+    });
 }

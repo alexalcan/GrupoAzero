@@ -2,7 +2,7 @@
 @csrf 
 <aside class="AccionForm">
     <div class="Fila">¿Confirma que el pedido fue fabricado?</div>
-    <div class="Fila"><input type="submit" name="sb" value="Confirmar" /> </div>
+    <div class="Fila"><input type="submit" class="form-control" name="sb" value="Confirmar" /> </div>
 </aside>
 
 

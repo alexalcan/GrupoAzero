@@ -40,19 +40,25 @@ href="{{ $url }}">
     <li class='attachitem'>
     <!--   <img class='atticon' src='{{ asset("storage/".$li->picture) }}' /> -->
     {!! IconOf($li->picture) !!}
-    <div class='delspace'><a class="delatt" href="{{ url("pedidos2/attachdelete?catalog=".$catalog."&id=".$li->id) }}" title="Eliminar imagen">X</a></div>    
+        @if ($mode =="edit" || $mode =="")
+        <div class='delspace'><a class="delatt" href="{{ url("pedidos2/attachdelete?catalog=".$catalog."&id=".$li->id) }}" title="Eliminar imagen">X</a></div>    
+        @endif
     </li>
     
     @elseif ($catalog == "evidence") 
     <li class='attachitem'>
     {!! IconOf($li->file) !!}
-    <div class='delspace'><a class="delatt" href="{{ url("pedidos2/attachdelete?catalog=".$catalog."&id=".$li->id) }}" title="Eliminar Evidencia">X</a></div>
+        @if ($mode =="edit" || $mode =="")
+        <div class='delspace'><a class="delatt" href="{{ url("pedidos2/attachdelete?catalog=".$catalog."&id=".$li->id) }}" title="Eliminar Evidencia">X</a></div>
+        @endif    
     </li>
     
     @elseif ($catalog == "shipments") 
     <li class='attachitem'>
      {!! IconOf($li->file) !!}
-    <div class='delspace'><a class="delatt" href="{{ url("pedidos2/attachdelete?catalog=".$catalog."&id=".$li->id) }}" title="Eliminar Evidencia de Embarque">X</a></div>
+        @if ($mode =="edit" || $mode =="")
+        <div class='delspace'><a class="delatt" href="{{ url("pedidos2/attachdelete?catalog=".$catalog."&id=".$li->id) }}" title="Eliminar Evidencia de Embarque">X</a></div>
+        @endif
     </li>    
     @endif
     
@@ -60,12 +66,15 @@ href="{{ $url }}">
 </ul>    
 
 
+@if( $mode == "edit" || $mode == "") 
 <div class='attachAddBox'>
     <div><b>Agregar</b></div>
     <div><input type='file' name='attachUpload' class="form-control-file"  accept="capture=camera,image/*,.pdf" /></div>
     <!-- <div><button class='MyAttAdder'>Subir Imagen</button></div>   -->
     <div><div class="attachMonitor"></div></div>
 </div>
+@endif
+
 
 <input type='hidden' name='_token' value='{{ csrf_token() }}' />
 @foreach ($urlParams as $k=> $v)

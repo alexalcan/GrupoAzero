@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Ramsey\Collection\AbstractArray;
 use Illuminate\Support\Facades\DB;
+use App\Log;
 
 class Pedidos2 extends Model
 {
@@ -122,5 +123,43 @@ class Pedidos2 extends Model
     ->orderBy("logs.created_at","DESC")->get()->toArray();
    }
 
+
+
+   public static function mimeExtensions() : array{
+    return [
+        "image/jpg" =>"jpg",
+        "image/jpeg" =>"jpg",
+        "image/gif"=>"gif",
+        "image/png"=>"png",
+        "application/pdf"=>"pdf",
+        "application/x-pdf"=>"pdf",
+        "x-pdf"=>"pdf"
+       // "application/msword"=>"docx",
+       // "application/ms-word"=>"docx",
+       // "text/rtf"=>"rtf",
+       // "application/rtf"=>"rtf",
+       // "application/ms-excel"=>"xlsx",
+       // "application/msexcel"=>"xlsx",
+       // "application/vnd.ms-excel"=>"xlsx",
+       // "application/vnd.ms-word"=>"docx"
+        ];
+   }
+
+
+
+   public static function Log(int $order_id, string $statusStr, string $action, int $statusId, object $user) : int {
+    
+    $nid = Log::create([
+        "status"=>$statusStr,
+        "action"=> $action,
+        "order_id"=>$order_id,
+        "user_id" => $user->id,
+        "department_id"=>$user->department->id,
+        "status_id"=>$statusId,
+        "created_at" => date("Y-m-d H:i:s"),
+        "updated_at" => date("Y-m-d H:i:s")
+    ])->id;
+        return $nid;
+   }
 
 }

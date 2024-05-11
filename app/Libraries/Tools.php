@@ -64,7 +64,7 @@ class Tools{
      * @param integer $maxLength
      * @return
      */
-    public static function limpia(string $string,  $filter, int $maxLength=0) : string  {
+    public static function limpia($string,  $filter, int $maxLength=0) : string  {
     $val = filter_var($string,$filter);
     $val = is_string($val)?$val:"";
 
@@ -73,7 +73,7 @@ class Tools{
     return $val;
     }
 
-    public static function _string(string $string, int $maxLength=0) : string{
+    public static function _string($string, int $maxLength=0) : string{
         $val = filter_var($string,FILTER_SANITIZE_ENCODED, FILTER_FLAG_ENCODE_HIGH);
         $val = is_string($val)?$val:"";
     
@@ -81,13 +81,13 @@ class Tools{
     
         return $val;
     }
-    public static function _int(string $string) : int{
+    public static function _int( $string) : int{
         return (int)self::limpia($string,FILTER_SANITIZE_NUMBER_INT);
     }
-    public static function _float(string $string) : float{
+    public static function _float( $string) : float{
         return (float)self::limpia($string,FILTER_SANITIZE_NUMBER_FLOAT);
     }
-    public static function _email(string $string) : string{
+    public static function _email( $string) : string{
         return (float)self::limpia($string,FILTER_SANITIZE_EMAIL,90);
     }
 

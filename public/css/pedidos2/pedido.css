@@ -1,8 +1,22 @@
+.main-panel > .content{
+    margin-top: 10px;
+}
+.headersub{
+    padding:10px 15px;
+    background: linear-gradient(60deg, #545759, #C72029);
+    margin:-10px 20px 0px 20px;
+    box-shadow: #aaa 2px 2px 8px;
+    color:#fff;
+    font-weight: bold;
+    font-size:1.2rem;
+    letter-spacing: 1pt;
+}
+
 .MiniInfo{
     font-size: .9rem;
     color:#999;
 
-    margin:0px 20px 20px 20px
+    margin:0px 20px 5px 20px
 }
 .MiniInfo div{
     margin:0px 0px .2rem 0px;
@@ -19,10 +33,22 @@
 .MiniInfo .block{
     display:block;
 }
+.MiniInfo label{
+    font-weight: bold;
+}
+
+.padded{
+    margin-left:20px;
+    margin-right:20px;
+}
 
 
-
-
+.Eleccion{
+    row-gap: 30px;
+    column-gap:20px;
+    justify-content: center;
+    margin:20px 0px;
+}
 .Eleccion .Tipo{
     padding:.4rem .8rem;
     color:#666;
@@ -36,9 +62,9 @@ color:#eee;
 
 
 .Eleccion .Accion{
-    padding:.4rem .8rem;
+    padding:.3rem .6rem;
     color:#666;
-    font-size:1.2rem;
+    font-size:1.1rem;
     font-weight: bold;
     cursor: pointer;
     border:#444 2px solid;
@@ -51,6 +77,23 @@ background-color: #666;
 color:#eee;
 }
 
+
+.Candidato{
+    padding:.3rem .6rem;
+    color:#666;
+    font-size:1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    border:#444 2px solid;
+    border-radius:3px;
+    box-shadow: #666 2px 2px 4px;
+}
+
+
+.Accion.subp{
+    background-color: #f0f6f0;
+}
+
 #AccionSection{
     margin:20px 0px;
 }
@@ -58,7 +101,7 @@ color:#eee;
     text-align:center;
 }
 .AccionForm{
-    width:60vw;
+
     text-align:left;
     margin:0px auto;
 }
@@ -71,6 +114,22 @@ a.cancelar{
     cursor: pointer;
     border:#cc4444 2px solid;
     border-radius:3px;
+}
+
+.Pareja{
+    display:grid;
+    grid-template-columns:50% 50%;
+    gap:20px;
+    align-items:flex-start;
+    margin: 20px auto 10px auto;
+    max-width:40rem;
+
+}
+
+
+.regresar{
+    font-size: 1.3rem;
+    font-weight: bold;
 }
 
 
@@ -89,7 +148,7 @@ a.cancelar{
     border:#444 2px solid;
     border-radius:3px;
     box-shadow: #666 2px 1px 2px;
-    transition: background-color ease-in 400ms;
+    transition: background-color ease-in 200ms;
 }
 .SubAccion button.activo{
     background-color: #666;
@@ -124,7 +183,7 @@ a.cancelar{
 }
 
 .BigEstatus{
-    padding:1rem 1rem;
+    padding:.6rem 1rem;
     background: #eee;
     display:flex;
     justify-content: center;
@@ -133,11 +192,12 @@ a.cancelar{
     border-radius:25px;
     border:#fff 3px double;
     letter-spacing: .1rem;
-    width:40vw;
+    width:34vw;
 }
 .BigEstatus span{
     font-size:1.5rem;
     color:#222;
+    text-align:center;
 }
 
 .BigEstatus.E1{
@@ -163,6 +223,9 @@ a.cancelar{
 .BigEstatus.E5{
     background:#32977c;  
     background: linear-gradient(0deg, #32977c 0%, #32977c 50%, #52B79c 100%);
+}
+.BigEstatus.E5 span{
+    color:#fff;
 }
 .BigEstatus.E6{
     background:#2a712a;  
@@ -193,6 +256,76 @@ a.cancelar{
     border-bottom: #666 2px dashed;
 }
 
+
+.Parcial{
+display:grid;
+grid-template-areas: "inv st ed" "fi fi fi";
+margin:0px 0px 20px 0px;
+padding:10px 20px;
+border-bottom:#aaa 1px dashed;
+font-size:1.2rem;
+}
+.Parcial label{font-size:1.2rem;}
+.Parcial [rel='inv']{grid-area:inv;}
+.Parcial [rel='st']{grid-area:st;}
+.Parcial [rel='ed']{grid-area:ed;}
+.Parcial [rel='fi']{grid-area:fi;}
+
+
+
+
+.Subproceso{
+    display:grid;
+    grid-template-areas: "inv st ed" "fi fi fi";
+    margin:0px 0px 20px 0px;
+    padding:10px 20px;
+    border-bottom:#aaa 1px dashed;
+    font-size:1.2rem;
+    }
+.Subproceso label{font-size:1.2rem;}
+.Subproceso [rel='inv']{grid-area:inv;}
+.Subproceso [rel='st']{grid-area:st;}
+.Subproceso [rel='ed']{grid-area:ed;}
+.Subproceso [rel='fi']{grid-area:fi;}
+
+
+
+
+
+.editarparcial{
+    display:inline-block;
+    border:#666 2px solid;
+    background: #fff;
+    font-size:1.1rem;
+    color:#333;
+    border-radius:5px;
+    padding:4px;
+}
+.editarsubproceso{
+    display:inline-block;
+    border:#666 2px solid;
+    background: #fff;
+    font-size:1.1rem;
+    color:#333;
+    border-radius:5px;
+    padding:4px;
+}
+
+.ErrorMsg{
+    color:red;
+    background-color: #eedddd;
+}
+
+.doscol{
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    align-items: center;
+}
+.doscol label{
+    font-size:1.1rem;    
+}
+
+
 @media screen and (max-width:600px) {
     
 .Tiposet{
@@ -207,6 +340,10 @@ a.cancelar{
   .BigEstatus{
     width:auto;
     padding:1rem 2rem;
+
+  }
+  .BigEstatus span{
+    font-size:1rem;
   }
 
 

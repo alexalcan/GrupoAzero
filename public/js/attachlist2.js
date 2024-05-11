@@ -9,6 +9,7 @@ $(".attachList[rel='"+sectionRel+"']").html("Cargando...");
     $.ajax({
         url:listHref,
 		success:function(h){
+
 		    $(".attachList[rel='"+sectionRel+"']").replaceWith(h);
 		    setTimeout(function(){ActivaAttachList(sectionRel);},10);
 			}
@@ -41,6 +42,14 @@ function ActivaAttachList(sectionRel){
     	//console.log(inp);
         AttSubeArchivo($(this));	
 	});	
+
+	let mode = $(".attachList[rel='"+sectionRel+"']").attr("mode");
+	mode = (typeof(mode)=="undefined") ? "edit": mode;
+	
+	if(mode=="view"){
+		$(".attachList[rel='"+sectionRel+"'] .attachAddBox").hide();
+	}
+	
 	
 		
 console.log("Activado "+sectionRel);
@@ -84,6 +93,20 @@ function EliminaAtt(esteob, sectionRel){
     }
     
 
+
+function AttachListCreate(contenedorPath,rel,uploadto, listHref,catalog,key,value, mode,event){
+	if(typeof(mode)=="undefined"){mode="edit";}
+	if(typeof(event)=="undefined"){event="";}
+
+	let href = listHref + "?rel=" + rel + "&catalog=" + catalog + "&mode=" + mode + "&" + key + "=" + value + ((event.length>0)?"&event=" + event : "");
+	let uhref = uploadto + "?catalog=" + catalog;
+
+	var ht ="<section mode='"+mode+"' class='attachList form-control' rel='"+rel+"' "; 
+	ht += "uploadto='" + uhref + "'  href='" + href + "' ></section>";
+
+	$(contenedorPath).replaceWith(ht);
+	AttachList(rel);
+}
 
 
 function AttSubeArchivo(ob){

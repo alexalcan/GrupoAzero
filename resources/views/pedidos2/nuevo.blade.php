@@ -16,16 +16,18 @@
          </div>
     </div>
 
-<p>&nbsp;</p>
+
 
     <form action="{{ url('pedidos2/crear') }}" id="FNuevo" class="Cuerpo" method="post">
         @csrf
     <fieldset>
-            <p class="center">Iniciar con </p>
+            
+    <h3 class="center">Iniciar con </h3>
+
             <div class="Eleccion">
                 <button class="Tipo" rel="F">Factura</button>
                 <button class="Tipo" rel="C">Cotización</button>
-                <button class="Tipo" rel="R">Requerimiento Interno</button>
+      
             </div>
         </fieldset>
         <input type="hidden" name="origin" value=""/>
@@ -33,18 +35,22 @@
 
         <fieldset class="Tiposet or">
             <dl>
-            <dt><label rel="code" F="Folio Factura *" C="Num Cotizacion *" R="Num Requerimiento *">Folio/Codigo</label></dt> <dd><input type="text" name="code" class="form-control" /></dd>
+            <dt><label rel="code" F="Folio Factura *" C="Num Cotizacion *" R="Num Requerimiento *">Folio/Codigo</label></dt> 
+            <dd><input type="text" name="code" class="form-control" /></dd>
+            
+            <dt><label>Clave de Cliente *</label></dt> 
+            <dd> <input type="text" name="client"  class="form-control"/></dd>
 
-            <dt><label rel="archivo" F="Scan Factura" C="Archivo Cotizacion" R="Archivo Requerimiento">Archivo</label> </dt> <dd><input type="file" name="archivo"  class="form-control" /></dd>
+            @if ($user->role_id == 1)
+            <dt><label rel="archivo" F="Archivo Factura" C="Archivo Cotizacion" R="Archivo Requerimiento">Archivo</label> </dt> 
+            <dd><input type="file" name="archivo"  class="form-control" /></dd>
+            @endif
 
+            <dt><label>Note</label></dt> 
+            <dd> <textarea  name="nota" class="form-control" ></textarea></dd>
 
-            <dt><label>Numero de Folio *</label></dt> <dd> <input type="text" name="invoice" class="form-control" /></dd>
-
-            <dt><label>Clave de Cliente *</label></dt> <dd> <input type="text" name="client"  class="form-control"/></dd>
-
-            <dt><label>Note</label></dt> <dd> <textarea  name="nota" class="form-control" ></textarea></dd>
-
-            <dt></dt> <dd><input type="submit" name="sb" value="Guardar"><span id="preGuardar">Indique todos los datos obligatorios * para guardar</span></dd>
+            <dt></dt> 
+            <dd><input type="submit" name="sb" value="Guardar"><span id="preGuardar">Indique todos los datos obligatorios * para guardar</span></dd>
         </dl>
         </fieldset>
 
@@ -110,10 +116,10 @@ function ShowTiposet(r){
 function UnlockContinuar(ob){
     let cd = $(ob).closest(".Tiposet").find("[name='code']").val();
     let ar = $(ob).closest(".Tiposet").find("[name='archivo']").val();
-    let inv = $(ob).closest(".Tiposet").find("[name='invoice']").val();
+    //let inv = $(ob).closest(".Tiposet").find("[name='invoice']").val();
     let cli = $(ob).closest(".Tiposet").find("[name='client']").val();
 
-    if(cd.length > 2  && inv.length > 2 && cli.length > 2){
+    if(cd.length > 2 && cli.length > 2){
         $("#FNuevo [name='sb']").show();
         $("#preGuardar").hide();
     }else{

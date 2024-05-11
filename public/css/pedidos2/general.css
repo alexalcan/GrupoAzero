@@ -11,13 +11,22 @@
 
 
 a.powerLink, a.powerLink:not([href]), a.powerLink:not([tabindex]){
-    color:#C72029;
+    color:#c50b0b;
     letter-spacing: .1rem;
     font-size:1.1rem;
     text-decoration: underline;
     text-underline-offset: .2rem;
 }
 
+
+a.pdf{
+    display:inline-block;
+    height:24px;
+    padding:2px 2px 0px 24px;
+    background: url(../../img/pdf.png) no-repeat;
+    background-size: auto 100%;
+    background-position: left 0px top 0px;
+}
 
 .Cuerpo{
     padding:0px 20px 20px 20px;

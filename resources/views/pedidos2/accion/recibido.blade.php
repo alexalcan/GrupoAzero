@@ -2,7 +2,7 @@
 @csrf 
 <aside class="AccionForm">
     <div class="Fila">¿Confirma que el pedido fue recibido por embarques?</div>
-    <div class="Fila"><input type="submit" name="sb" value="Confirmar" /> </div>
+    <div class="Fila"><input type="submit" name="sb" class="form-control" value="Confirmar" /> </div>
 </aside>
 
 
