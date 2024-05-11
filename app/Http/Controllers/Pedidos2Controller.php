@@ -364,10 +364,12 @@ class Pedidos2Controller extends Controller
 
             return view("pedidos2/accion/fabricado",compact("id"));
         }
+/*
         if($accion == "ordenf"){
 
             return view("pedidos2/accion/ordenf",compact("id"));
         }
+        */
         if($accion == "enpuerta"){
 
             return view("pedidos2/accion/enpuerta",compact("id","order","paso"));
@@ -410,7 +412,7 @@ class Pedidos2Controller extends Controller
 
         if($accion == "ordenf"){
 
-            return view("pedidos2/accion/ordenf",compact("order_id"));
+            return view("pedidos2/ordenf/nuevo",compact("order_id","order","paso"));
         }
         if($accion == "smaterial"){
 
@@ -644,6 +646,115 @@ class Pedidos2Controller extends Controller
 
         Feedback::j(1);
     }
+
+
+
+
+
+    public function ordenf_crear($order_id,Request $request){
+        $order_id = Tools::_int($order_id);       
+
+        $user = auth()->user();
+
+        $error="";
+
+        $code = Tools::_string( $request->code, 24);  
+        
+        $previo = ManufacturingOrder::where(["order_id" => $order_id,"number"=>$code])->get()->toArray();
+            if(count($previo)>0){
+                $paso = 1;
+                $smaterial=(object)[];
+                $error ="Ya existe una orden de fabricacion con el numero ".$code." para el pedido ".$order_id;
+                Feedback::error($error);
+                Feedback::j(0);
+                return;  
+            }
+
+        $ordenf = ManufacturingOrder::create([
+            "number"=>$code,
+            "required"=>1,
+            "document"=>"",
+            "order_id"=>$order_id,
+            "created_at"=>date("Y-m-d H:i:s"),
+            "updated_at"=>date("Y-m-d H:i:s")
+        ]); 
+
+        //ARCHIVO
+        if($request->hasFile("document")){
+            $file = $request->file('document');
+            $name = $ordenf->id.".".$file->getClientOriginalExtension();
+            $sqlPath = 'Fabricaciones/' . $name;
+            Storage::putFileAs('/public/Fabricaciones/', $file, $name );
+    
+            $ordenf->document = $sqlPath;
+            $ordenf->save();
+        }
+
+
+        Pedidos2::Log($order_id,"Orden de fabricación", $user->name." registró una nueva orden de fabricacion #{$ordenf->id}", 0, $user);
+
+        $paso=2;
+        Feedback::value($ordenf->id);
+        Feedback::j(1);
+       // return view("pedidos2/ordenf/nuevo",compact("order_id","paso","smaterial"));
+    }
+
+    public function ordenf_edit($id,Request $request){
+        $user = User::find(auth()->user()->id);
+
+        $id = Tools::_int($id);   
+        
+        $ob = ManufacturingOrder::where(["id"=>$id])->first();
+
+        return view("pedidos2/ordenf/edit",compact("id","ob"));
+    }
+
+
+    public function ordenf_lista($order_id,Request $request){
+        $order_id= intval($order_id);
+
+        $role = auth()->user()->role;
+        $user = auth()->user();
+
+        $list = ManufacturingOrder::where(['order_id' => $order_id])->orderBy("id","DESC")->get();
+        $estatuses = Pedidos2::StatusesCat();
+    
+
+        foreach($list as $li){
+            echo view("pedidos2/ordenf/ficha",["order_id"=>$order_id,"estatuses"=>$estatuses, "ob" => $li]);
+        }
+
+    }
+
+    public function ordenf_update($id,Request $request){
+        $user = User::find(auth()->user()->id);
+        $id = Tools::_int($id);       
+        $user = auth()->user();
+      
+        //ARCHIVO        
+            if($request->hasFile('document')){
+            $file = $request->file('document');
+            $name = $id.".".$file->getClientOriginalExtension();
+            $sqlPath = 'Fabricaciones/' . $name;
+            Storage::putFileAs('/public/Fabricaciones/', $file, $name );
+
+            ManufacturingOrder::where("id", $id)->update([
+                "document"=> $sqlPath,   
+                "updated_at"=>date("Y-m-d H:i:s")
+            ]); 
+
+            Pedidos2::Log($id,"Salida Material Update", $user->name." cambió la salida de material #{$id}", 0, $user);
+            Feedback::j(1);
+            return;
+            }
+
+       Feedback::j(0);
+    }
+
+
+
+
+
 
 
 

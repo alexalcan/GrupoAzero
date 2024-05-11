@@ -361,10 +361,18 @@ $("body").on("click",".editarparcial",function(e){
 e.preventDefault();
 AjaxGet($(this).attr("href"),FormaEditarParcial);
 });
+
 $("body").on("click",".editarsm",function(e){
 e.preventDefault();
 AjaxGet($(this).attr("href"),FormaEditarSmaterial);
 });
+
+$("body").on("click",".editof",function(e){
+e.preventDefault();
+AjaxGet($(this).attr("href"),FormaEditarOrdenf);
+});
+
+
 
 
 $(".Candidato").click(function(e){
@@ -390,6 +398,7 @@ let rel = $(this).attr("rel");
 
 CargarParciales();
 CargarSmateriales();
+CargarOrdenf();
 
 
 //$("#CuerpoActualizar").hide();
@@ -519,6 +528,78 @@ function FormaEditarSmaterial(h){
 
 
 
+function FormaNuevoOrdenf(h){
+    MiModal.content(h);
+    MiModal.show();
+
+    FormaNuevoOrdenf2();
+}
+function FormaNuevoOrdenf2(){
+/*
+    if($("#atlSlot").length>0){
+        let uploadto = $("#atlSlot").attr("uploadto");
+        let listHref = $("#atlSlot").attr("listHref");
+        let val = $("#atlSlot").attr("val");
+        let event = $("#atlSlot").attr("event");
+        AttachListCreate("#atlSlot","nor",uploadto, listHref,"pictures","smaterial_id", val, "edit", event); 
+    } 
+                 
+
+    $("input[name='parcialterminar']").click(function(){
+        MiModal.exit();
+        CargarOrdenf();
+    });  
+    */
+    $("body").bind("MiModal-exit",function(){
+        CargarOrdenf();
+        $("body").unbind("MiModal-exit");
+    });
+
+    $("#FSetAccion").ajaxForm({
+        error:function(err){alert(err.statusText);},
+        dataType:"json", 
+        success:function(json){
+            if(json.status==1){
+                MiModal.exit();
+                CargarOrdenf();
+            }
+            else{alert(json.errors);} 
+        }
+    });
+
+}
+
+
+function FormaEditarOrdenf(h){
+    MiModal.content(h);
+    MiModal.show();
+
+    $("#FSetAccion").ajaxForm({
+        error:function(err){alert(err.statusText);}, 
+        dataType:"json",
+        success:function(json){
+            if(json.status==1){
+                MiModal.exit();
+                CargarOrdenf();
+            }else{
+                console.log(json);
+            }
+        }
+    });
+
+/*
+    let uploadto = $("#atlSlot").attr("uploadto");
+    let listHref = $("#atlSlot").attr("listHref");
+    let val = $("#atlSlot").attr("val");
+
+    AttachListCreate("#atlSlot","edsm_"+val,uploadto, listHref,"pictures","smaterial_id", val, "edit"); 
+    */
+}
+
+
+
+
+
 
 
  function MostrarMainInfo(){
@@ -642,6 +723,24 @@ function CargarSmateriales(){
             $("#SmaterialDiv .attachList").each(function(){
                 AttachList($(this).attr("rel"));
             });
+        }
+    });
+    
+}
+
+function CargarOrdenf(){
+    let href = $("#OrdenfDiv").attr("href");
+
+    $.ajax({
+        url:href,
+        error:function(err){alert(err.statusText);},
+        success:function(h){
+            $("#OrdenfDiv").html(h);
+            /*
+            $("#OrdenfDiv .attachList").each(function(){
+                AttachList($(this).attr("rel"));
+            });
+            */
         }
     });
     

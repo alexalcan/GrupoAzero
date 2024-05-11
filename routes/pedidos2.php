@@ -29,6 +29,11 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('pedidos2/smaterial_update/{id}', 'Pedidos2Controller@smaterial_update');
 	Route::get('pedidos2/smaterial_lista/{id}', 'Pedidos2Controller@smaterial_lista');
 
+	Route::post('pedidos2/ordenf_crear/{id}', 'Pedidos2Controller@ordenf_crear');
+	Route::get('pedidos2/ordenf_edit/{id}', 'Pedidos2Controller@ordenf_edit');
+	Route::post('pedidos2/ordenf_update/{id}', 'Pedidos2Controller@ordenf_update');
+	Route::get('pedidos2/ordenf_lista/{id}', 'Pedidos2Controller@ordenf_lista');
+
 
 	Route::get('pedidos2/parcial_accion/{id}', 'Pedidos2Controller@parcial_accion');
 	Route::post('pedidos2/set_accion/{id}', 'Pedidos2Controller@set_accion');
