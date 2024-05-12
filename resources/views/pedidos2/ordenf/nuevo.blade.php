@@ -1,5 +1,5 @@
 <?php
-$estatuses = ["5" => "En Puerta", "6"=>"Entregado"];
+$estatuses = ["3" => "En Fabricación", "4"=>"Fabricado"];
 ?>
 
 @if (!empty($error) )
@@ -14,7 +14,15 @@ $estatuses = ["5" => "En Puerta", "6"=>"Entregado"];
     
 <div class="Fila"><label>Folio</label><input type="text" name="code" class="form-control" maxlength="24" /></div>
 
-
+    <div class="Fila"><label>Estatus</label>
+    <select class="form-control" name="status_id">
+        <?php
+        foreach ($estatuses as $k=>$v) {
+        echo "<option value='$k'>$v</option>";
+        }
+        ?>
+    </select>
+    </div>
 
     <div class="Fila"><label>Documento</label><input type="file" name="document" class="form-control" /> </div>
     

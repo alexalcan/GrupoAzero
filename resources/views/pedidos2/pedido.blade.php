@@ -372,6 +372,10 @@ e.preventDefault();
 AjaxGet($(this).attr("href"),FormaEditarOrdenf);
 });
 
+$("body").on("click",".editarrequisicion",function(e){
+e.preventDefault();
+AjaxGet($(this).attr("href"),FormaEditarRequisicion);
+});
 
 
 
@@ -399,7 +403,7 @@ let rel = $(this).attr("rel");
 CargarParciales();
 CargarSmateriales();
 CargarOrdenf();
-
+CargarRequisiciones();
 
 //$("#CuerpoActualizar").hide();
 
@@ -535,21 +539,6 @@ function FormaNuevoOrdenf(h){
     FormaNuevoOrdenf2();
 }
 function FormaNuevoOrdenf2(){
-/*
-    if($("#atlSlot").length>0){
-        let uploadto = $("#atlSlot").attr("uploadto");
-        let listHref = $("#atlSlot").attr("listHref");
-        let val = $("#atlSlot").attr("val");
-        let event = $("#atlSlot").attr("event");
-        AttachListCreate("#atlSlot","nor",uploadto, listHref,"pictures","smaterial_id", val, "edit", event); 
-    } 
-                 
-
-    $("input[name='parcialterminar']").click(function(){
-        MiModal.exit();
-        CargarOrdenf();
-    });  
-    */
     $("body").bind("MiModal-exit",function(){
         CargarOrdenf();
         $("body").unbind("MiModal-exit");
@@ -595,6 +584,57 @@ function FormaEditarOrdenf(h){
     AttachListCreate("#atlSlot","edsm_"+val,uploadto, listHref,"pictures","smaterial_id", val, "edit"); 
     */
 }
+
+
+
+
+
+function FormaNuevoRequisicion(h){
+    MiModal.content(h);
+    MiModal.show();
+
+    FormaNuevoRequisicion2();
+}
+function FormaNuevoRequisicion2(){
+    $("body").bind("MiModal-exit",function(){
+        CargarOrdenf();
+        $("body").unbind("MiModal-exit");
+    });
+
+    $("#FSetAccion").ajaxForm({
+        error:function(err){alert(err.statusText);},
+        dataType:"json", 
+        success:function(json){
+            if(json.status==1){
+                MiModal.exit();
+                CargarOrdenf();
+            }
+            else{alert(json.errors);} 
+        }
+    });
+
+}
+
+
+function FormaEditarRequisicion(h){
+    MiModal.content(h);
+    MiModal.show();
+
+    $("#FSetAccion").ajaxForm({
+        error:function(err){alert(err.statusText);}, 
+        dataType:"json",
+        success:function(json){
+            if(json.status==1){
+                MiModal.exit();
+                CargarOrdenf();
+            }else{
+                console.log(json);
+            }
+        }
+    });
+
+}
+
 
 
 
@@ -736,6 +776,25 @@ function CargarOrdenf(){
         error:function(err){alert(err.statusText);},
         success:function(h){
             $("#OrdenfDiv").html(h);
+            /*
+            $("#OrdenfDiv .attachList").each(function(){
+                AttachList($(this).attr("rel"));
+            });
+            */
+        }
+    });
+    
+}
+
+
+function CargarRequisiciones(){
+    let href = $("#RequisicionDiv").attr("href");
+
+    $.ajax({
+        url:href,
+        error:function(err){alert(err.statusText);},
+        success:function(h){
+            $("#RequisicionDiv").html(h);
             /*
             $("#OrdenfDiv .attachList").each(function(){
                 AttachList($(this).attr("rel"));

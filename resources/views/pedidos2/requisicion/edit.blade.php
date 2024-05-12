@@ -1,7 +1,7 @@
 <?php
-$estatuses = [3=>"En Fabricación", 4=>"Fabricado"];
+$estatuses = [1=>"En Proceso", 2=>"Surtida"];
 ?>
-<form action="{{ url('pedidos2/ordenf_update/'.$id) }}" id="FSetAccion" method="post">
+<form action="{{ url('pedidos2/requisicion_update/'.$id) }}" id="FSetAccion" method="post">
 @csrf 
 <input type="hidden" name="paso" value="1" />
 <aside class="AccionForm">
@@ -19,15 +19,32 @@ $estatuses = [3=>"En Fabricación", 4=>"Fabricado"];
     </select>
     </div>
 
-    <div class="Fila"><label>Documento</label>
-    <div>
+    <div class="Fila">
+        <label>Archivo Factura</label>
         <div>
-            @if (isset($ob->document))
+        @if (isset($ob->document))
         {{ view('pedidos2/view_storage_item',['path'=>$ob->document]) }}
-        @endif
-    </div>
+        
+        @else
+
         <div><input type="file" name="document" class="form-control" /> </div>
+        @endif
+        
+        </div>
     </div>
+
+
+    <div class="Fila">
+        <label>Archivo Requisición</label>
+        <div>
+            <div>
+            @if (isset($ob->requisition))
+            {{ view('pedidos2/view_storage_item',['path'=>$ob->requisition]) }}
+            @else 
+            <input type="file" name="requisition" class="form-control" /> 
+            @endif
+            </div>        
+        </div>
 
     </div>
 

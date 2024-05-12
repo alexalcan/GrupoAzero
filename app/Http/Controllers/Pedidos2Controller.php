@@ -277,41 +277,7 @@ class Pedidos2Controller extends Controller
             Quote::create($quoteData);
 
         }
-        else if($origin =="R"){
-
-            $orderData =[
-                'office' => $userOffice,
-                'invoice'=>$code,
-                'origin'=> $origin,
-                'client' => $client,
-                'credit' => 0,
-                'status_id' => 1,
-                'created_at' => $now,
-            ];
-
-            $order = Order::create($orderData);
-
-                        //Preexistente
-            $existe = PurchaseOrder::where(["number"=>$code])->get()->toArray();
-            if(count($existe) > 0 ){
-                Feedback::error("Ya existe una requisición con el Num Requerimiento '$code'");
-                Feedback::j(0);    
-            }
-
-            $purchaseOrder=[
-                "required"=> 1,
-                "number"=> $code,
-                "requisicion"=>"",
-                "order_id"=>$order["id"],
-                "is_covered"=> 1,
-                "created_at"=> $now,
-                "updated_at"=> $now,
-                "v2"=>1,
-                
-            ];  
-
-            PurchaseOrder::create($purchaseOrder);
-        }
+        
 
         //******************************************     LOG ****
         $status = Status::find(1);
@@ -420,7 +386,7 @@ class Pedidos2Controller extends Controller
         }
         if($accion == "requisicion"){
 
-            return view("pedidos2/accion/entregar",compact("order_id","order","paso"));
+            return view("pedidos2/requisicion/nuevo",compact("order_id","order","paso"));
         }
         if($accion == "devolucion"){
 
@@ -659,6 +625,7 @@ class Pedidos2Controller extends Controller
         $error="";
 
         $code = Tools::_string( $request->code, 24);  
+        $status_id = Tools::_int($request->status_id);       
         
         $previo = ManufacturingOrder::where(["order_id" => $order_id,"number"=>$code])->get()->toArray();
             if(count($previo)>0){
@@ -674,6 +641,7 @@ class Pedidos2Controller extends Controller
             "number"=>$code,
             "required"=>1,
             "document"=>"",
+            "status_id" => $status_id, 
             "order_id"=>$order_id,
             "created_at"=>date("Y-m-d H:i:s"),
             "updated_at"=>date("Y-m-d H:i:s")
@@ -730,23 +698,162 @@ class Pedidos2Controller extends Controller
         $user = User::find(auth()->user()->id);
         $id = Tools::_int($id);       
         $user = auth()->user();
-      
+
+        $status_id = Tools::_int($request->status_id);       
+        $sqlPath='';
         //ARCHIVO        
             if($request->hasFile('document')){
             $file = $request->file('document');
             $name = $id.".".$file->getClientOriginalExtension();
             $sqlPath = 'Fabricaciones/' . $name;
             Storage::putFileAs('/public/Fabricaciones/', $file, $name );
+            }
 
-            ManufacturingOrder::where("id", $id)->update([
-                "document"=> $sqlPath,   
+            $data = [
+                "status_id" => $status_id,
                 "updated_at"=>date("Y-m-d H:i:s")
-            ]); 
+            ];
+            if(!empty($sqlPath)){
+                $data["document"]=$sqlPath;
+            }
+
+            ManufacturingOrder::where("id", $id)->update($data); 
 
             Pedidos2::Log($id,"Salida Material Update", $user->name." cambió la salida de material #{$id}", 0, $user);
             Feedback::j(1);
             return;
+
+       Feedback::j(0);
+    }
+
+
+
+    public function requisicion_crear($order_id,Request $request){
+        $order_id = Tools::_int($order_id);       
+
+        $user = auth()->user();
+
+        $error="";
+
+        $number = Tools::_string( $request->number, 24);  
+        $status_id = Tools::_int($request->status_id);       
+        
+        $previo = PurchaseOrder::where(["order_id" => $order_id,"number"=>$number])->get()->toArray();
+            if(count($previo)>0){
+                $error ="Ya existe una requisición con el numero ".$number." para el pedido ".$order_id;
+                Feedback::error($error);
+                Feedback::j(0);
+                return;  
             }
+
+        $porder = PurchaseOrder::create([
+            "number"=>$number,
+            "required"=>1,
+            "document"=>"",
+            "requisition"=>"",
+            "status_id" => $status_id, 
+            "order_id"=>$order_id,
+            "created_at"=>date("Y-m-d H:i:s"),
+            "updated_at"=>date("Y-m-d H:i:s")
+        ]); 
+
+        //ARCHIVO
+        if($request->hasFile("document")){
+            $file = $request->file('document');
+            $name = $porder->id.".".$file->getClientOriginalExtension();
+            $sqlPath = 'Facturas/' . $name;
+            Storage::putFileAs('/public/Facturas/', $file, $name );
+    
+            $porder->document = $sqlPath;
+            $porder->save();
+        }
+
+        if($request->hasFile("requisition")){
+            $file = $request->file('requisition');
+            $name = $porder->id.".".$file->getClientOriginalExtension();
+            $sqlPath = 'OrdenesDeCompra/' . $name;
+            Storage::putFileAs('/public/OrdenesDeCompra/', $file, $name );
+    
+            $porder->requisition = $sqlPath;
+            $porder->save();
+        }
+
+
+        Pedidos2::Log($order_id,"Requisición", $user->name." registró una nueva requisición #{$porder->id}", 0, $user);
+
+        //$paso=2;
+        Feedback::value($porder->id);
+        Feedback::j(1);
+       // return view("pedidos2/ordenf/nuevo",compact("order_id","paso","smaterial"));
+    }
+
+    public function requisicion_edit($id,Request $request){
+        $user = User::find(auth()->user()->id);
+
+        $id = Tools::_int($id);   
+        
+        $ob = PurchaseOrder::where(["id"=>$id])->first();
+
+        return view("pedidos2/requisicion/edit",compact("id","ob"));
+    }
+
+
+    public function requisicion_lista($order_id,Request $request){
+        $order_id= intval($order_id);
+
+        $role = auth()->user()->role;
+        $user = auth()->user();
+
+        $list = PurchaseOrder::where(['order_id' => $order_id])->orderBy("id","DESC")->get();
+        $estatuses = Pedidos2::StatusesCat();
+    
+
+        foreach($list as $li){
+            echo view("pedidos2/requisicion/ficha",["order_id"=>$order_id,"estatuses"=>$estatuses, "ob" => $li]);
+        }
+
+    }
+
+    public function requisicion_update($id,Request $request){
+        $user = User::find(auth()->user()->id);
+        $id = Tools::_int($id);       
+        $user = auth()->user();
+
+        $status_id = Tools::_int($request->status_id); 
+        $number = Tools::_string( $request->number, 24);  
+
+
+        //ARCHIVO
+        if($request->hasFile("document")){
+            $file = $request->file('document');
+            $name = $id.".".$file->getClientOriginalExtension();
+            $dsqlPath = 'Facturas/' . $name;
+            Storage::putFileAs('/public/Facturas/', $file, $name );
+        }
+
+        if($request->hasFile("requisition")){
+            $file = $request->file('requisition');
+            $name = $id.".".$file->getClientOriginalExtension();
+            $rsqlPath = 'OrdenesDeCompra/' . $name;
+            Storage::putFileAs('/public/OrdenesDeCompra/', $file, $name );  
+        }
+
+            $data = [
+                "status_id" => $status_id,
+                "updated_at"=>date("Y-m-d H:i:s")
+            ];
+            if(!empty($dsqlPath)){
+                $data["document"]=$dsqlPath;
+            }
+            if(!empty($rsqlPath)){
+                $data["requisition"]=$rsqlPath;
+            }
+            
+            PurchaseOrder::where("id", $id)->update($data); 
+
+            Pedidos2::Log($id,"Salida Material Update", $user->name." cambió la salida de material #{$id}", 0, $user);
+            Feedback::j(1);
+            return;
 
        Feedback::j(0);
     }

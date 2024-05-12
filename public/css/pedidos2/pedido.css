@@ -276,6 +276,7 @@ font-size:1.2rem;
 
 .Subproceso{
     display:grid;
+    grid-template-columns: 1fr 14rem 6rem;
     grid-template-areas: "inv st ed" "fi fi fi";
     margin:0px 0px 20px 0px;
     padding:10px 20px;
@@ -284,8 +285,8 @@ font-size:1.2rem;
     }
 .Subproceso label{font-size:1.2rem;}
 .Subproceso [rel='inv']{grid-area:inv;}
-.Subproceso [rel='st']{grid-area:st;}
-.Subproceso [rel='ed']{grid-area:ed;}
+.Subproceso [rel='st']{grid-area:st; text-align:right;}
+.Subproceso [rel='ed']{grid-area:ed; text-align:right;}
 .Subproceso [rel='fi']{grid-area:fi;}
 
 
@@ -325,6 +326,18 @@ font-size:1.2rem;
     font-size:1.1rem;    
 }
 
+.space-around{
+    display:flex;
+    justify-content: space-around;
+}
+
+.storageImg{
+
+}
+.storageImg img{
+    max-height:140px;
+}
+
 
 @media screen and (max-width:600px) {
     
@@ -346,6 +359,18 @@ font-size:1.2rem;
     font-size:1rem;
   }
 
+
+  .Subproceso{
+    display:grid;
+    grid-template-columns: 1fr 6rem;
+    grid-template-areas: "inv ed" "st st" "fi fi ";
+    padding:5px 10px;
+    border-bottom:#aaa 1px dashed;
+    font-size:1.1rem;
+    }
+    .Subproceso [rel='st']{grid-area:st; text-align:center;}
+    .Subproceso [rel='ed']{grid-area:ed; text-align:center;}
+    .
 
 
 }
