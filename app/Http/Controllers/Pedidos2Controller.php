@@ -107,19 +107,21 @@ class Pedidos2Controller extends Controller
         $pedido = Pedidos2::uno($id);
 
         $shipments = Shipment::where(["order_id"=>$id])->get();
-        $pictures = Picture::FromOrder($id);
-        $morders = ManufacturingOrder::where(["order_id"=>$id])->get();
         $evidences = Evidence::FromOrder($id);
         $debolutions = Debolution::FromOrder($id);
-        $purchaseOrder = PurchaseOrder::where(["order_id" => $id])->get()->toArray();
-        $purchaseOrder = !empty($purchaseOrder) ? $purchaseOrder[0] : [] ;
-        $quotes = Quote::where(["order_id" => $id])->get()->toArray();
-        $quote = !empty($quotes) ? $quotes[0] : [] ;
-        
-//var_dump($evidences);
+        $quote = Quote::where(["order_id" => $id])->first();
+        $hayEntrega=true;
 
-        return view('pedidos2.pedido', compact('id','pedido','shipments','pictures',
-        'role','morders','user','evidences','debolutions', 'purchaseOrder','quote'));
+        //$pictures = Picture::FromOrder($id);
+        //$morders = ManufacturingOrder::where(["order_id"=>$id])->get();
+        //$picturesEntrega = Pictures::EnPuerta($id,"")
+        $purchaseOrder = PurchaseOrder::where(["order_id" => $id])->first();
+       // var_dump($purchaseOrder);
+       
+ 
+
+        return view('pedidos2.pedido', compact('id','pedido','shipments',
+        'role','user','evidences','debolutions', 'quote','hayEntrega','purchaseOrder'));
     }
 
 
@@ -135,7 +137,7 @@ class Pedidos2Controller extends Controller
 
 
 
-    public function sparciales_pedido($id){
+    public function parcial_lista($id){
         $id= intval($id);
 
         $role = auth()->user()->role;
@@ -253,14 +255,6 @@ class Pedidos2Controller extends Controller
 
             $order = Order::create($orderData);
 
-
-            //ARCHIVO
-            $file = $request->file('archivo');
-            $name = $order["id"].".".$file->getClientOriginalExtension();
-            $sqlPath = 'OrdenesDeCompra/' . $name;
-            Storage::putFileAs('/public/OrdenesDeCompra/', $file, $name );
-
-
                 //Preexistente
                 $existe = Quote::where(["number"=>$code])->get()->toArray();
                 if(count($existe) > 0 ){
@@ -268,10 +262,20 @@ class Pedidos2Controller extends Controller
                         Feedback::j(0);    
                 }
 
+            //ARCHIVO
+            $sqlPath="";
+            if($request->hasFile("archivo")){
+                $file = $request->file('archivo');
+                $name = $order["id"].".".$file->getClientOriginalExtension();
+                $sqlPath = 'Cotizaciones/' . $name;
+                Storage::putFileAs('/public/Cotizaciones/', $file, $name );
+            }
+
+
             $quoteData=[
                 "order_id"=>$order["id"],
                 "number"=>$code,
-                "document"=>"",
+                "document"=>$sqlPath,
                 "created_at"=>$now
             ];
             Quote::create($quoteData);
@@ -298,6 +302,81 @@ class Pedidos2Controller extends Controller
     }
 
 
+    public function guardar($id, Request $request){
+        $user = User::find(auth()->user()->id);
+        
+        // $user = User::find(auth()->user()->id);
+         $userOffice = !empty($user->office) ? $user->office : "San Pablo";  
+         
+         $invoice = !empty($request->invoice) ? Tools::_string($request->invoice,18) : "" ;
+         $invoice_number = !empty($request->invoice_number) ? Tools::_string($request->invoice_number,18) : "" ;
+
+         
+         $client = !empty($request->client) ? Tools::_string($request->client,24) : '';
+ 
+
+         $now = date("Y-m-d H:i:s");
+
+         $orderData =[
+            'invoice_number'=>$invoice_number,
+            'invoice'=>$invoice, 
+            'client' => $client,            
+            'updated_at' => $now
+        ];        
+        Order::where("id",$id)->update($orderData);
+        if(!empty($invoice_number)){
+            $hay = PurchaseOrder::where("order_id",$id)->first();
+            if($hay==null){
+                PurchaseOrder::create([
+                    "required"=> 1,
+                    "document"=> "",
+                    "order_id"=>$id,
+                    "number"=>$invoice_number,
+                    "is_covered"=> 1,
+                    "created_at"=> date("Y-m-d H:i:s"),
+                    "updated_at"=> date("Y-m-d H:i:s"),
+                    "v2"=>1
+                ]);
+            }
+        }else{
+            PurchaseOrder::where(["order_id"=>$id])->update(["number"=>$invoice_number]);
+        }
+        
+        Quote::where(["order_id"=>$id])->update(["number"=>$invoice]);
+
+         //ARCHIVO
+
+         if($request->hasFile("cotizacion")){
+            $file = $request->file('cotizacion');
+            $name = $id.".".$file->getClientOriginalExtension();
+            $sqlPath = 'Cotizaciones/' . $name;
+            Storage::putFileAs('/public/Cotizaciones/', $file, $name );
+            
+            $quo = Quote::where(["order_id"=>$id])->first();
+            $quo->document = $sqlPath;
+            $quo->save();
+
+        }
+
+         if($request->hasFile("factura")){
+            $file = $request->file('factura');
+            $name = $id.".".$file->getClientOriginalExtension();
+            $sqlPath = 'OrdenesDeCompra/' . $name;
+            Storage::putFileAs('/public/OrdenesDeCompra/', $file, $name );
+            
+            $po = PurchaseOrder::where(["order_id"=>$id])->first();
+            $po->document = $sqlPath;
+            $po->save();
+         }
+
+    $ob = Order::where("id",$id)->first();
+    Pedidos2::Log($id,"Pedido","El pedido $id fue modificado por ".$user->name,$ob->status_id,$user);         
+
+    return redirect("pedidos2/pedido/".$id);     
+
+    }
+
+
     public function masinfo($id){
 
         $pedido = Pedidos2::uno($id);
@@ -307,7 +386,7 @@ class Pedidos2Controller extends Controller
     }
 
 
-    public function parcial_accion($id, Request $request){ 
+    public function accion($id, Request $request){ 
 
         $user = User::find(auth()->user()->id);
 
@@ -330,12 +409,6 @@ class Pedidos2Controller extends Controller
 
             return view("pedidos2/accion/fabricado",compact("id"));
         }
-/*
-        if($accion == "ordenf"){
-
-            return view("pedidos2/accion/ordenf",compact("id"));
-        }
-        */
         if($accion == "enpuerta"){
 
             return view("pedidos2/accion/enpuerta",compact("id","order","paso"));
@@ -864,6 +937,24 @@ class Pedidos2Controller extends Controller
 
 
 
+    public function devolucion_lista($order_id,Request $request){
+        $order_id= intval($order_id);
+
+        $role = auth()->user()->role;
+        $user = auth()->user();
+
+        $list = Debolution::where(['order_id' => $order_id])->orderBy("id","DESC")->get();
+        $reasonsres = Reason::get();
+        $reasons = Tools::catalogo($reasonsres,"id","reason");
+
+        echo view("pedidos2/devolucion/lista",["order_id"=>$order_id,"reasons"=>$reasons, "lista" => $list]);
+    }
+
+
+
+
+
+
 
     function set_accion_enpuerta(Request $request, int $id){
         $paso = isset($request->paso) ? intval($request->paso) : 1; 
@@ -881,7 +972,7 @@ class Pedidos2Controller extends Controller
                           "created_at" => date("Y-m-d H:i:s"),
                           "updated_at" => date("Y-m-d H:i:s")
                       ]);
-                Feedback::custom("url", url("pedidos2/parcial_accion/$id?a=enpuerta&paso=2"));
+                Feedback::custom("url", url("pedidos2/accion/$id?a=enpuerta&paso=2"));
                 Feedback::j(2);
                 return;
 
@@ -1011,7 +1102,7 @@ class Pedidos2Controller extends Controller
                 
                 Evidence::create([
                     "file" => $filePath,    
-                    "debolution_id" => $debId,
+                    "debolution_id" => $debId->id,
                     "required"=>1,
                     "number"=>$number,
                     "file"=>$filePath,
@@ -1502,10 +1593,14 @@ class Pedidos2Controller extends Controller
 
 
 
-     public function historial($id){
+     public function historial($order_id){
 
-        echo "historial $id";
+        //echo "historial $id";
+        $lista = Log::where(["order_id" => $order_id])->orderBy("created_at","DESC")->get();
 
+        $order = Order::where("id",$order_id)->first();
+
+        return view("pedidos2/pedido/historial",compact("order_id","lista","order"));
      }
 
 

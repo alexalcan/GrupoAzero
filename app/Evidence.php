@@ -32,7 +32,7 @@ class Evidence extends Model
         LEFT JOIN cancelations c ON c.id = e.cancelation_id 
         LEFT JOIN debolutions d ON d.id = e.debolution_id 
         LEFT JOIN rebillings r ON r.id = e.rebilling_id 
-        LEFT JOIN orders o ON o.id IN(c.order_id, d.order_id, r.order_id)
+        JOIN orders o ON o.id IN(c.order_id, d.order_id, r.order_id)
         WHERE o.id = '$order_id'";
        // echo $q;
         return  DB::select(DB::raw($q));

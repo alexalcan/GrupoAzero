@@ -11,8 +11,8 @@
 </nav>
 
 @elseif ($paso == 2)
-<section class='attachList form-control' rel='ever' uploadto="{{ url('pedidos2/attachlist?catalog=pictures&order_id='.$order->id) }}" 
-href="{{ url('pedidos2/attachlist?rel=ever&catalog=pictures&order_id='.$order->id) }}"></section> 
+<section class='attachList form-control' rel='entr' uploadto="{{ url('pedidos2/attachlist?catalog=pictures&order_id='.$order->id) }}" 
+href="{{ url('pedidos2/attachlist?rel=entr&catalog=pictures&order_id='.$order->id) }}"></section> 
 
 <aside class="AccionForm">
     <div class="Fila"><input type="submit" name="sb" class="form-control" value="Guardar" /> </div>

@@ -114,6 +114,21 @@ class Pedidos2 extends Model
    return $arr;
    }
 
+   public static function OrderHasDirect(int $order_id) : array{
+    $q="SELECT p.*, 
+    e.name AS `event_name`,
+    pa.invoice AS `partial`, 
+    o.invoice AS invoice 
+    FROM pictures p 
+    LEFT JOIN partials pa ON pa.id = p.partial_id
+    LEFT JOIN events e ON e.id = p.`event`
+    LEFT JOIN shipments s ON s.id = p.shipment_id 
+    JOIN orders o ON o.id IN( p.order_id, pa.order_id, s.order_id)  
+    WHERE o.id = '$order_id'";
+
+    return DB::select(DB::raw($q));
+}
+
 
 
    public static function LogsDe(int $id) : array{

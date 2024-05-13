@@ -27,17 +27,17 @@ class Picture extends Model
     }
 
 
-    public static function FromOrder(int $order_id) : array{
+
+    public static function EnPuerta(int $order_id, string $event="") : array{
         $q="SELECT p.*, 
-        e.name AS `event_name`,
         pa.invoice AS `partial`, 
-        o.invoice AS invoice 
+        o.invoice AS invoice, 
+        o.invoice_number AS invoice_number 
         FROM pictures p 
-        LEFT JOIN partials pa ON pa.id = p.partial_id
-        LEFT JOIN events e ON e.id = p.`event`
         LEFT JOIN shipments s ON s.id = p.shipment_id 
         JOIN orders o ON o.id IN( p.order_id, pa.order_id, s.order_id)  
         WHERE o.id = '$order_id'";
+        $q.= !empty($event) ? " AND p.event = '$event'" : "";
 
         return DB::select(DB::raw($q));
     }

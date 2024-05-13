@@ -1,10 +1,7 @@
 <?php
 use App\Pedidos2;
 
-$hayEntrega=false;
-    foreach($pictures as $pic){
-        if($pic->event=="entregar"){$hayEntrega=true;break;}
-    }
+
 
 
 ?>
@@ -28,6 +25,7 @@ $statuses = Pedidos2::StatusesCat();
 
 
     <div class="card Fila">
+        <div class="Fila">User Rol {{$user->role->name}} Department:{{$user->department->name}}</div>
         <center> <a class="regresar" href="{{ url('pedidos2') }}">&laquo; Regresar</a> </center>
     </div>
 
@@ -36,27 +34,54 @@ $statuses = Pedidos2::StatusesCat();
 
         <div class="card-header card-header-primary">
             <div class="Fila">
-                <h4 class="card-title">Pedido {{ $pedido->invoice }}</h4>
+                <h4 class="card-title">Pedido {{ !empty($pedido->invoice_number) ? $pedido->invoice_number : $pedido->invoice }}</h4>
             </div>
         </div>
 
         <div>&nbsp;</div>
 
-    <form action="{{ url('pedidos2/guardar/'.$pedido->id) }}">
-
+    <form action="{{ url('pedidos2/guardar/'.$pedido->id) }}" method="post" enctype="multipart/form-data">
+    @csrf
         <fieldset class='MainInfo'>
         <div class='FormRow'>
             <label>Folio Cotización</label>
-            <input type="text" class="form-control" name="invoice_number" value="{{$pedido->invoice}}" />
+            <input type="text" class="form-control" name="invoice" value="{{$pedido->invoice}}" />
         </div>
         <div class='FormRow'>
-        <label># Factura</label>
-        <input type="text" class="form-control" name="invoice" value="{{$pedido->invoice_number}}" />
-    </div>
+            <label>Archivo Cotización</label>
+            <div class="doscol">
+            <input type="file" class="form-control" name="cotizacion" />  
+                @if (!empty($quote->document))
+                <span> &nbsp; &nbsp; Actual: 
+                &nbsp; <a class="pdf" target="_blank" href="{{ asset('storage/'.$quote->document) }}"></a>
+                </span>
+                @endif 
+                
+            </div>
+        </div>
+        <div class='FormRow'>
+            <label># Factura</label>
+        <input type="text" class="form-control" name="invoice_number" value="{{$pedido->invoice_number}}" />
+        </div>
+        <div class='FormRow'>
+            <label>Archivo Factura</label>
+            
+                <div class="doscol">
+                <input type="file" class="form-control" name="factura" />
+                
+                @if (!empty($purchaseOrder->document))
+                <span>  &nbsp; &nbsp; Actual: 
+                &nbsp; <a class="pdf" target="_blank" href="{{ asset('storage/'.$purchaseOrder->document) }}"></a>
+                </span> 
+                @endif
+                
+                </div>
+        </div>
         <div class='FormRow'>
             <label>Cliente</label>
             <input type="text" class="form-control" name="client" value="{{$pedido->client}}" />
         </div>
+
         <div class='FormRow'>
             <label></label>
             <span>
@@ -68,29 +93,36 @@ $statuses = Pedidos2::StatusesCat();
         
 
         <fieldset class='MiniInfo'>
-            <div><label>Folio Cotización</label>
-            <span>{{$pedido->invoice}} 
-                 @if (!empty($quote->document))
-                &nbsp; <a class="pdf" href="{{ asset('storage/'.$quote->document) }}"></a>
-                @endif 
 
-            </span>
-        </div>
+
             <div>
                 <label># Factura</label><span>{{$pedido->invoice_number}}
                 <?php 
                 //var_dump($purchaseOrder) 
                 ?>
                 @if (!empty($purchaseOrder->document))
-                &nbsp; <a class="pdf" href="{{ asset('storage/'.$purchaseOrder->document) }}"></a>
+                &nbsp; <a class="pdf" target="_blank" href="{{ asset('storage/'.$purchaseOrder->document) }}"></a>
                 @endif 
 
             </span>
             </div>
+
+            <div>
+                <label>Folio Cotización</label>
+                <span>{{$pedido->invoice}} 
+                 @if (!empty($quote->document))
+                &nbsp; <a class="pdf" target="_blank" href="{{ asset('storage/'.$quote->document) }}"></a>
+                @endif 
+                </span>
+            </div>
+
+
             <div><label>Cliente</label><span>{{$pedido->client}}</span></div>
-            <!--
+
+            @if ($user->role->id == 1)    
             <div class="block"><a class="powerLink" onclick="MostrarMainInfo()">Cambiar datos principales</a></div>
--->
+            @endif
+            
         </fieldset>
 
     <div class="padded">
@@ -100,7 +132,7 @@ $statuses = Pedidos2::StatusesCat();
         
     </form>
 
-    <div class="Fila">User Rol {{$user->role->name}} Department:{{$user->department->name}}</div>
+   
     
 
     <div class="BigEstatus E{{ $pedido->status_id }}"><span >{{$pedido->status_name}}</span></div>
@@ -116,48 +148,44 @@ $statuses = Pedidos2::StatusesCat();
 
         <div class="Eleccion">
         @if ($pedido->status_id == 1)
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=recibido') }}">Recibido por embarques</a>
+        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=recibido') }}">Recibido por embarques</a>
 
         <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
-            @if ($pedido->origin=="R")
-            <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=sm') }}">Salida de Material</a>
-            @endif
+
 
         @elseif ($pedido->status_id == 2)
         <!-- Recibido por embarques -->
 
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a>
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
+        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a>
+        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
   
-            @if ($pedido->origin=="R")
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=sm') }}">Salida de Material</a>
-            @endif
+ 
 
         @elseif ($pedido->status_id == 3)
         <!-- En fabricación -->
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a>
+        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a>
         <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> -->
 
         @elseif ($pedido->status_id == 4)
         <!-- Fabricado -->
 
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
+        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
 
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=requisicion') }}">+ Requisicion</a>
+
 
 
         @elseif ($pedido->status_id == 5)
         <!-- En Ruta -->
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=entregar') }}">Entregado</a>
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=devolucion') }}">Devolución</a>  
+        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=entregar') }}">Entregado</a>
+        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=devolucion') }}">Devolución</a>  
 
         @elseif ($pedido->status_id == 6)
         <!-- Entregado -->
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=devolucion') }}">Devolución</a>
+        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=devolucion') }}">Devolución</a>
         <!-- solo despues cancelacion <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=refacturar') }}">Refacturación</a>  -->
 
         @elseif ($pedido->status_id == 7)
-        <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=refacturar') }}">Refacturación</a>
+        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=refacturar') }}">Refacturación</a>
 
         @elseif ($pedido->status_id == 8)
  
@@ -186,18 +214,19 @@ $statuses = Pedidos2::StatusesCat();
 
 
 
-
 <div class="card">
     <div class="headersub">
-    Parciales
+    Proceso
     </div>
 
-    <aside class="Eleccion">
-    <a class="NParcial Candidato subp" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=parcial') }}">+ Parcial</a>
-
-    </aside>
-
-    <div id="ParcialesDiv" href="{{ url('pedidos2/sparciales_pedido/'.$pedido->id) }}"></div>
+    @if ($hayEntrega == true)
+    <section class="Proceso">
+    <h3>Entrega</h3>
+    <section class='attachList' rel='entr' 
+        uploadto="{{ url('pedidos2/attachpost?catalog=pictures&event=entregar&order_id='.$pedido->id) }}" 
+        href="{{ url('pedidos2/attachlist?rel=entr&catalog=pictures&event=entregar&order_id='.$pedido->id) }}"></section> 
+    </section>
+    @endif
 
     
 </div>
@@ -210,7 +239,28 @@ $statuses = Pedidos2::StatusesCat();
 
 <div class="card">
     <div class="headersub">
-     Procesos
+    Parciales
+    </div>
+
+    <aside class="Eleccion">
+    <a class="NParcial Candidato subp" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=parcial') }}">+ Parcial</a>
+
+    </aside>
+
+    <div id="ParcialesDiv" href="{{ url('pedidos2/parcial_lista/'.$pedido->id) }}"></div>
+
+    
+</div>
+
+
+
+
+
+
+
+<div class="card">
+    <div class="headersub">
+     Sub Procesos
     </div>
 
     <div class="Eleccion ">
@@ -231,22 +281,6 @@ $statuses = Pedidos2::StatusesCat();
     <div id="OrdenfDiv" href="{{ url('pedidos2/ordenf_lista/'.$pedido->id) }}"></div>
 
     <div id="DevolucionDiv" href="{{ url('pedidos2/devolucion_lista/'.$pedido->id) }}"></div>
-
-
-
-
-    @if ($hayEntrega == true)
-    <section class="Proceso">
-    <h3>Entrega</h3>
-    <section class='attachList' rel='entr' 
-        uploadto="{{ url('pedidos2/attachpost?catalog=pictures&event=entregar&order_id='.$pedido->id) }}" 
-        href="{{ url('pedidos2/attachlist?rel=entr&catalog=pictures&event=entregar&order_id='.$pedido->id) }}"></section> 
-    </section>
-    @endif
-
-
-
-    <?php echo view("pedidos2/pedido/debolution",compact("shipments","user","pictures","evidences","debolutions"));  ?>
 
     <p>&nbsp;</p>
 </div>
@@ -404,7 +438,7 @@ CargarParciales();
 CargarSmateriales();
 CargarOrdenf();
 CargarRequisiciones();
-
+CargarDevoluciones();
 //$("#CuerpoActualizar").hide();
 
 
@@ -688,7 +722,7 @@ function FormaEditarRequisicion(h){
                 window.location.reload();
             }
             else if(json.status == 2){
-                AccionPaso(json.url); 
+                AccionCargarPaso(json.url); 
             }
         }
     });
@@ -704,15 +738,15 @@ function FormaEditarRequisicion(h){
     });
 
 
-    //???????????
-    $("#AccionSection .attachList").each(function(){
+
+    $("#dialogo .attachList").each(function(){
     AttachList($(this).attr("rel"));
     });
 
 }
 
 
-function AccionPaso(href){
+function AccionCargarPaso(href){
 
    $.ajax({
     url:href,
@@ -722,8 +756,10 @@ function AccionPaso(href){
         $("#AccionSection").html(h);
 
         MiModal.content(h);
-        MiModal.post(FormaAccionSet);
+        //MiModal.after =FormaAccionSet;
         MiModal.show();
+
+        FormaAccionSet();
 
         }
    });
@@ -795,6 +831,24 @@ function CargarRequisiciones(){
         error:function(err){alert(err.statusText);},
         success:function(h){
             $("#RequisicionDiv").html(h);
+            /*
+            $("#OrdenfDiv .attachList").each(function(){
+                AttachList($(this).attr("rel"));
+            });
+            */
+        }
+    });
+    
+}
+
+function CargarDevoluciones(){
+    let href = $("#DevolucionDiv").attr("href");
+
+    $.ajax({
+        url:href,
+        error:function(err){alert(err.statusText);},
+        success:function(h){
+            $("#DevolucionDiv").html(h);
             /*
             $("#OrdenfDiv .attachList").each(function(){
                 AttachList($(this).attr("rel"));

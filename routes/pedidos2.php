@@ -11,17 +11,19 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('pedidos2/lista', 'Pedidos2Controller@lista');
 
 	Route::get('pedidos2/nuevo', 'Pedidos2Controller@nuevo');
-	Route::post('pedidos2/guardar', 'Pedidos2Controller@guardar');
+	Route::post('pedidos2/guardar/{id}', 'Pedidos2Controller@guardar');
 	Route::post('pedidos2/crear', 'Pedidos2Controller@crear');
 
 	Route::get('pedidos2/pedido/{id}', 'Pedidos2Controller@pedido');
 	Route::get('pedidos2/masinfo/{id}', 'Pedidos2Controller@masinfo');
 	Route::get('pedidos2/historial/{id}', 'Pedidos2Controller@historial');
-	Route::get('pedidos2/sparciales_pedido/{id}', 'Pedidos2Controller@sparciales_pedido');
+
 	
 	Route::post('pedidos2/parcial_crear/{id}', 'Pedidos2Controller@parcial_crear');
 	Route::get('pedidos2/parcial_edit/{id}', 'Pedidos2Controller@parcial_edit');
 	Route::post('pedidos2/parcial_update/{id}', 'Pedidos2Controller@parcial_update');
+	Route::get('pedidos2/parcial_lista/{id}', 'Pedidos2Controller@parcial_lista');
+	                            
 
 	Route::get('pedidos2/subproceso_nuevo/{id}', 'Pedidos2Controller@subproceso_nuevo');
 	Route::post('pedidos2/smaterial_crear/{id}', 'Pedidos2Controller@smaterial_crear');
@@ -40,8 +42,12 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('pedidos2/requisicion_lista/{id}', 'Pedidos2Controller@requisicion_lista');
 
 
-	Route::get('pedidos2/parcial_accion/{id}', 'Pedidos2Controller@parcial_accion');
+	Route::get('pedidos2/devolucion_lista/{id}', 'Pedidos2Controller@devolucion_lista');
+
+
+	Route::get('pedidos2/accion/{id}', 'Pedidos2Controller@accion');
 	Route::post('pedidos2/set_accion/{id}', 'Pedidos2Controller@set_accion');
+	
 	Route::get('pedidos2/attachlist', 'Pedidos2Controller@attachlist');
 	Route::post('pedidos2/attachpost', 'Pedidos2Controller@attachpost');
 	Route::get('pedidos2/attachdelete', 'Pedidos2Controller@attachdelete');

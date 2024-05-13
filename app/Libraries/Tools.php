@@ -7,6 +7,24 @@ use \DateTime;
 class Tools{
     
     public static $_valores = []; 
+
+    static $_trads=["es"=>[
+        "m.01"=>"enero",
+        "m.02"=>"febrero",
+        "m.03"=>"marzo",
+        "m.04"=>"abril",
+        "m.05"=>"mayo",
+        "m.06"=>"junio",
+        "m.07"=>"julio",
+        "m.08"=>"agosto",
+        "m.09"=>"septiembre",
+        "m.10"=>"octubre",
+        "m.11"=>"noviembre",
+        "m.12"=>"diciembre"
+       
+        ]];
+
+    public static $_lang = "es";
     
     /**
      * tools::catalogo()
@@ -74,7 +92,7 @@ class Tools{
     }
 
     public static function _string($string, int $maxLength=0) : string{
-        $val = filter_var($string,FILTER_SANITIZE_ENCODED, FILTER_FLAG_ENCODE_HIGH);
+        $val = filter_var($string,FILTER_SANITIZE_ADD_SLASHES);//FILTER_SANITIZE_ENCODED,FILTER_FLAG_ENCODE_HIGH
         $val = is_string($val)?$val:"";
     
             if($maxLength > 0 && strlen($val) > 0){$val = substr($val,0,$maxLength);}
@@ -162,7 +180,7 @@ class Tools{
     $w = $f->format("w");
 
     $vars = ["%d","%m","%Y"];
-    $rep = [$d,lang("General.m.".$m),$Y];
+    $rep = [$d,self::$_trads[self::$_lang]["m.".$m],$Y];
     $str = str_replace($vars,$rep,"%d de %m, %Y");
     $str.=($hora==true)?" ".$f->format("H:i"):"";
     
