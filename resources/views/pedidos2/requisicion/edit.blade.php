@@ -6,7 +6,15 @@ $estatuses = [1=>"En Proceso", 2=>"Surtida"];
 <input type="hidden" name="paso" value="1" />
 <aside class="AccionForm">
     
-    <div class="Fila doscol"><label>Número</label> <span>{{$ob->number}}</span> </div>
+    <div class="Fila doscol"><label>Número</label> 
+    @if ($user->role_id == 1 )
+    <span><input type="text" name="number" maxlength="18" value="{{ $ob->number }}" /></span> 
+    @else
+    <span>{{$ob->number}}</span> 
+    @endif
+    
+
+    </div>
 
     <div class="Fila"><label>Estatus</label>
     <select class="form-control" name="status_id">
@@ -23,14 +31,14 @@ $estatuses = [1=>"En Proceso", 2=>"Surtida"];
         <label>Archivo Factura</label>
         <div>
         @if (isset($ob->document))
-        {{ view('pedidos2/view_storage_item',['path'=>$ob->document]) }}
-        
-        @else
-
-        <div><input type="file" name="document" class="form-control" /> </div>
+        {{ view('pedidos2/view_storage_item',['path'=>$ob->document]) }}        
         @endif
-        
-        </div>
+
+        @if($user->role_id == 1)
+        <div><input type="file" name="document" class="form-control" /></div>
+        @endif
+    
+    </div>
     </div>
 
 
@@ -39,11 +47,12 @@ $estatuses = [1=>"En Proceso", 2=>"Surtida"];
         <div>
             <div>
             @if (isset($ob->requisition))
-            {{ view('pedidos2/view_storage_item',['path'=>$ob->requisition]) }}
-            @else 
-            <input type="file" name="requisition" class="form-control" /> 
+            {{ view('pedidos2/view_storage_item',['path'=>$ob->requisition]) }}            
             @endif
-            </div>        
+            </div>   
+            @if($user->role_id == 1)
+            <div><input type="file" name="requisition" class="form-control" /> </div>
+            @endif
         </div>
 
     </div>

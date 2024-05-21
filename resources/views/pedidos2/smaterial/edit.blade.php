@@ -22,7 +22,7 @@ $estatuses = [5=>"En Puerta", 6=>"Entregado", 7=>"Cancelado"];
 
     <div class="Fila"><label>Agregar Imágenes</label></div>
 
-    <div id='atlSlot'  v9940p' al="{{$ob->id}}"
+    <div id='atlSlot'  val="{{$ob->id}}"
         uploadto="{{ url('pedidos2/attachpost') }}" 
         listHref="{{ url('pedidos2/attachlist') }}">
     </div>  

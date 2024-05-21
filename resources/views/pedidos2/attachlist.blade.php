@@ -55,7 +55,7 @@ href="{{ $url }}">
     
     @elseif ($catalog == "shipments") 
     <li class='attachitem'>
-     {!! IconOf($li->file) !!}
+     {!! IconOf( isset($li->file) ? $li->file : $li->picture ) !!}
         @if ($mode =="edit" || $mode =="")
         <div class='delspace'><a class="delatt" href="{{ url("pedidos2/attachdelete?catalog=".$catalog."&id=".$li->id) }}" title="Eliminar Evidencia de Embarque">X</a></div>
         @endif

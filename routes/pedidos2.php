@@ -17,6 +17,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('pedidos2/pedido/{id}', 'Pedidos2Controller@pedido');
 	Route::get('pedidos2/masinfo/{id}', 'Pedidos2Controller@masinfo');
 	Route::get('pedidos2/historial/{id}', 'Pedidos2Controller@historial');
+	Route::get('pedidos2/fragmento/{id}/{cual}', 'Pedidos2Controller@fragmento');
 
 	
 	Route::post('pedidos2/parcial_crear/{id}', 'Pedidos2Controller@parcial_crear');
@@ -43,6 +44,12 @@ Route::group(['middleware' => 'auth'], function () {
 
 
 	Route::get('pedidos2/devolucion_lista/{id}', 'Pedidos2Controller@devolucion_lista');
+	Route::get('pedidos2/devolucion_edit/{id}', 'Pedidos2Controller@devolucion_edit');
+	Route::post('pedidos2/devolucion_update/{id}', 'Pedidos2Controller@devolucion_update');
+
+	
+	Route::get('pedidos2/shipment_edit/{id}', 'Pedidos2Controller@shipment_edit');
+	Route::post('pedidos2/shipment_update/{id}', 'Pedidos2Controller@shipment_update');
 
 
 	Route::get('pedidos2/accion/{id}', 'Pedidos2Controller@accion');

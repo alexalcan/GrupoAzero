@@ -5,7 +5,7 @@ use App\Pedidos2;
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/pedidos2/general.css') }}" />
-<link rel="stylesheet" href="{{ asset('css/pedidos2/index.css') }}" />
+<link rel="stylesheet" href="{{ asset('css/pedidos2/index.css') }}?x=345" />
 <link rel="stylesheet" href="{{ asset('js/drp/daterangepicker.css') }}" />
 <link rel="stylesheet" href="{{ asset('css/paginacion.css') }}" />
 <link rel="stylesheet" href="{{ asset('css/piedramuda.css') }}" />
@@ -65,7 +65,7 @@ use App\Pedidos2;
                     <legend>Origen</legend>
                     <div class="checkpair"><input type="checkbox" name="or[]" value="C" id="or_C"> <label for="or_C">Cotización</label></div>
                     <div class="checkpair"><input type="checkbox" name="or[]" value="F" id="or_F"> <label for="or_F">Factura</label></div>
-                    <div class="checkpair"><input type="checkbox" name="or[]" value="I" id="or_I"> <label for="or_I">Req Interna</label></div>
+
                 </fieldset>
                 <fieldset>
                     <legend>Sucursal</legend>
@@ -102,6 +102,13 @@ use App\Pedidos2;
 
         <input type="hidden" name="listaUrl" value="{{ url('pedidos2/lista') }}" />
 </main>
+
+<input type="hidden" name="querystring" value="{{ json_encode($queryString) }}" />
+
+<?php 
+//var_dump($request); 
+?>
+
 
 @endsection
 
@@ -204,9 +211,67 @@ $(document).ready(function(){
         window.location.href = $(this).attr("href");
     });
 
+
+    
+
+    $("body").on("click",".iconSet a",function(e){
+        e.preventDefault();
+        let href = $(this).attr("href");
+        $.ajax({
+            url:href,
+            success:function(h){
+                MiModal.content(h);
+                MiModal.show();
+            }
+        });
+    });
+
+
+    Querystring();
+
+
     GetLista();
 
 });
+
+
+
+function Querystring(){
+    let qs = $("[name='querystring']").val();
+    var qsob = JSON.parse(qs);
+    console.log(qsob);
+    if(typeof(qsob.termino) != "undefined"){
+     $("[name='termino']").val(qsob.termino);   
+    }
+    if(typeof(qsob.st) != "undefined"){
+        for(i in qsob.st){
+            $("[name='st[]'][value='"+qsob.st[i]+"']").prop("checked",true);  
+        }     
+    }
+    if(typeof(qsob.fechas) != "undefined"){
+     $("[name='fechas']").val(qsob.fechas);   
+     var fechasArr = qsob.fechas.split(' - ');
+     let ini = new Date(fechasArr[0]+"T00:00:00");
+     let fin = new Date(fechasArr[1]+"T23:59:59");
+     FormatearFechaDate(ini, fin,"qs");
+    }
+    if(typeof(qsob.sp) != "undefined"){
+        for(i in qsob.sp){
+            $("[name='sp[]'][value='"+qsob.sp[i]+"']").prop("checked",true);  
+        }     
+    }
+    if(typeof(qsob.or) != "undefined"){
+        for(i in qsob.or){
+            $("[name='or[]'][value='"+qsob.or[i]+"']").prop("checked",true);  
+        }     
+    }
+    if(typeof(qsob.suc) != "undefined"){
+        for(i in qsob.suc){
+            $("[name='suc[]'][value='"+qsob.suc[i]+"']").prop("checked",true);  
+        }     
+    }
+}
+
 
 function MuestraAvanzada(){
     $(".Avanzados").slideDown();
@@ -223,7 +288,7 @@ function MuestraSimple(){
 
 function GetLista(p){
     if(typeof(p)=="undefined"){p=1;}
-
+console.log("GetLista");
     $("#fbuscar [name='p']").val(p);
 
     $("#Lista").html("<p>Cargando...</p>");
@@ -284,6 +349,15 @@ function FormatearFecha(start,end,label){
     day: "numeric",
     };
     let v = start._d.toLocaleDateString("es-MX",options)+" - "+end._d.toLocaleDateString("es-MX",options);
+    $("#MuestraFecha").text(v);
+}
+function FormatearFechaDate(start,end,label){
+    const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    };
+    let v = start.toLocaleDateString("es-MX",options)+" - "+end.toLocaleDateString("es-MX",options);
     $("#MuestraFecha").text(v);
 }
 

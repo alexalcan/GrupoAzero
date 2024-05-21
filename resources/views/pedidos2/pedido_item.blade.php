@@ -1,17 +1,16 @@
 <aside class="Pedido">
+
             <div class="estatus E{{ $item->status_id }}">{{ $estatuses[$item->status_id] }}</div>
                 <div class="Elementos">
-                <div class="datito" rel="folio"> {{$item->invoice}}<label>Folio</label></div>
                 
-                @if ($item->origin == "F") 
-                <div class="datito" rel="factura">{{$item->invoice_number}}<label>Factura</label></div>
-                @elseif ($item->origin =="C") 
-                <div class="datito" rel="factura">{{$item->quote}}<label>Cotización</label></div>
-                @elseif ($item->origin=="R")
-                <div class="datito" rel="factura">{{$item->requisition_code}}<label>Requisición</label></div>
+                
+                @if (!empty($item->invoice_number)) 
+                <div class="datito" rel="main">{{$item->invoice_number}}<label>Factura</label></div>
                 @else
-                <div class="datito" rel="factura">{{$item->invoice_number}}<label>Factura</label></div>
+                <div class="datito" rel="main">{{$item->invoice}}<label>Cotización</label></div>
                 @endif
+
+                <div class="datito" rel="sec"> {{$item->requisition_code}}<label>Requisición</label></div>
 
                 <div class="datito" rel="sucursal"> {{$item->office}} <label>Sucursal</label></div>
                 <div class="datito" rel="cliente">{{$item->client}} <label>Cliente</label></div>
@@ -20,11 +19,12 @@
 
                 <div rel="icons" >
                     <div class='iconSet'>
-                        <a></a>
-                        <a></a>
-                        <a></a>
-                        <a></a>
+                        <a class="parciales" title="Parciales" href="{{ url('pedidos2/fragmento/'.$item->id.'/parciales') }}"></a>
+                        <a class="ordenf" title="Ordenes de Manufactura" href="{{ url('pedidos2/fragmento/'.$item->id.'/ordenf')}}"></a>
+                        <a class="smaterial" title="Salidas de Material" href="{{ url('pedidos2/fragmento/'.$item->id.'/smaterial')}}"></a>
+                        <a class="notas" title="Notas" href="{{ url('pedidos2/fragmento/'.$item->id.'/notas')}}"></a>
                     </div>
                 </div>
+
                 </div>
             </aside>

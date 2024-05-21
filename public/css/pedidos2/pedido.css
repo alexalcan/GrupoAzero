@@ -276,7 +276,7 @@ font-size:1.2rem;
 
 .Subproceso{
     display:grid;
-    grid-template-columns: 1fr 14rem 6rem;
+    grid-template-columns: 1fr 1fr 8rem;
     grid-template-areas: "inv st ed" "fi fi fi";
     margin:0px 0px 20px 0px;
     padding:10px 20px;
@@ -285,7 +285,7 @@ font-size:1.2rem;
     }
 .Subproceso label{font-size:1.2rem;}
 .Subproceso [rel='inv']{grid-area:inv;}
-.Subproceso [rel='st']{grid-area:st; text-align:right;}
+.Subproceso [rel='st']{grid-area:st; }
 .Subproceso [rel='ed']{grid-area:ed; text-align:right;}
 .Subproceso [rel='fi']{grid-area:fi;}
 
@@ -348,6 +348,27 @@ font-size:1.2rem;
     width:100%;
 }
 
+.gridThree{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    font-size:1.2rem;
+    width:100%;
+    align-items: center;
+}
+.gridThree span{
+    padding:1px 10px;
+}
+.gridThree span.last{
+   text-align:right; 
+}
+
+.flex-float{
+    display:flex;
+    justify-content: flex-start;
+    row-gap: 5px;
+    column-gap: 20px;
+}
+
 
 
 @media screen and (max-width:600px) {
@@ -381,7 +402,19 @@ font-size:1.2rem;
     }
     .Subproceso [rel='st']{grid-area:st; text-align:center;}
     .Subproceso [rel='ed']{grid-area:ed; text-align:center;}
-    .
+    
+
+    .gridThree{
+        display:grid;
+        grid-template-columns: 1fr 8rem;
+        font-size:1.1rem;
+        align-items: flex-start;
+        grid-template-areas: "a c" "b c";
+        
+    }
+    .gridThree .a{grid-area:a;}
+    .gridThree .b{grid-area:b;}
+    .gridThree .last{grid-area:c;grid-row: 1 / 3;}
 
 
 }

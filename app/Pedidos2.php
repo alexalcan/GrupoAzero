@@ -44,7 +44,25 @@ class Pedidos2 extends Model
             $wheres[]="o.status_id  IN (".implode(",",$status).")";
         }
         if(!empty($subprocesos)){
-            $wheres[]="(SELECT COUNT(*) FROM order_events oe WHERE oe.id_order = o.id AND oe.id_event IN(".implode(",",$subprocesos)."))";
+            if(in_array("devolucion",$subprocesos)){
+                $wheres[]="(SELECT COUNT(*) FROM debolutions WHERE debolutions.order_id = o.id) > 0";
+            }
+            if(in_array("ordenc",$subprocesos)){
+                $wheres[]="IF(LENGTH(o.invoice) > 0,1,0)  > 0";
+            }
+            if(in_array("ordenf",$subprocesos)){
+                $wheres[]="(SELECT COUNT(*) FROM manufacturing_orders WHERE manufacturing_orders.order_id = o.id) > 0";
+            }
+            if(in_array("parcial",$subprocesos)){
+                $wheres[]="(SELECT COUNT(*) FROM partials WHERE partials.order_id = o.id) > 0";
+            }
+            if(in_array("refacturar",$subprocesos)){
+                $wheres[]="(SELECT COUNT(*) FROM rebillings WHERE rebillings.order_id = o.id) > 0";
+            }
+            if(in_array("sm",$subprocesos)){
+                $wheres[]="(SELECT COUNT(*) FROM smaterial WHERE smaterial.order_id = o.id) > 0";
+            }
+
         }
         if(!empty($origen)){
             $orarr=[];
@@ -56,6 +74,7 @@ class Pedidos2 extends Model
             foreach($sucursal as $su){$suarr[]="'$su'";}
             $wheres[]="o.office IN (".implode(",",$suarr).")";
         }
+
         $wherestring = implode(" AND ",$wheres);
 
         //QUERY TOTAL
@@ -131,11 +150,11 @@ class Pedidos2 extends Model
 
 
 
-   public static function LogsDe(int $id) : array{
+   public static function LogsDe(int $id) : object{
     return DB::table("logs")
     ->select(["logs.*","users.name AS user"])
     ->join("users","users.id","=","logs.user_id")->where("logs.order_id",$id)
-    ->orderBy("logs.created_at","DESC")->get()->toArray();
+    ->orderBy("logs.created_at","DESC")->get();
    }
 
 

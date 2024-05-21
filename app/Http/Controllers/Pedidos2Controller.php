@@ -22,6 +22,7 @@ use App\Quote;
 use App\Status;
 use App\Smaterial;
 use App\User;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -34,9 +35,9 @@ use App\Libraries\Tools;
 class Pedidos2Controller extends Controller
 {
 
+    const QS ="";
 
-
-    public function index()
+    public function index(Request $request)
     {
         //$order = Order::find($id);
         $role = auth()->user()->role;
@@ -44,11 +45,13 @@ class Pedidos2Controller extends Controller
         $statuses = Status::all();
         $reasons = Reason::all();
 
+        
         //$fav = Follow::where('user_id', auth()->user()->id)->where('order_id', $order->id)->first();
 
-        
 
-        return view('pedidos2.index', compact('statuses','reasons','department','role'));
+        $queryString = Session::get(self::QS);
+
+        return view('pedidos2.index', compact('statuses','reasons','department','role','queryString'));
     }
 
     public function lista(Request $request){
@@ -70,12 +73,14 @@ class Pedidos2Controller extends Controller
         }
 //var_dump($desde);
 
+        Session::put(self::QS,$request->query());
 
         $status = (array)$request->query("st");
         $subprocesos = (array)$request->query("sp");
         $origen = (array)$request->query("or");
         $sucursal = (array)$request->query("suc");
         //var_dump($sucursal);
+        //var_dump($subprocesos);
 
         $pag = $request->query("p",1);
         $pag = !empty($pag) ? $pag : 1 ;
@@ -93,7 +98,6 @@ class Pedidos2Controller extends Controller
         $rpp = Pedidos2::$rpp;
 
         echo view("pedidos2.lista",compact("lista","estatuses","total","rpp","pag"));
-
     }
 
 
@@ -110,7 +114,8 @@ class Pedidos2Controller extends Controller
         $evidences = Evidence::FromOrder($id);
         $debolutions = Debolution::FromOrder($id);
         $quote = Quote::where(["order_id" => $id])->first();
-        $hayEntrega=true;
+        $imagenesEntrega = Picture::where(["order_id"=>$id,"event"=>"entregar"])->get();
+//var_dump($debolutions);
 
         //$pictures = Picture::FromOrder($id);
         //$morders = ManufacturingOrder::where(["order_id"=>$id])->get();
@@ -118,10 +123,11 @@ class Pedidos2Controller extends Controller
         $purchaseOrder = PurchaseOrder::where(["order_id" => $id])->first();
        // var_dump($purchaseOrder);
        
- 
+
+
 
         return view('pedidos2.pedido', compact('id','pedido','shipments',
-        'role','user','evidences','debolutions', 'quote','hayEntrega','purchaseOrder'));
+        'role','user','evidences','debolutions', 'quote', 'purchaseOrder','imagenesEntrega'));
     }
 
 
@@ -353,8 +359,19 @@ class Pedidos2Controller extends Controller
             Storage::putFileAs('/public/Cotizaciones/', $file, $name );
             
             $quo = Quote::where(["order_id"=>$id])->first();
-            $quo->document = $sqlPath;
-            $quo->save();
+                if(is_null($quo) || $quo->isEmpty()){                    
+                    $quo = Quote::create([
+                        "order_id"=>$id,
+                        "number"=>$invoice,
+                        "document"=>$sqlPath,
+                        "created_at"=>$now
+                    ]);
+                }else{
+                    $quo->document = $sqlPath;
+                    $quo->updated_at = date("Y-m-d H:i:s");
+                    $quo->save();
+                }
+
 
         }
 
@@ -410,11 +427,11 @@ class Pedidos2Controller extends Controller
             return view("pedidos2/accion/fabricado",compact("id"));
         }
         if($accion == "enpuerta"){
-
-            return view("pedidos2/accion/enpuerta",compact("id","order","paso"));
+            $shipment = Shipment::where(["order_id"=>$id])->first();
+            return view("pedidos2/accion/enpuerta",compact("id","order","paso","shipment"));
         }
         if($accion == "entregar"){
-
+            
             return view("pedidos2/accion/entregar",compact("id","order","paso"));
         }
         if($accion == "devolucion"){
@@ -438,7 +455,8 @@ class Pedidos2Controller extends Controller
 
     public function subproceso_nuevo($order_id, Request $request){ 
 
-        $user = User::find(auth()->user()->id);
+       // $user = User::find(auth()->user()->id);
+        $user = auth()->user();
 
         $order_id = Tools::_string($order_id,16);
         
@@ -458,12 +476,22 @@ class Pedidos2Controller extends Controller
             return view("pedidos2/smaterial/nuevo",compact("order_id","order","paso"));
         }
         if($accion == "requisicion"){
-
-            return view("pedidos2/requisicion/nuevo",compact("order_id","order","paso"));
+            $ob = PurchaseOrder::where(["order_id"=>$order_id])->first();
+            if($ob == null){
+                return view("pedidos2/requisicion/nuevo",compact("order_id","order","paso","user"));
+            }else{
+                $id=$order_id;
+                return view("pedidos2/requisicion/edit",compact("order_id","order","paso","ob","id","user"));
+            }
+            
         }
         if($accion == "devolucion"){
 
             return view("pedidos2/accion/devolucion",compact("order_id","order","paso"));
+        }
+        if($accion == "refacturacion"){
+
+            return view("pedidos2/accion/refacturar",compact("order_id","order","paso"));
         }
     }
 
@@ -654,18 +682,14 @@ class Pedidos2Controller extends Controller
     public function smaterial_lista($order_id,Request $request){
         $order_id= intval($order_id);
 
-        $role = auth()->user()->role;
-        $user = auth()->user();
-
         $list = Smaterial::where(['order_id' => $order_id])->orderBy("id","DESC")->get();
-        $estatuses = Pedidos2::StatusesCat();
-    
+        $estatuses = Pedidos2::StatusesCat();    
 
         foreach($list as $li){
             echo view("pedidos2/smaterial/ficha",["order_id"=>$order_id,"estatuses"=>$estatuses, "ob" => $li]);
         }
-
     }
+
 
     public function smaterial_update($id,Request $request){
         $user = User::find(auth()->user()->id);
@@ -861,13 +885,14 @@ class Pedidos2Controller extends Controller
     }
 
     public function requisicion_edit($id,Request $request){
-        $user = User::find(auth()->user()->id);
+        //$user = User::find(auth()->user()->id);
+        $user = auth()->user();
 
         $id = Tools::_int($id);   
         
         $ob = PurchaseOrder::where(["id"=>$id])->first();
 
-        return view("pedidos2/requisicion/edit",compact("id","ob"));
+        return view("pedidos2/requisicion/edit",compact("id","ob","user"));
     }
 
 
@@ -895,6 +920,9 @@ class Pedidos2Controller extends Controller
         $status_id = Tools::_int($request->status_id); 
         $number = Tools::_string( $request->number, 24);  
 
+        $dsqlPath="";
+        $rsqlPath="";
+
 
         //ARCHIVO
         if($request->hasFile("document")){
@@ -921,6 +949,9 @@ class Pedidos2Controller extends Controller
             if(!empty($rsqlPath)){
                 $data["requisition"]=$rsqlPath;
             }
+            if(!empty($number)){
+                $data["number"]=$number;
+            }
             
             PurchaseOrder::where("id", $id)->update($data); 
 
@@ -943,11 +974,12 @@ class Pedidos2Controller extends Controller
         $role = auth()->user()->role;
         $user = auth()->user();
 
-        $list = Debolution::where(['order_id' => $order_id])->orderBy("id","DESC")->get();
+        $lista = Debolution::where(['order_id' => $order_id])->orderBy("id","DESC")->get();
         $reasonsres = Reason::get();
         $reasons = Tools::catalogo($reasonsres,"id","reason");
 
-        echo view("pedidos2/devolucion/lista",["order_id"=>$order_id,"reasons"=>$reasons, "lista" => $list]);
+
+        echo view("pedidos2/devolucion/lista",["order_id"=>$order_id,"reasons"=>$reasons, "lista" => $lista]);
     }
 
 
@@ -961,26 +993,26 @@ class Pedidos2Controller extends Controller
         $user = auth()->user();
         
             if($paso == 1){
-                $shipment = isset($request->shipment) ? Tools::_int($request->shipment) : 0;
-                if($shipment==1){
-                    
-                    Order::where(["id"=>$id])->update( ["status_id" => 5 ] );
+                $type= isset($request->type) ? Tools::_int($request->type) : 1;
 
-                    Shipment::create([
-                          'file' => '',//$folder.'/' . $name,
-                          "order_id" => intval($id),
-                          "created_at" => date("Y-m-d H:i:s"),
-                          "updated_at" => date("Y-m-d H:i:s")
-                      ]);
-                Feedback::custom("url", url("pedidos2/accion/$id?a=enpuerta&paso=2"));
-                Feedback::j(2);
-                return;
+                Order::where(["id"=>$id])->update( ["status_id" => 5 ] );
 
-                }else{
-                   // Order::where(["id"=>$id])->update( ["status_id" => 5 ] );
+                Shipment::create([
+                      'file' => '',
+                      "order_id" => intval($id),
+                      "type" => (int)$type,
+                      "created_at" => date("Y-m-d H:i:s"),
+                      "updated_at" => date("Y-m-d H:i:s")
+                  ]);
 
-                    Pedidos2::Log($id,"En Puerta",$user->name." ha registrado que el pedido pasó por puerta", 5, $user);
+                Pedidos2::Log($id,"En Puerta",$user->name." ha registrado que el pedido pasó por puerta", 5, $user);
 
+                if($type==1){                       
+                    Feedback::custom("url", url("pedidos2/accion/$id?a=enpuerta&paso=2"));
+                    Feedback::j(2);
+                    return;
+                }
+                else{                    
                     Feedback::j(1);
                     return;
                 }
@@ -1041,7 +1073,6 @@ class Pedidos2Controller extends Controller
 
     function set_accion_entregar(Request $request, int $id){
         $paso = isset($request->paso) ? intval($request->paso) : 1; 
-
         $user = auth()->user();
         
             if($paso == 1){
@@ -1053,19 +1084,18 @@ class Pedidos2Controller extends Controller
 
                 Pedidos2::Log($id,"Entregado",$user->name." ha registrado que el pedido fue entregado", 6, $user);
 
-                Feedback::custom("url", url("pedidos2/parcial_accion/$id?a=entregar&paso=2"));
+                Feedback::custom("url", url("pedidos2/accion/$id?a=entregar&paso=2"));
                 Feedback::j(2);
                 return;
-
-                }else{
+                }
+                else{
                     Order::where(["id"=>$id])->update( ["status_id" => 6, "updated_at" => date("Y-m-d H:i:s") ] );
 
                     Pedidos2::Log($id,"Entregado",$user->name." ha registrado que el pedido fue entregado", 6, $user);
 
                     Feedback::j(1);
                     return;
-                }
-                
+                }            
                 
 
             }
@@ -1078,13 +1108,9 @@ class Pedidos2Controller extends Controller
 
     function set_accion_devolucion(Request $request, int $id){
         $user = auth()->user();
-        $number = Tools::_string( $request->number,90);
-        $archivo = $request->file("archivo");
+        $number = Tools::_string( $request->number,90);  
         $razon = $request->razon;
-        //var_dump($archivo);die();
-        $mimeType= $archivo->getClientMimeType();
-        $filePath = "";
-
+        
         $debId = Debolution::create([
             "order_id"=>$id,
             "reason_id"=>$razon,
@@ -1092,7 +1118,12 @@ class Pedidos2Controller extends Controller
             "updated_at"=>date("Y-m-d H:i:s")
         ]);
         
-        $mimeExt = Pedidos2::mimeExtensions();
+
+        if($request->hasFile("archivo")){
+            $archivo = $request->file("archivo");
+            $mimeType= $archivo->getClientMimeType();
+
+            $mimeExt = Pedidos2::mimeExtensions();
 
             if(in_array($mimeType,array_keys($mimeExt))){
                 $ext= $mimeExt[$mimeType];
@@ -1112,12 +1143,12 @@ class Pedidos2Controller extends Controller
 
             }
 
+        }
         
         $data=[
             "status_id"=>9,
             "updated_at"=>date("Y-m-d H:i:s")
         ];
-
         Order::where(["id"=>$id])->update($data);
 
         Pedidos2::Log($id,"Devolución",$user->name." ha registrado que el pedido fue devuelto", 9, $user);
@@ -1218,7 +1249,7 @@ class Pedidos2Controller extends Controller
             }
 
             else{
-                return "?r";
+                return "?er";
             }
         }
         elseif($catalog==="pictures"){
@@ -1243,19 +1274,19 @@ class Pedidos2Controller extends Controller
                 $list = Picture::where($wheres)->get();
             }
             else{
-                return "?r";
+                return "?pr";
             }
         }
         elseif($catalog==="shipments"){
-            if(!empty($order_id)){
-                $list = Shipment::where("order_id",$order_id)->get();
+            if(!empty($shipment_id)){
+                $list = Picture::where("shipment_id",$shipment_id)->get();
             }
             else{
-                return "?r";
+                return "?sr";
             }
         }
         else{
-            return "?c";
+            return "?cat";
         }      
         
         $urlParams = [];
@@ -1448,38 +1479,44 @@ class Pedidos2Controller extends Controller
          }
          
          else if($catalog === "shipments"){
-            die("x");
-            /*
+        
              $folder="Embarques";
+
+             if($request->hasFile("upload")==false){$RE->error="No se recibió imagen o documento";}            
+             
              $file = $request->file("upload");
-             if(empty($file)){$RE->error="No se recibió imagen o documento";}
-             //$file->getClientOriginalName()
-             $name = $identt . "-" . $ident . '-' . date("dHis").".".$file->getClientOriginalExtension();
+             $name = $identt . $ident . '-' . date("dis").".".$file->getClientOriginalExtension();
              
-             $numExists = Order::where("id", $ident)->count();     
-             
+             $numExists = Shipment::where("id", $ident)->count();                  
              
              if($numExists == 0){
                  $RE->status = 0 ;
-                 $RE->error="El registro $identfield = $ident no existe";
+                 $RE->error="El embarque '$ident' no existe";
                  return json_encode($RE);
              }
              
              Storage::putFileAs('/public/'.$folder.'/', $file, $name );
              
-             //$shipmentExists = Shipment::where($identfield,$ident)->get();
+             /*
              Shipment::create([
                  'file' => $folder.'/' . $name,
                  $identfield => intval($ident),
                  "created_at" => $ahora,
                  "updated_at" => $ahora
              ]);
-                        
+             */        
+            Picture::create([
+                'picture' => $folder.'/' . $name,
+                'user_id' => intval($user->id),
+                'event' => '',
+                $identfield => intval($ident),
+                "created_at" => $ahora,
+                "updated_at" => $ahora
+            ]);                 
              
              $RE->status=1;
              $RE->value=$name;
-             return json_encode($RE);
-             */
+             return json_encode($RE);             
          }
  
        
@@ -1602,6 +1639,118 @@ class Pedidos2Controller extends Controller
 
         return view("pedidos2/pedido/historial",compact("order_id","lista","order"));
      }
+
+
+
+     public function devolucion_edit($id,Request $request){
+        $user = User::find(auth()->user()->id);
+
+        $id = Tools::_int($id);   
+        
+        $ob = Debolution::where(["id"=>$id])->first();
+        $reasons = Reason::get();
+
+        return view("pedidos2/devolucion/edit",compact("id","ob","reasons"));
+    }
+
+    public function devolucion_update($id,Request $request){
+        $id = Tools::_int($id);       
+        $user = auth()->user();
+
+        $reason_id = Tools::_int($request->reason_id);    
+
+            $data = [
+                "reason_id" => $reason_id,
+                "updated_at"=>date("Y-m-d H:i:s")
+            ];
+
+        Debolution::where("id", $id)->update($data); 
+
+        Pedidos2::Log($id,"Devolucion", $user->name." hizo un cambio en devolución #{$id}", 0, $user);
+        Feedback::j(1);
+        return;
+    }
+
+
+
+    public function shipment_edit($id,Request $request){
+        $user = User::find(auth()->user()->id);
+
+        $id = Tools::_int($id);   
+        
+        $ob = Shipment::where(["id"=>$id])->first();
+        $types = [1=>"Envío",2=>"Entrega Directa"];
+
+        return view("pedidos2/shipment/edit",compact("id","ob","types"));
+    }
+
+    public function shipment_update($id,Request $request){
+        $id = Tools::_int($id);       
+        $user = auth()->user();
+
+        $type = Tools::_int($request->type);    
+
+            $data = [
+                "type" => $type,
+                "updated_at"=>date("Y-m-d H:i:s")
+            ];
+        Shipment::where("id", $id)->update($data); 
+
+        Pedidos2::Log($id,"Shipment", $user->name." hizo un cambio en el embarque #{$id}", 0, $user);
+        Feedback::j(1);
+        return;
+    }
+
+
+
+
+    public function entregar_edit($id,Request $request){
+        $user = User::find(auth()->user()->id);
+
+        $id = Tools::_int($id);   
+        
+        $ob = Shipment::where(["id"=>$id])->first();
+        $types = [1=>"Envío",2=>"Entrega Directa"];
+
+        return view("pedidos2/pedido/entregar_edit",compact("id","ob","types"));
+    }
+
+    public function entregar_update($id,Request $request){
+        $id = Tools::_int($id);       
+        $user = auth()->user();
+
+        $type = Tools::_int($request->type);    
+
+            $data = [
+                "type" => $type,
+                "updated_at"=>date("Y-m-d H:i:s")
+            ];
+        Shipment::where("id", $id)->update($data); 
+
+        Pedidos2::Log($id,"Shipment", $user->name." hizo un cambio en el embarque #{$id}", 0, $user);
+        Feedback::j(1);
+        return;
+    }
+
+
+    public function fragmento($id,$cual){
+        $id = Tools::_int($id);       
+        $user = auth()->user();
+        $cual = Tools::_string($cual,24);
+
+        if($cual=="parciales"){
+            $list = Partial::where("order_id", $id)->get();
+            return view("pedidos2/parcial/fragmento",compact("list"));
+        }
+        if($cual=="ordenf"){
+            $list = ManufacturingOrder::where("order_id", $id)->get();
+            return view("pedidos2/ordenf/fragmento",compact("list"));
+        }
+        if($cual=="notas"){
+            $list = Note::where("order_id", $id)->get();
+            return view("pedidos2/pedido/notas",compact("list"));
+        }
+    }
 
 
 }

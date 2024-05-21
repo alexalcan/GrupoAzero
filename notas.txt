@@ -1,0 +1,8 @@
+//DEPARTMENTS
+1 Clientes
+2 Administrador
+3 Ventas
+4 Embarques
+5 Fabricación
+6 Flotilla
+7 Compras

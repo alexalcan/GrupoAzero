@@ -4,7 +4,7 @@ use App\Reason;
 $razones = Reason::get();
 
 ?>
-<form action="{{ url('pedidos2/set_accion/'.$id.'?a=devolucion') }}" id="FSetAccion" method="post">
+<form action="{{ url('pedidos2/set_accion/'.$order_id.'?a=devolucion') }}" id="FSetAccion" method="post">
 @csrf 
 <aside class="AccionForm">
     

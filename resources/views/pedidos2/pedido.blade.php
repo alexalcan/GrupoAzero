@@ -1,6 +1,6 @@
 <?php
 use App\Pedidos2;
-
+use App\Libraries\Tools;
 
 
 
@@ -25,7 +25,7 @@ $statuses = Pedidos2::StatusesCat();
 
 
     <div class="card Fila">
-        <div class="Fila">User Rol {{$user->role->name}} Department:{{$user->department->name}}</div>
+
         <center> <a class="regresar" href="{{ url('pedidos2') }}">&laquo; Regresar</a> </center>
     </div>
 
@@ -49,8 +49,8 @@ $statuses = Pedidos2::StatusesCat();
         </div>
         <div class='FormRow'>
             <label>Archivo Cotización</label>
-            <div class="doscol">
-            <input type="file" class="form-control" name="cotizacion" />  
+            <div class="flex-start">
+            <input type="file" class="form-control" name="cotizacion"  />  
                 @if (!empty($quote->document))
                 <span> &nbsp; &nbsp; Actual: 
                 &nbsp; <a class="pdf" target="_blank" href="{{ asset('storage/'.$quote->document) }}"></a>
@@ -66,7 +66,7 @@ $statuses = Pedidos2::StatusesCat();
         <div class='FormRow'>
             <label>Archivo Factura</label>
             
-                <div class="doscol">
+                <div class="flex-start">
                 <input type="file" class="form-control" name="factura" />
                 
                 @if (!empty($purchaseOrder->document))
@@ -119,47 +119,51 @@ $statuses = Pedidos2::StatusesCat();
 
             <div><label>Cliente</label><span>{{$pedido->client}}</span></div>
 
-            @if ($user->role->id == 1)    
-            <div class="block"><a class="powerLink" onclick="MostrarMainInfo()">Cambiar datos principales</a></div>
-            @endif
-            
+           
+
         </fieldset>
 
-    <div class="padded">
-        <a class="powerLink modalShow" href="{{  url('pedidos2/historial/'.$pedido->id) }}">Historial</a>
-        
+    <div class="padded flex-float">
+        <a class="powerLink modalShow" href="{{  url('pedidos2/historial/'.$pedido->id) }}">Historial</a>  
+        @if ($user->role->id == 1)    
+            <div class="block"><a class="powerLink" onclick="MostrarMainInfo()">Cambiar datos principales</a></div>
+        @endif      
     </div>
         
-    </form>
-
-   
+    </form> 
     
 
     <div class="BigEstatus E{{ $pedido->status_id }}"><span >{{$pedido->status_name}}</span></div>
-    <div class="center">Último cambio: {{$pedido->updated_at}}</div>
+    <div class="center">Último cambio: {{ Tools::fechaMedioLargo($pedido->updated_at, true) }}</div>
+
+    <p>&nbsp;</p>
+</div>
 
 
-    <div class="Cuerpo" id="CuerpoActualizar">
-        
 
 
 
-        
 
+<div class="card">
+    <div class="headersub">
+    Progreso
+    </div>
+
+    <div class="Cuerpo" id="CuerpoActualizar">       
+
+    <?php                                                                                                                                                                          
+    //var_dump($pedido); 
+    ?>
         <div class="Eleccion">
         @if ($pedido->status_id == 1)
         <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=recibido') }}">Recibido por embarques</a>
-
         <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
-
 
         @elseif ($pedido->status_id == 2)
         <!-- Recibido por embarques -->
 
         <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a>
-        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
-  
- 
+        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> 
 
         @elseif ($pedido->status_id == 3)
         <!-- En fabricación -->
@@ -168,64 +172,65 @@ $statuses = Pedidos2::StatusesCat();
 
         @elseif ($pedido->status_id == 4)
         <!-- Fabricado -->
-
         <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
-
-
-
 
         @elseif ($pedido->status_id == 5)
         <!-- En Ruta -->
         <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=entregar') }}">Entregado</a>
-        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=devolucion') }}">Devolución</a>  
 
         @elseif ($pedido->status_id == 6)
         <!-- Entregado -->
-        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=devolucion') }}">Devolución</a>
-        <!-- solo despues cancelacion <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=refacturar') }}">Refacturación</a>  -->
-
         @elseif ($pedido->status_id == 7)
-        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=refacturar') }}">Refacturación</a>
 
         @elseif ($pedido->status_id == 8)
- 
+
         @endif
 
         </div>
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-
-</div>
-
-
-
-
-
-<div class="card">
-    <div class="headersub">
-    Proceso
     </div>
 
-    @if ($hayEntrega == true)
-    <section class="Proceso">
-    <h3>Entrega</h3>
-    <section class='attachList' rel='entr' 
+
+
+    @if ( $shipments->isEmpty() == false)
+    @foreach ($shipments as $ship)
+    <aside class="Proceso">
+        <div class="gridThree">
+            <span class="a">Paso por Puerta: {{  ($ship->type == 1) ? "Envío" : "Entrega Directa" }}</span>
+            <span class="b">
+             {{ Tools::fechaMedioLargo($ship->created_at) }}
+            </span>
+            <span class="last">
+                <a class="btn  editapg" href="{{ url('pedidos2/shipment_edit/'.$ship->id) }}">Editar</a>
+            </span>
+        </div>
+    
+    <section mode="view" class='attachList' rel='ship_{{ $ship->id }}' 
+        uploadto="{{ url('pedidos2/attachpost?catalog=shipments&shipment_id='.$ship->id) }}" 
+        href="{{ url('pedidos2/attachlist?rel=ship_'. $ship->id .'&mode=view&catalog=shipments&shipment_id='.$ship->id) }}"></section> 
+    </aside>
+
+    @endforeach
+    @endif
+
+
+    @if ($imagenesEntrega->isEmpty()==false)
+    <aside class="Proceso">
+        <div class="gridThree">
+            <span class="a">Entrega</span>
+            <span class="b">
+            &nbsp;
+            </span>
+            <span class="last">
+                <a class="btn  editapg" href="{{ url('pedidos2/accion/entregar/'.$pedido->id) }}">Editar</a>
+            </span>
+        </div>
+
+    <section mode="view" class='attachList' rel='entrega_{{ $pedido->id }}' 
         uploadto="{{ url('pedidos2/attachpost?catalog=pictures&event=entregar&order_id='.$pedido->id) }}" 
-        href="{{ url('pedidos2/attachlist?rel=entr&catalog=pictures&event=entregar&order_id='.$pedido->id) }}"></section> 
-    </section>
+        href="{{ url('pedidos2/attachlist?rel=ship_'. $pedido->id .'&mode=view&catalog=pictures&event=entregar&order_id='.$pedido->id) }}">
+    </section> 
+    
+    </aside>
     @endif
 
     
@@ -270,17 +275,19 @@ $statuses = Pedidos2::StatusesCat();
         <a class="Candidato" rel="ordenf" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=ordenf') }}">+ Orden de fábrica</a>
         @if ($pedido->status_id == 7) 
         <a class="Candidato" rel="devolucion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=devolucion') }}">Devolución</a> 
+        <a class="Candidato" rel="refacturacion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=refacturacion') }}">Refacturación</a>
         @endif
     </div>
 
 
-    <div id="SmaterialDiv" href="{{ url('pedidos2/smaterial_lista/'.$pedido->id) }}"></div>
+    <div id="DevolucionDiv" href="{{ url('pedidos2/devolucion_lista/'.$pedido->id) }}" class="SubProcesoContainer"></div>
 
-    <div id="RequisicionDiv" href="{{ url('pedidos2/requisicion_lista/'.$pedido->id) }}"></div>
+    <div id="SmaterialDiv" href="{{ url('pedidos2/smaterial_lista/'.$pedido->id) }}" class="SubProcesoContainer"></div>
 
-    <div id="OrdenfDiv" href="{{ url('pedidos2/ordenf_lista/'.$pedido->id) }}"></div>
+    <div id="RequisicionDiv" href="{{ url('pedidos2/requisicion_lista/'.$pedido->id) }}" class="SubProcesoContainer"></div>  
 
-    <div id="DevolucionDiv" href="{{ url('pedidos2/devolucion_lista/'.$pedido->id) }}"></div>
+    <div id="OrdenfDiv" href="{{ url('pedidos2/ordenf_lista/'.$pedido->id) }}" class="SubProcesoContainer"></div>
+
 
     <p>&nbsp;</p>
 </div>
@@ -300,11 +307,11 @@ $statuses = Pedidos2::StatusesCat();
 
         <div class='center Fila'>
             @if ($pedido->status_id != 7)
-            <a class="cancelar" title="¿Confirma que desea eliminar este pedido?" 
+            <a class="cancelar" title="¿Confirma que desea cancelar este pedido?" 
             href="{{ url('pedidos2/cancelar/'.$pedido->id) }}">Cancelar</a>
             @elseif ($pedido->status_id == 7 && $role->name == "Administrador")
             <a class="cancelar" title="¿Confirma que desea quitar la cancelación de este pedido?" 
-            href="{{ url('pedidos2/descancelar/'.$pedido->id) }}">DesCancelar</a>
+            href="{{ url('pedidos2/descancelar/'.$pedido->id) }}">Deshacer cancelación</a>
             @endif
         </div>
 
@@ -409,6 +416,17 @@ AjaxGet($(this).attr("href"),FormaEditarOrdenf);
 $("body").on("click",".editarrequisicion",function(e){
 e.preventDefault();
 AjaxGet($(this).attr("href"),FormaEditarRequisicion);
+});
+
+
+
+$("body").on("click",".editapg",function(e){
+e.preventDefault();
+let spc = $(this).closest(".SubProcesoContainer");
+    if(spc.length > 0){
+        $(spc).addClass("recargame");
+    }
+AjaxGet($(this).attr("href"),FormaEditarProcesoGeneral);
 });
 
 
@@ -631,7 +649,7 @@ function FormaNuevoRequisicion(h){
 }
 function FormaNuevoRequisicion2(){
     $("body").bind("MiModal-exit",function(){
-        CargarOrdenf();
+        CargarRequisiciones();
         $("body").unbind("MiModal-exit");
     });
 
@@ -641,7 +659,7 @@ function FormaNuevoRequisicion2(){
         success:function(json){
             if(json.status==1){
                 MiModal.exit();
-                CargarOrdenf();
+                CargarRequisiciones();
             }
             else{alert(json.errors);} 
         }
@@ -660,7 +678,8 @@ function FormaEditarRequisicion(h){
         success:function(json){
             if(json.status==1){
                 MiModal.exit();
-                CargarOrdenf();
+                //CargarOrdenf();
+                CargarRequisiciones();
             }else{
                 console.log(json);
             }
@@ -670,6 +689,95 @@ function FormaEditarRequisicion(h){
 }
 
 
+function FormaEditarProcesoGeneral(h){
+    MiModal.content(h);
+    MiModal.show();
+
+    $("#FSetAccion").ajaxForm({
+        error:function(err){alert(err.statusText);}, 
+        dataType:"json",
+        success:function(json){
+            if(json.status==1){
+                let rme =$(".recargame");
+                if(rme.length > 0){
+
+                    $(rme).removeClass("recargame");
+                    $.get($(rme).attr("href"),function(h){
+                        $(rme).html(h);
+                        $(rme).find(".attachList").each(function(){
+                        AttachList($(this).attr("rel"));
+                        });
+                    });
+                    MiModal.exit();
+                }else{
+                    window.location.reload();
+                }
+                
+            }else{
+                console.log(json);
+            }
+        }
+    });
+
+    $("#dialogo .attachList").each(function(){
+        AttachList($(this).attr("rel"));
+    });
+
+}
+
+
+
+
+
+
+
+
+function FormaNuevoDevolucion(h){
+    MiModal.content(h);
+    MiModal.show();
+
+    FormaNuevoDevolucion2();
+}
+function FormaNuevoDevolucion2(){
+    $("body").bind("MiModal-exit",function(){
+        CargarRequisiciones();
+        $("body").unbind("MiModal-exit");
+    });
+
+    $("#FSetAccion").ajaxForm({
+        error:function(err){alert(err.statusText);},
+        dataType:"json", 
+        success:function(json){
+            if(json.status==1){
+                MiModal.exit();
+                CargarDevoluciones();
+            }
+            else{alert(json.errors);} 
+        }
+    });
+
+}
+
+
+function FormaEditarDevolucion(h){
+    MiModal.content(h);
+    MiModal.show();
+
+    $("#FSetAccion").ajaxForm({
+        error:function(err){alert(err.statusText);}, 
+        dataType:"json",
+        success:function(json){
+            if(json.status==1){
+                MiModal.exit();
+                //CargarOrdenf();
+                CargarDevoluciones();
+            }else{
+                console.log(json);
+            }
+        }
+    });
+
+}
 
 
 
@@ -741,6 +849,10 @@ function FormaEditarRequisicion(h){
 
     $("#dialogo .attachList").each(function(){
     AttachList($(this).attr("rel"));
+    });
+
+    $("body").on("MiModal-exit",function(){
+        window.location.reload();
     });
 
 }
@@ -849,11 +961,11 @@ function CargarDevoluciones(){
         error:function(err){alert(err.statusText);},
         success:function(h){
             $("#DevolucionDiv").html(h);
-            /*
-            $("#OrdenfDiv .attachList").each(function(){
+            
+            $("#DevolucionDiv .attachList").each(function(){
                 AttachList($(this).attr("rel"));
             });
-            */
+            
         }
     });
     

@@ -173,7 +173,7 @@ width:12rem;
 .Pedido .Elementos{
     display:grid;
     grid-template-columns: 1fr 1fr 1fr 12rem;
-    grid-template-areas:"fol fac suc ." "cli mas ed ico";
+    grid-template-areas:"main cli suc ." "sec mas ed ico";
     align-items: start;
     gap:2px;
 }
@@ -188,11 +188,11 @@ width:12rem;
     font-weight: normal;
 }
 
-    .Elementos [rel='folio']{
-    grid-area:fol;
+    .Elementos [rel='main']{
+    grid-area:main;
     }
-    .Elementos [rel='factura']{
-        grid-area:fac; 
+    .Elementos [rel='sec']{
+        grid-area:sec; 
     }
     .Elementos [rel='sucursal']{
         grid-area:suc;
@@ -212,8 +212,8 @@ width:12rem;
 
     .Elementos [rel='mas'] a{
         display:inline-block;
-        padding:.2rem 1rem .4rem 1rem;
-        font-size:1rem;
+        padding:.2rem .5rem .4rem .5rem;
+        font-size:.9rem;
         text-decoration:none;
         color:#444;
         border:#999 1px solid;
@@ -243,17 +243,34 @@ width:12rem;
     display:flex;
     justify-content: flex-end;
     align-items:start;
-    gap:10px;
+    gap:8px;
 }
 .iconSet a{
     box-shadow: #eee 0px 1px 2px;
-    width:22px;
-    height:22px;
+    width:30px;
+    height:30px;
     background-color: burlywood;
 }
 
-
-
+.iconSet a.parciales{
+    background: url(iconf_parciales.png) no-repeat top left;
+    background-size: 80% 80%;
+    background-position: top 4px left 4px;
+}
+.iconSet a.ordenf{
+    background: url(iconf_ordenf.png) no-repeat top left;
+    background-size: 80% 80%;
+    background-position: top 4px left 4px;
+}
+.iconSet a.smaterial{
+    background: url(iconf_smaerial.png) no-repeat top left;
+    background-size: 80% 80%;
+    background-position: top 4px left 4px;
+}.iconSet a.notas{
+    background: url(iconf_notas.png) no-repeat top left;
+    background-size: 80% 80%;
+    background-position: top 4px left 4px;
+}
 
 
 
@@ -264,7 +281,7 @@ width:12rem;
 }
 .InfoTR{
     display:grid;
-    grid-template-columns: 6rem 8rem  8rem 1fr;
+    grid-template-columns: 10rem 8rem  8rem 1fr;
     margin-bottom:2px;
     align-items: center;
     background: #f4f4f4;
@@ -291,13 +308,14 @@ width:12rem;
 
 
 
+
 @media screen and (max-width:700px) {
     
     .Pedido .Elementos{
         display:grid;
         grid-template-columns: 1fr 1fr 12rem;
-        grid-template-areas:"fol fac ." "suc cli cli" "mas ed ico";
-
+       /* grid-template-areas:"fol fac ." "suc cli cli" "mas ed ico";*/
+        grid-template-areas:"main cli" "suc sec" " mas ed " "ico ico ";
     }
 
     a.editar{
@@ -347,7 +365,7 @@ width:12rem;
     .Pedido .Elementos{
         display:grid;
         grid-template-columns: 1fr 9rem;
-        grid-template-areas:"fol fac" "suc cli" "mas ed" "ico ico";
+        grid-template-areas:"main cli" "suc sec" "mas ed" "ico ico";
         margin-top:2rem;
         row-gap: 12px;
         column-gap:8px;
