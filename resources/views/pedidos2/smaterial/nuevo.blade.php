@@ -1,5 +1,11 @@
 <?php
-$estatuses = ["5" => "En Puerta", "6"=>"Entregado"];
+$estatuses = [5 => "En Puerta", 6=>"Entregado"];
+    if($user->role_id == 1 || in_array($user->department_id,[4,5])){
+        $estatuses[4]="Fabricado";
+    }
+ksort($estatuses);
+
+
 ?>
 
 @if (!empty($error) )
@@ -12,6 +18,8 @@ $estatuses = ["5" => "En Puerta", "6"=>"Entregado"];
 @csrf 
 <input type="hidden" name="paso" value="1" />
 <aside class="AccionForm">
+
+
     
 <div class="Fila"><label>Folio</label><input type="text" name="code" class="form-control" maxlength="24" /></div>
 
@@ -24,6 +32,8 @@ $estatuses = ["5" => "En Puerta", "6"=>"Entregado"];
         ?>
     </select>
     </div>
+
+    <p class="hiddenDisclaimer"><b>Es Obligatorio subir evidencia en el siguiente paso. No continúe si no puede subir evidencia.</b></p>
     
     <div class="Fila"><input type="submit" name="sb" class="form-control" value="Continuar" /> </div>
 
@@ -44,7 +54,7 @@ $estatuses = ["5" => "En Puerta", "6"=>"Entregado"];
         listHref="{{ url('pedidos2/attachlist') }}">
     </div>  
     
-    <div class="Fila"><input type="button" name="parcialterminar" class="form-control" value="Terminar" /> </div>
+    <div class="Fila" id="smTerminar" style="display: none;"><input type="button" name="parcialterminar" class="form-control" value="Terminar" /> </div>
 
 </aside>
 

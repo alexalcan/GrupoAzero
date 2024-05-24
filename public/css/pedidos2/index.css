@@ -68,6 +68,10 @@ label[for='fechas']{
 }
 
 
+.Avanzados{
+    display:none;
+}
+
 
 .fechasNotas{
     font-size:.85rem;
@@ -302,7 +306,21 @@ width:12rem;
 
 
 
-
+.filtrosIcon{
+    display:none;
+    margin:0px 20px 0px 0px;
+    padding:.1rem 0;
+    text-align: center;
+    width:1.6rem;
+    height:1.6rem;
+    font-size:1.2rem;
+    font-weight: bold;
+    color:#663333;
+    border:#222 1px solid;
+    border-radius:2rem;
+    box-shadow: #999 2px 2px 4px;
+    background-color: #eee;
+}
 
 
 

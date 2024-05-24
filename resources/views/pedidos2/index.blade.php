@@ -5,7 +5,7 @@ use App\Pedidos2;
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/pedidos2/general.css') }}" />
-<link rel="stylesheet" href="{{ asset('css/pedidos2/index.css') }}?x=345" />
+<link rel="stylesheet" href="{{ asset('css/pedidos2/index.css').'?x='.rand(0,999) }}" />
 <link rel="stylesheet" href="{{ asset('js/drp/daterangepicker.css') }}" />
 <link rel="stylesheet" href="{{ asset('css/paginacion.css') }}" />
 <link rel="stylesheet" href="{{ asset('css/piedramuda.css') }}" />
@@ -39,7 +39,10 @@ use App\Pedidos2;
                 <div class="fechasNotas"><small>Selecciona PRIMERO la fecha inicial y DESPUES la fecha final</small></div>
             </div>
             
-            <div class="Fila center" id="MuestraAvanzada"><a class='toggleLink' tabindex="3">Búsqueda Avanzada</a></div>
+            <div class="Fila center" id="MuestraAvanzada">
+                <span class="filtrosIcon">!</span> 
+                <a class='toggleLink' tabindex="3">Búsqueda Avanzada</a>
+            </div>
 
             <?php
         $statuses = Pedidos2::StatusesCat();
@@ -88,11 +91,11 @@ use App\Pedidos2;
 
     </div>
 
-
+    @if ($user->role_id == 1 || (in_array($user->department_id, [3, 4 , 8]) ) )
     <div class="container-fluid">
         <div class="right Fila"><button class="nuevo" href="{{ url('pedidos2/nuevo') }}">Crear Nuevo Pedido</button></div>    
     </div>
-
+    @endif
 
         <section id="Lista">
 
@@ -239,14 +242,21 @@ $(document).ready(function(){
 function Querystring(){
     let qs = $("[name='querystring']").val();
     var qsob = JSON.parse(qs);
-    console.log(qsob);
-    if(typeof(qsob.termino) != "undefined"){
-     $("[name='termino']").val(qsob.termino);   
+    if(qsob == null){
+        return;
     }
+    console.log(qsob);
+
+    if(typeof(qsob.termino) != "undefined" && qsob.termino != null ){
+     $("[name='termino']").val(qsob.termino);  
+
+    }
+    //console.log(num);
     if(typeof(qsob.st) != "undefined"){
         for(i in qsob.st){
             $("[name='st[]'][value='"+qsob.st[i]+"']").prop("checked",true);  
-        }     
+        }    
+
     }
     if(typeof(qsob.fechas) != "undefined"){
      $("[name='fechas']").val(qsob.fechas);   
@@ -254,11 +264,14 @@ function Querystring(){
      let ini = new Date(fechasArr[0]+"T00:00:00");
      let fin = new Date(fechasArr[1]+"T23:59:59");
      FormatearFechaDate(ini, fin,"qs");
+
     }
+    //console.log(num);
     if(typeof(qsob.sp) != "undefined"){
         for(i in qsob.sp){
             $("[name='sp[]'][value='"+qsob.sp[i]+"']").prop("checked",true);  
-        }     
+        } 
+ 
     }
     if(typeof(qsob.or) != "undefined"){
         for(i in qsob.or){
@@ -268,8 +281,22 @@ function Querystring(){
     if(typeof(qsob.suc) != "undefined"){
         for(i in qsob.suc){
             $("[name='suc[]'][value='"+qsob.suc[i]+"']").prop("checked",true);  
-        }     
+        }   
     }
+
+
+}
+
+function CuentaFiltros(){
+    var num=0;
+    num += ($("[name='termino']").val().length > 0 )? 1 : 0 ;
+    num += ($("[name='st[]']:checked").length > 0 )? 1 : 0 ;
+    num += ($("[name='sp[]']:checked").length > 0 )? 1 : 0 ;
+    num += ($("[name='or[]']:checked").length > 0 )? 1 : 0 ;
+    num += ($("[name='suc[]']:checked").length > 0 )? 1 : 0 ;
+    let b = (num>0)?true:false;
+    MuestraIconFiltros(b);
+    console.log(num);
 }
 
 
@@ -293,6 +320,8 @@ console.log("GetLista");
 
     $("#Lista").html("<p>Cargando...</p>");
 
+    MuestraSimple();
+
     $("#fbuscar").ajaxSubmit({
         error:function(err){alert(err.statusText);},
         success:function(h){
@@ -300,6 +329,7 @@ console.log("GetLista");
         }
     });
 
+    CuentaFiltros();
 }
 
 function GetListaPre(p){
@@ -359,6 +389,14 @@ function FormatearFechaDate(start,end,label){
     };
     let v = start.toLocaleDateString("es-MX",options)+" - "+end.toLocaleDateString("es-MX",options);
     $("#MuestraFecha").text(v);
+}
+
+function MuestraIconFiltros(es){
+    if(es){
+        $(".filtrosIcon").css("display","inline-block");
+    }else{
+        $(".filtrosIcon").css("display","none");
+    }
 }
 
 </script>

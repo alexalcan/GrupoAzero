@@ -2,6 +2,8 @@ const MiModal =  {
 width:"",
 title:"",
 
+exitButton:true,
+
 after: null,
 
 contHtml: "",
@@ -26,11 +28,17 @@ show: function(directHtml){
         $("body").append("<div id='dialogoBg'></div>");
     }
     let dn = $("#dialogoWrapper").length;
-    if(dn==0){        
-        $("body").append("<div id='dialogoWrapper'><aside id='dialogo'><a class='botClose' onclick='MiModal.exit()'></a><div class='tit'></div><div class='content'></div></aside></div>");
+    console.log(this.exitButton);
+    if(dn > 0){        
+        $("#dialogo").hide();
+        $("#dialogoWrapper").remove();
     }
 
-    $("#dialogo").hide();
+    var hh = "<div id='dialogoWrapper'><aside id='dialogo'>";
+    hh+= (this.exitButton == true ) ? "<a class='botClose' onclick='MiModal.exit()'></a>" : "";
+    hh+= (this.title.length > 0 ) ? "<div class='tit'></div>" : "" ;
+    hh+= "<div class='content'></div></aside></div>";
+    $("body").append(hh);
 
     if(directHtml.length > 0){
         $("#dialogo .content").html(directHtml);

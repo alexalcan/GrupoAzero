@@ -152,37 +152,46 @@ $statuses = Pedidos2::StatusesCat();
     <div class="Cuerpo" id="CuerpoActualizar">       
 
     <?php                                                                                                                                                                          
-    //var_dump($pedido); 
+
     ?>
         <div class="Eleccion">
         @if ($pedido->status_id == 1)
-        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=recibido') }}">Recibido por embarques</a>
+
+            @if ($user->role_id == 1 || $user->department_id == 4)
+            <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=recibido') }}">Recibido por embarques</a>
+            @endif
+
+            <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
+
         <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
 
         @elseif ($pedido->status_id == 2)
         <!-- Recibido por embarques -->
 
-        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a>
-        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> 
+        <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a>
+        <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> 
 
         @elseif ($pedido->status_id == 3)
         <!-- En fabricación -->
-        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a>
+        <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a>
         <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> -->
 
         @elseif ($pedido->status_id == 4)
         <!-- Fabricado -->
-        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
+        <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
 
         @elseif ($pedido->status_id == 5)
         <!-- En Ruta -->
-        <a class="Accion" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=entregar') }}">Entregado</a>
+        <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=entregar') }}">Entregado</a>
 
         @elseif ($pedido->status_id == 6)
         <!-- Entregado -->
         @elseif ($pedido->status_id == 7)
 
         @elseif ($pedido->status_id == 8)
+
+
+
 
         @endif
 
@@ -221,7 +230,7 @@ $statuses = Pedidos2::StatusesCat();
             &nbsp;
             </span>
             <span class="last">
-                <a class="btn  editapg" href="{{ url('pedidos2/accion/entregar/'.$pedido->id) }}">Editar</a>
+                <a class="btn  editapg" href="{{ url('pedidos2/entregar_edit/'.$pedido->id) }}">Editar</a>
             </span>
         </div>
 
@@ -242,22 +251,6 @@ $statuses = Pedidos2::StatusesCat();
 
 
 
-<div class="card">
-    <div class="headersub">
-    Parciales
-    </div>
-
-    <aside class="Eleccion">
-    <a class="NParcial Candidato subp" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=parcial') }}">+ Parcial</a>
-
-    </aside>
-
-    <div id="ParcialesDiv" href="{{ url('pedidos2/parcial_lista/'.$pedido->id) }}"></div>
-
-    
-</div>
-
-
 
 
 
@@ -270,13 +263,22 @@ $statuses = Pedidos2::StatusesCat();
 
     <div class="Eleccion ">
 
+    @if ($user->role_id == 1 ||  in_array($user->departamento_id, [2,4] ) )
         <a class="Candidato" rel="smaterial" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=smaterial') }}">+ Salida de Material</a>
+    @endif
+
+        
         <a class="Candidato" rel="requisicion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=requisicion') }}">+ Requisición</a>
+    
         <a class="Candidato" rel="ordenf" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=ordenf') }}">+ Orden de fábrica</a>
+    
+        <a class="NParcial Candidato subp" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=parcial') }}">+ Parcial</a>
+        
         @if ($pedido->status_id == 7) 
         <a class="Candidato" rel="devolucion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=devolucion') }}">Devolución</a> 
         <a class="Candidato" rel="refacturacion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=refacturacion') }}">Refacturación</a>
         @endif
+    
     </div>
 
 
@@ -287,6 +289,8 @@ $statuses = Pedidos2::StatusesCat();
     <div id="RequisicionDiv" href="{{ url('pedidos2/requisicion_lista/'.$pedido->id) }}" class="SubProcesoContainer"></div>  
 
     <div id="OrdenfDiv" href="{{ url('pedidos2/ordenf_lista/'.$pedido->id) }}" class="SubProcesoContainer"></div>
+
+    <div id="ParcialesDiv" href="{{ url('pedidos2/parcial_lista/'.$pedido->id) }}"></div>
 
 
     <p>&nbsp;</p>
@@ -351,11 +355,19 @@ if(isMobile){
 
 
 
-$(".Eleccion .Accion").click(function(e){
+$(".Eleccion .Accion.generico").click(function(e){
     e.preventDefault();
     $(".Eleccion .Accion").removeClass("activo");
     $(this).addClass("activo");
     AccionPresionado(this);
+});
+
+
+$(".Eleccion .Accion.enpuerta").click(function(e){
+    e.preventDefault();
+    $(".Eleccion .Accion").removeClass("activo");
+    $(this).addClass("activo");
+    AccionPresionadoEnPuerta(this);
 });
 
 
@@ -452,6 +464,8 @@ let rel = $(this).attr("rel");
 
 
 
+
+
 CargarParciales();
 CargarSmateriales();
 CargarOrdenf();
@@ -521,6 +535,7 @@ function FormaEditarParcial(h){
 
 
 function FormaNuevoSmaterial(h){
+
     MiModal.content(h);
     MiModal.show();
 
@@ -534,21 +549,36 @@ function FormaNuevoSmaterial2(){
         let val = $("#atlSlot").attr("val");
         let event = $("#atlSlot").attr("event");
         AttachListCreate("#atlSlot","nsmat",uploadto, listHref,"pictures","smaterial_id", val, "edit", event); 
+        FormaNuevoSmaterial3();
     }              
 
     $("input[name='parcialterminar']").click(function(){
         MiModal.exit();
         CargarSmateriales();
     });  
-    $("body").bind("MiModal-exit",function(){
+
+    $("body").on("MiModal-exit",function(){
         CargarSmateriales();
-        $("body").unbind("MiModal-exit");
+        $("body").off("MiModal-exit");
     });
+
+    $(".AccionForm [name='status_id']").change(function(){
+        let val = $(this).val();
+        if(val == 5 ){
+            $(".AccionForm .hiddenDisclaimer").show();
+        }else{
+            $(".AccionForm .hiddenDisclaimer").hide();
+        }
+    });
+
+
 
     $("#FSetAccion").ajaxForm({
         error:function(err){alert(err.statusText);}, 
         success:function(h){
+            
             MiModal.content(h);
+            MiModal.exitButton=false; 
             MiModal.show();     
             FormaNuevoSmaterial2();    
         }
@@ -556,8 +586,21 @@ function FormaNuevoSmaterial2(){
 
 }
 
+function FormaNuevoSmaterial3(){
+    $("body").on("activated",".attachList[rel='nsmat']",function(){
+
+        $(".attachList[rel='nsmat']").on("uploaded",function(){
+        $("#smTerminar").show();        
+        });
+
+    });
+}
+
+
+
 
 function FormaEditarSmaterial(h){
+    MiModal.exitButton=true;
     MiModal.content(h);
     MiModal.show();
 
@@ -578,7 +621,7 @@ function FormaEditarSmaterial(h){
     let listHref = $("#atlSlot").attr("listHref");
     let val = $("#atlSlot").attr("val");
 
-    AttachListCreate("#atlSlot","edsm_"+val,uploadto, listHref,"pictures","smaterial_id", val, "edit"); 
+    AttachListCreate("#atlSlot", "edsm_"+val, uploadto, listHref,"pictures","smaterial_id", val, "edit"); 
 }
 
 
@@ -612,6 +655,7 @@ function FormaNuevoOrdenf2(){
 
 
 function FormaEditarOrdenf(h){
+    MiModal.exitButton=true;
     MiModal.content(h);
     MiModal.show();
 
@@ -698,7 +742,7 @@ function FormaEditarProcesoGeneral(h){
         dataType:"json",
         success:function(json){
             if(json.status==1){
-                let rme =$(".recargame");
+                let rme =$(".recargame"); 
                 if(rme.length > 0){
 
                     $(rme).removeClass("recargame");
@@ -721,6 +765,11 @@ function FormaEditarProcesoGeneral(h){
 
     $("#dialogo .attachList").each(function(){
         AttachList($(this).attr("rel"));
+    });
+
+    $("body").bind("MiModal-exit",function(){
+        window.location.reload();
+        $("body").unbind("MiModal-exit");
     });
 
 }
@@ -857,26 +906,118 @@ function FormaEditarDevolucion(h){
 
 }
 
-
 function AccionCargarPaso(href){
+
+$.ajax({
+ url:href,
+ type:"get",
+ error:function(err){alert(err.statusText);},
+ success:function(h){
+     $("#AccionSection").html(h);
+
+     MiModal.content(h);
+     //MiModal.after =FormaAccionSet;
+     MiModal.show();
+
+     FormaAccionSet();
+
+     }
+});
+
+}
+
+
+
+function AccionPresionadoEnPuerta(ob){
+   let href = $(ob).attr("href");
+   console.log(ob);
 
    $.ajax({
     url:href,
     type:"get",
     error:function(err){alert(err.statusText);},
     success:function(h){
-        $("#AccionSection").html(h);
-
-        MiModal.content(h);
-        //MiModal.after =FormaAccionSet;
-        MiModal.show();
-
-        FormaAccionSet();
-
-        }
+        AccionEnPuertaForma(h,ob);
+    }
    });
 
  }
+
+
+ function AccionEnPuertaForma(html,ob){
+    if(typeof(ob)=="undefined"){ob=null;}
+    else{
+        $(ob).addClass("completo");
+    }    
+
+    MiModal.content(html);
+    MiModal.show();
+
+    $("#FSetAccion").ajaxForm({
+        error:function(err){alert(err.statusText);},
+        dataType:"json",
+        success:function(json){
+            if(json.status==1){
+                window.location.reload();
+            }
+            else if(json.status == 2){
+                AccionCargarPasoEnPuerta(json.url); 
+            }
+        }
+    });
+
+
+    $("#FSetAccion .setto").click(function(e){
+        e.preventDefault();
+
+        let rel = $(this).attr("rel");
+        let val = $(this).attr("val");
+        $(this).closest("form").find("[name='"+rel+"']").val(val);
+        $(this).closest("form").submit();
+    });
+}
+
+function AccionCargarPasoEnPuerta(href){
+
+$.ajax({
+ url:href,
+ type:"get",
+ error:function(err){alert(err.statusText);},
+ success:function(h){
+        
+        MiModal.exitButton=false;
+        MiModal.content(h);
+        MiModal.show();        
+
+        setTimeout(()=>{MiModal.exitButton=true;},100);     
+
+        AttachList("enp");
+
+        $(document).on("click", ".attachList[rel='enp']", function(){
+            $("#filaEnpuertaN").show();
+            $(document).off("click", ".attachList[rel='enp']");
+        });
+
+
+        $("body").on("MiModal-exit",function(){
+        window.location.reload();
+        });
+
+
+     }
+});
+
+}
+
+
+
+
+
+
+
+
+
+
 
 
  function MostrarActualizar(){

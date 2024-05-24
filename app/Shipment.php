@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class Shipment extends Model
 {
     protected $fillable = [
-        'file', 'order_id', 'created_at'
+        'file', 'order_id', 'created_at', 'type'
     ];
 
     public function order()

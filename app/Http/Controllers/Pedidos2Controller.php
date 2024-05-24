@@ -21,6 +21,7 @@ use App\Shipment;
 use App\Quote;
 use App\Status;
 use App\Smaterial;
+use App\Stockreq;
 use App\User;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
@@ -39,6 +40,8 @@ class Pedidos2Controller extends Controller
 
     public function index(Request $request)
     {
+        $user = auth()->user();
+
         //$order = Order::find($id);
         $role = auth()->user()->role;
         $department = auth()->user()->department;
@@ -51,7 +54,7 @@ class Pedidos2Controller extends Controller
 
         $queryString = Session::get(self::QS);
 
-        return view('pedidos2.index', compact('statuses','reasons','department','role','queryString'));
+        return view('pedidos2.index', compact('statuses','reasons','department','role','queryString','user'));
     }
 
     public function lista(Request $request){
@@ -133,9 +136,7 @@ class Pedidos2Controller extends Controller
 
     public function nuevo(){
         $user =auth()->user();
-    
-
-       // $pedido = Pedidos2::uno($id);
+   
 
         return view('pedidos2.nuevo', compact("user"));
     }
@@ -154,7 +155,7 @@ class Pedidos2Controller extends Controller
     
 
         foreach($list as $li){
-            echo view("pedidos2/pedido/parcial",["parcial"=>$li,"estatuses"=>$estatuses]);
+            echo view("pedidos2/parcial/ficha",["parcial"=>$li,"estatuses"=>$estatuses]);
         }
 
     }
@@ -288,6 +289,49 @@ class Pedidos2Controller extends Controller
 
         }
         
+
+
+        else if($origin =="R"){
+
+            $orderData =[
+                'office' => $userOffice,
+                'invoice'=>"",
+                'origin'=> $origin,
+                'client' => $client,
+                'credit' => 0,
+                'status_id' => 1,
+                'created_at' => $now,
+            ];
+
+            $order = Order::create($orderData);
+
+                //Preexistente
+                $existe = Stockreq::where(["number"=>$code])->get()->toArray();
+                if(count($existe) > 0 ){
+                        Feedback::error("Ya existe un requerimiento de stock con el folio '$code'");
+                        Feedback::j(0);    
+                }
+
+            //ARCHIVO
+            $sqlPath="";
+            if($request->hasFile("archivo")){
+                $file = $request->file('archivo');
+                $name = $order["id"].".".$file->getClientOriginalExtension();
+                $sqlPath = 'Reqstock/' . $name;
+                Storage::putFileAs('/public/Reqstock/', $file, $name );
+            }
+
+
+            $quoteData=[
+                "order_id"=>$order["id"],
+                "number"=>$code,
+                "document"=>$sqlPath,
+                "created_at"=>$now
+            ];
+            Stockreq::create($quoteData);
+
+        }
+
 
         //******************************************     LOG ****
         $status = Status::find(1);
@@ -431,7 +475,7 @@ class Pedidos2Controller extends Controller
             return view("pedidos2/accion/enpuerta",compact("id","order","paso","shipment"));
         }
         if($accion == "entregar"){
-            
+            $this->set_accion_entregar($request, $id);
             return view("pedidos2/accion/entregar",compact("id","order","paso"));
         }
         if($accion == "devolucion"){
@@ -473,7 +517,7 @@ class Pedidos2Controller extends Controller
         }
         if($accion == "smaterial"){
 
-            return view("pedidos2/smaterial/nuevo",compact("order_id","order","paso"));
+            return view("pedidos2/smaterial/nuevo",compact("order_id","order","paso","user"));
         }
         if($accion == "requisicion"){
             $ob = PurchaseOrder::where(["order_id"=>$order_id])->first();
@@ -640,7 +684,7 @@ class Pedidos2Controller extends Controller
 
         $user = auth()->user();
 
-        $error="";
+        $error="";  
 
         $code = Tools::_string( $request->code, 24);
         $status_id = Tools::_int($request->status_id);       
@@ -651,7 +695,7 @@ class Pedidos2Controller extends Controller
                 $paso = 1;
                 $smaterial=(object)[];
                 $error ="Ya existe una salida de material con el folio ".$code." para el pedido ".$order_id;
-                return view("pedidos2/smaterial/nuevo",compact("order_id","paso","smaterial","error"));   
+                return view("pedidos2/smaterial/nuevo",compact("order_id","paso","smaterial","error","user"));   
             }
 
         $smaterial = Smaterial::create([
@@ -665,7 +709,7 @@ class Pedidos2Controller extends Controller
         Pedidos2::Log($order_id,"Salida de Material", $user->name." registró una nueva salida de material #{$smaterial->id}", $status_id, $user);
 
         $paso=2;
-        return view("pedidos2/smaterial/nuevo",compact("order_id","paso","smaterial"));
+        return view("pedidos2/smaterial/nuevo",compact("order_id","paso","smaterial","user"));
     }
 
     public function smaterial_edit($id,Request $request){
@@ -992,35 +1036,23 @@ class Pedidos2Controller extends Controller
         $paso = isset($request->paso) ? intval($request->paso) : 1; 
         $user = auth()->user();
         
-            if($paso == 1){
-                $type= isset($request->type) ? Tools::_int($request->type) : 1;
+        $type= isset($request->type) ? (int)($request->type) : 1;
+  
+        Order::where(["id"=>$id])->update( ["status_id" => 5, "updated_at"=>date("Y-m-d H:i:s") ] );
 
-                Order::where(["id"=>$id])->update( ["status_id" => 5 ] );
+        Shipment::create([
+              'file' => '',
+              "order_id" => intval($id),
+              "type" => $type,
+              "created_at" => date("Y-m-d H:i:s"),
+              "updated_at" => date("Y-m-d H:i:s")
+          ]);
 
-                Shipment::create([
-                      'file' => '',
-                      "order_id" => intval($id),
-                      "type" => (int)$type,
-                      "created_at" => date("Y-m-d H:i:s"),
-                      "updated_at" => date("Y-m-d H:i:s")
-                  ]);
+        Pedidos2::Log($id,"En Puerta",$user->name." ha registrado que el pedido pasó por puerta", 5, $user);  
 
-                Pedidos2::Log($id,"En Puerta",$user->name." ha registrado que el pedido pasó por puerta", 5, $user);
-
-                if($type==1){                       
-                    Feedback::custom("url", url("pedidos2/accion/$id?a=enpuerta&paso=2"));
-                    Feedback::j(2);
-                    return;
-                }
-                else{                    
-                    Feedback::j(1);
-                    return;
-                }
-                
-            }
-            else if($paso == 2){
-                //No hay , pues paso 2 es attachlist
-            }
+        Feedback::custom("url", url("pedidos2/accion/$id?a=enpuerta&paso=2"));
+        Feedback::j(2);
+        return;
     }
 
 
@@ -1072,36 +1104,11 @@ class Pedidos2Controller extends Controller
 
 
     function set_accion_entregar(Request $request, int $id){
-        $paso = isset($request->paso) ? intval($request->paso) : 1; 
         $user = auth()->user();
         
-            if($paso == 1){
-                $evidencia = isset($request->evidencia) ? Tools::_int($request->evidencia) : 0;
+        Order::where(["id"=>$id])->update( ["status_id" => 6, "updated_at" => date("Y-m-d H:i:s") ] );
 
-                if($evidencia==1){
-                    
-                Order::where(["id"=>$id])->update( ["status_id" => 6, "updated_at" => date("Y-m-d H:i:s") ] );
-
-                Pedidos2::Log($id,"Entregado",$user->name." ha registrado que el pedido fue entregado", 6, $user);
-
-                Feedback::custom("url", url("pedidos2/accion/$id?a=entregar&paso=2"));
-                Feedback::j(2);
-                return;
-                }
-                else{
-                    Order::where(["id"=>$id])->update( ["status_id" => 6, "updated_at" => date("Y-m-d H:i:s") ] );
-
-                    Pedidos2::Log($id,"Entregado",$user->name." ha registrado que el pedido fue entregado", 6, $user);
-
-                    Feedback::j(1);
-                    return;
-                }            
-                
-
-            }
-            else if($paso == 2){
-                //No hay , pues paso 2 es attachlist
-            }
+        Pedidos2::Log($id,"Entregado",$user->name." ha registrado que el pedido fue entregado", 6, $user);
     }
 
 
@@ -1217,6 +1224,8 @@ class Pedidos2Controller extends Controller
 
 
     public function attachlist(Request $request){
+
+        $user = auth()->user();
         
         //$fav = Follow::where('user_id', auth()->user()->id)->where('order_id', $order->id)->first();
         $list=[];
@@ -1247,7 +1256,6 @@ class Pedidos2Controller extends Controller
             elseif(!empty($debolution_id)){
                 $list = Evidence::where("debolution_id",$debolution_id)->get();
             }
-
             else{
                 return "?er";
             }
@@ -1304,7 +1312,7 @@ class Pedidos2Controller extends Controller
 
         $url = url('pedidos2/attachlist?'.http_build_query($urlParams));
      
-        return view('pedidos2.attachlist', compact('list','catalog','url','rel','urlParams','mode'));
+        return view('pedidos2.attachlist', compact('list','catalog','url','rel','urlParams','mode', 'user'));
     }
 
 
@@ -1566,6 +1574,7 @@ class Pedidos2Controller extends Controller
             return json_encode($RE);
         }
         elseif($catalog =="shipments"){
+            /*
             $img = Shipment::find($id);
             if(empty($img)){
                 $RE->status=0;
@@ -1575,6 +1584,16 @@ class Pedidos2Controller extends Controller
             $img->delete($id);
             $RE->status=1;
             return json_encode($RE);
+            */
+            $img = Picture::find($id);
+            if(empty($img)){
+                $RE->status=0;
+                $RE->error="Imagen no encontrada en base de datos";
+                return json_encode($RE);
+            }
+            $img->delete($id);
+            $RE->status=1;
+            return json_encode($RE);  
         }
         
     }
@@ -1708,11 +1727,14 @@ class Pedidos2Controller extends Controller
         $user = User::find(auth()->user()->id);
 
         $id = Tools::_int($id);   
+        $order_id = $id;
         
-        $ob = Shipment::where(["id"=>$id])->first();
+        $ob = Shipment::where(["order_id"=>$id])->first();
         $types = [1=>"Envío",2=>"Entrega Directa"];
 
-        return view("pedidos2/pedido/entregar_edit",compact("id","ob","types"));
+        $order = Order::where(["id"=>$id])->first();
+
+        return view("pedidos2/pedido/entregar_edit",compact("id","ob","types","order_id","order"));
     }
 
     public function entregar_update($id,Request $request){

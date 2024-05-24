@@ -19,6 +19,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('pedidos2/historial/{id}', 'Pedidos2Controller@historial');
 	Route::get('pedidos2/fragmento/{id}/{cual}', 'Pedidos2Controller@fragmento');
 
+	Route::get('pedidos2/entregar_edit/{id}', 'Pedidos2Controller@entregar_edit');
+
 	
 	Route::post('pedidos2/parcial_crear/{id}', 'Pedidos2Controller@parcial_crear');
 	Route::get('pedidos2/parcial_edit/{id}', 'Pedidos2Controller@parcial_edit');

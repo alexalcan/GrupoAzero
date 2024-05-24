@@ -50,7 +50,7 @@ function ActivaAttachList(sectionRel){
 		$(".attachList[rel='"+sectionRel+"'] .attachAddBox").hide();
 	}
 	
-	
+	$(".attachList[rel='"+sectionRel+"']").trigger("activated");
 		
 console.log("Activado "+sectionRel);
 }
@@ -81,7 +81,8 @@ function EliminaAtt(esteob, sectionRel){
 			},
 		success:function(json){
 				if(json.status == 1){
-		
+					$(".attachList[rel='"+sectionRel+"']").trigger("deleted");
+					console.log("attachitem deleted");
 				    AttachList(sectionRel);
 					}
 				else{
@@ -94,9 +95,10 @@ function EliminaAtt(esteob, sectionRel){
     
 
 
-function AttachListCreate(contenedorPath,rel,uploadto, listHref,catalog,key,value, mode,event){
+function AttachListCreate(contenedorPath,rel,uploadto, listHref,catalog,key,value, mode,event,callback){
 	if(typeof(mode)=="undefined"){mode="edit";}
 	if(typeof(event)=="undefined"){event="";}
+	if(typeof(callback)=="undefined"){callback=null;}
 
 	let href = listHref + "?rel=" + rel + "&catalog=" + catalog + "&mode=" + mode + "&" + key + "=" + value + ((event.length>0)?"&event=" + event : "");
 	let uhref = uploadto + "?catalog=" + catalog;
@@ -106,6 +108,7 @@ function AttachListCreate(contenedorPath,rel,uploadto, listHref,catalog,key,valu
 
 	$(contenedorPath).replaceWith(ht);
 	AttachList(rel);
+	if(callback!==null){ callback(); }
 }
 
 
@@ -161,6 +164,11 @@ $(section).find(":hidden.param").each(function(){
          success: function(json)
             {
 				if(json.status == 1){
+
+					$(section).trigger("uploaded");
+
+					console.log("attachitem uploaded");
+
 				    AttachList( listRel );
 					}
 				else{alert(json.error);}

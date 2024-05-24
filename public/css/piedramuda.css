@@ -14,7 +14,7 @@
 
 
 #dialogoWrapper{
-position: absolute;
+position: fixed;
 background:transparent;
 top:0;
 left:0;

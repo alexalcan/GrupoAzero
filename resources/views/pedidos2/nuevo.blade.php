@@ -27,7 +27,7 @@
             <div class="Eleccion">
                 <button class="Tipo" rel="F">Factura</button>
                 <button class="Tipo" rel="C">Cotización</button>
-      
+                <button class="Tipo" rel="R">Requerimiento Stock</button>
             </div>
         </fieldset>
         <input type="hidden" name="origin" value=""/>
@@ -36,18 +36,20 @@
         <fieldset class="Tiposet or">
             <dl>
             <dt><label rel="code" F="Folio Factura *" C="Num Cotizacion *" R="Num Requerimiento *">Folio/Codigo</label></dt> 
-            <dd><input type="text" name="code" class="form-control" /></dd>
+            <dd><input type="text" name="code" class="form-control"  maxlength="24" autocomplete="off" /></dd>
             
             <dt><label>Clave de Cliente *</label></dt> 
-            <dd> <input type="text" name="client"  class="form-control"/></dd>
+            <dd> <input type="text" name="client" class="form-control"   maxlength="45"/></dd>
 
             @if ($user->role_id == 1)
+            <!--
             <dt><label rel="archivo" F="Archivo Factura" C="Archivo Cotizacion" R="Archivo Requerimiento">Archivo</label> </dt> 
             <dd><input type="file" name="archivo"  class="form-control" /></dd>
+            -->
             @endif
 
             <dt><label>Note</label></dt> 
-            <dd> <textarea  name="nota" class="form-control" ></textarea></dd>
+            <dd> <textarea  name="nota" class="form-control" maxlength="520" ></textarea></dd>
 
             <dt></dt> 
             <dd><input type="submit" name="sb" value="Guardar"><span id="preGuardar">Indique todos los datos obligatorios * para guardar</span></dd>
@@ -62,7 +64,8 @@
 
 @push('js')
 <script type="text/javascript" src="{{ asset('js/jquery.form.js')  }}" ></script>
-<script >
+<script type="text/javascript" >
+
 $(document).ready(function(){
 
 $(".Eleccion button").click(function(e){
@@ -75,33 +78,52 @@ $(".Eleccion button").click(function(e){
     ShowTiposet(r);
 });
 
-$("body").on("change", ".Tiposet input", function(){
-    UnlockContinuar(this);
-});
 
 
 
-$("#FNuevo").ajaxForm({
-    dataType:"json",
-    error:function(err){
-        alert(err.statuText);
-    },
-    success:function(json){
-        if(json.status==0){
-            alert(json.errors);
-        }else{
-            window.location.href = json.goto;
+
+    $("#FNuevo").ajaxForm({
+        dataType:"json",
+        error:function(err){
+            alert(err.statuText);
+        },
+        success:function(json){
+            if(json.status==0){
+                alert(json.errors);
+            }else{
+                window.location.href = json.goto;
+            }
         }
-    }
+    });
+
+
+    const codeInput = document.querySelector(".Tiposet input[name='code']");
+    codeInput.addEventListener("change",UnlockContinuar);
+
+    const clientInput = document.querySelector(".Tiposet input[name='client']");
+    clientInput.addEventListener("change",UnlockContinuar);
+
+    const notaInput = document.querySelector(".Tiposet textarea[name='nota']");
+    notaInput.addEventListener("change",UnlockContinuar);
+
+/*
+    $(".Tiposet input[name='code']").on("change",function(e){
+    console.log("change");
+    setTimeout(UnlockContinuar,100);
+    });
+
+    $(".Tiposet input[name='client']").on("change",function(e){
+    setTimeout(UnlockContinuar,100);
+    });
+*/
+
+
+    $(".Tiposet.or").hide();
+
 });
 
 
 
-
-
-$(".Tiposet.or").hide();
-
-});
 
 function ShowTiposet(r){   
 
@@ -113,20 +135,47 @@ function ShowTiposet(r){
 
 }
 
-function UnlockContinuar(ob){
-    let cd = $(ob).closest(".Tiposet").find("[name='code']").val();
-    let ar = $(ob).closest(".Tiposet").find("[name='archivo']").val();
-    //let inv = $(ob).closest(".Tiposet").find("[name='invoice']").val();
-    let cli = $(ob).closest(".Tiposet").find("[name='client']").val();
+function UnlockContinuar(){
+    let cd = $(".Tiposet").find("[name='code']").val();
+    let ar = $(".Tiposet").find("[name='archivo']").val();
+    let cli = $(".Tiposet").find("[name='client']").val();
 
-    if(cd.length > 2 && cli.length > 2){
-        $("#FNuevo [name='sb']").show();
-        $("#preGuardar").hide();
+    var mostrar = true;
+    var formato = true;
+
+    if(cd.length > 4 && cli.length > 4){
+ 
     }else{
+        mostrar=false;
+    }
+
+        if(cd.length>2){
+            cd = cd.toLowerCase();
+            let ini = cd.substr(0,2);
+            let ori = $("[name='origin']").val();
+            console.log(ini);
+            if(ini!="a0" && ini!="bb" && ori == "F"){
+                
+                mostrar = false;
+                formato = false;
+            }
+        }
+
+    if(mostrar){
+    $("#FNuevo [name='sb']").show();
+    $("#preGuardar").hide();
+    }
+    else{
         $("#FNuevo [name='sb']").hide();
         $("#preGuardar").show();
+        if(formato==false){
+            alert("el folio de la factura debe iniciar con A0 o BB");
+        }
     }
+    
 }
+
+
 </script>
 
 @endpush

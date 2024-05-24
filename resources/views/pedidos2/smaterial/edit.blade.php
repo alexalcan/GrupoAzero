@@ -1,5 +1,10 @@
 <?php
 $estatuses = [5=>"En Puerta", 6=>"Entregado", 7=>"Cancelado"];
+if($user->role_id == 1 || in_array($user->department_id,[4,5])){
+    $estatuses[4]="Fabricado";
+}
+ksort($estatuses);
+
 ?>
 <form action="{{ url('pedidos2/smaterial_update/'.$id) }}" id="FSetAccion" method="post">
 @csrf 
