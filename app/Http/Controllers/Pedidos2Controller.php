@@ -118,7 +118,8 @@ class Pedidos2Controller extends Controller
         $debolutions = Debolution::FromOrder($id);
         $quote = Quote::where(["order_id" => $id])->first();
         $imagenesEntrega = Picture::where(["order_id"=>$id,"event"=>"entregar"])->get();
-//var_dump($debolutions);
+        $parciales = Partial::where(["order_id"=>$id])->get();
+        //var_dump($debolutions);
 
         //$pictures = Picture::FromOrder($id);
         //$morders = ManufacturingOrder::where(["order_id"=>$id])->get();
@@ -127,10 +128,8 @@ class Pedidos2Controller extends Controller
        // var_dump($purchaseOrder);
        
 
-
-
         return view('pedidos2.pedido', compact('id','pedido','shipments',
-        'role','user','evidences','debolutions', 'quote', 'purchaseOrder','imagenesEntrega'));
+        'role','user','evidences','debolutions', 'quote', 'purchaseOrder','imagenesEntrega','parciales'));
     }
 
 
@@ -478,18 +477,24 @@ class Pedidos2Controller extends Controller
             $this->set_accion_entregar($request, $id);
             return view("pedidos2/accion/entregar",compact("id","order","paso"));
         }
-        if($accion == "devolucion"){
-
-            return view("pedidos2/accion/devolucion",compact("id","order","paso"));
-        }
         if($accion == "refacturar"){
 
             return view("pedidos2/accion/refacturar",compact("id","order","paso"));
         }
+
+        /*
+        if($accion == "devolucion"){
+
+            return view("pedidos2/accion/devolucion",compact("id","order","paso"));
+        }
+        */
+
+        /*
         if($accion == "parcial"){
 
             return view("pedidos2/accion/parcial",compact("id","order","paso"));
         }
+        */
 
         var_dump($id);
         var_dump($request->a);
@@ -531,7 +536,7 @@ class Pedidos2Controller extends Controller
         }
         if($accion == "devolucion"){
 
-            return view("pedidos2/accion/devolucion",compact("order_id","order","paso"));
+            return view("pedidos2/devolucion/nuevo",compact("order_id","order","paso"));
         }
         if($accion == "refacturacion"){
 
@@ -601,40 +606,51 @@ class Pedidos2Controller extends Controller
     }
 
 
-    public function parcial_crear($id,Request $request){
+
+    public function parcial_nuevo($id, Request $request){
         $user = User::find(auth()->user()->id);
 
-        $id = Tools::_int($id);       
+        $id = Tools::_int($id);   
+        $order_id = $id;
+        //$partial = Partial::where(["id"=>$id])->first();
+        $paso=1;
+
+        return view("pedidos2/parcial/nuevo",compact("order_id","paso"));
+    }
+
+
+    public function parcial_crear($order_id,Request $request){
+        $order_id = Tools::_int($order_id);       
 
         $user = auth()->user();
-
-        $error="";
 
         $invoice = Tools::_string( $request->invoice,90);
         $status_id = Tools::_int($request->status_id);       
         $userOffice = !empty($user->office) ? $user->office : "San Pablo";
         $paso=2;
+        $error="";
         
-        $previo = Partial::where(["order_id" => $id,"invoice"=>$invoice])->get()->toArray();
+        $previo = Partial::where(["order_id" => $order_id,"invoice"=>$invoice])->get()->toArray();
             if(count($previo)>0){
                 $paso = 1;
                 $partial=(object)[];
-                $error ="Ya existe un parcial con el folio ".$invoice." para el pedido ".$id;
-                return view("pedidos2/accion/parcial",compact("id","paso","partial","error"));   
+                $error ="Ya existe un parcial con el folio ".$invoice." para el pedido ".$order_id;
+                return view("pedidos2/parcial/nuevo",compact("order_id","paso","partial","error"));   
             }
 
         $partial = Partial::create([
             "invoice"=>$invoice,
-            "order_id"=>$id,
+            "order_id"=>$order_id,
             "status_id"=> $status_id,
             "created_at"=>date("Y-m-d H:i:s"),
             "updated_at"=>date("Y-m-d H:i:s")
         ]); 
 
-        Pedidos2::Log($id,"Parcial", $user->name." registró un nuevo pedido #{$partial->id}", $status_id, $user);
+        Pedidos2::Log($order_id,"Parcial", $user->name." registró un nuevo pedido #{$partial->id}", $status_id, $user);
 
-        return view("pedidos2/accion/parcial",compact("id","paso","partial"));
+        return view("pedidos2/parcial/nuevo",compact("order_id","paso","partial"));
     }
+
 
     public function parcial_edit($id,Request $request){
         $user = User::find(auth()->user()->id);
@@ -1113,7 +1129,7 @@ class Pedidos2Controller extends Controller
 
 
 
-    function set_accion_devolucion(Request $request, int $id){
+    function set_accion_devolucion_borrar(Request $request, int $id){
         $user = auth()->user();
         $number = Tools::_string( $request->number,90);  
         $razon = $request->razon;
@@ -1658,6 +1674,62 @@ class Pedidos2Controller extends Controller
 
         return view("pedidos2/pedido/historial",compact("order_id","lista","order"));
      }
+
+
+
+
+
+     public function devolucion_crear($order_id,Request $request){
+        $user = auth()->user();
+
+        $number = Tools::_string( $request->number,90);  
+        $razon = $request->razon;
+        
+        $deb = Debolution::create([
+            "order_id"=>$order_id,
+            "reason_id"=>$razon,
+            "created_at"=>date("Y-m-d H:i:s"),
+            "updated_at"=>date("Y-m-d H:i:s")
+        ]);
+        
+
+        if($request->hasFile("archivo")){
+            $archivo = $request->file("archivo");
+            $mimeType= $archivo->getClientMimeType();
+
+            $mimeExt = Pedidos2::mimeExtensions();
+
+            if(in_array($mimeType,array_keys($mimeExt))){
+                $ext= $mimeExt[$mimeType];
+                $fileName = $order_id . "." . $ext;
+                $archivo->storeAs("public/Devoluciones", $fileName);
+                $filePath="Devoluciones/".$fileName;     
+                
+                Evidence::create([
+                    "file" => $filePath,    
+                    "debolution_id" => $deb->id,
+                    "required"=>1,
+                    "number"=>$number,
+                    "file"=>$filePath,
+                    "created_at"=>date("Y-m-d H:i:s"),
+                    "updated_at"=>date("Y-m-d H:i:s")
+                ],["debolution_id"],["required","number","document","updated_at"]);
+
+            }
+        }
+        
+        $data=[
+            "status_id"=>9,
+            "updated_at"=>date("Y-m-d H:i:s")
+        ];
+        Order::where(["id"=>$order_id])->update($data);
+
+        Pedidos2::Log($order_id,"Devolución",$user->name." ha registrado que el pedido fue devuelto", 9, $user);
+
+        return view("pedidos2/devolucion/nuevo2",["ob"=>$deb]);
+      //  Feedback::custom("url",url());
+        //Feedback::j(1);
+    }
 
 
 

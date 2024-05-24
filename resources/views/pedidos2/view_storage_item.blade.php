@@ -10,7 +10,7 @@ if(!empty($path)){
     elseif(strtolower($ext) == "pdf"){
         echo "<a class='atticon pdf' href='". asset("storage/".$path) ."' target='_blank'>";
             if (!empty($path)){
-            echo "<embed src='". asset("storage/".$path) ."' alt='' style='width: 100%; height: auto;' onclick='this.parentNode.click()'></embed>";
+            echo "<embed src='". asset("storage/".$path) ."' alt=''  onclick='javascript:this.parentNode.click()'></embed>";
             }
         echo "</a>";
     }

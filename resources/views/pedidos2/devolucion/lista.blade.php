@@ -18,8 +18,9 @@ use App\Libraries\Tools;
     <div rel='fi'>
     @if (isset($ob->file))
         {{ view('pedidos2/view_storage_item',['path'=>$ob->file]) }}
+        <br/>
     @endif
-    <br/>
+
 
     <section mode="view" class='attachList' rel='deb_{{ $ob->id }}' 
         uploadto="{{ url('pedidos2/attachpost?catalog=evidence&event=entregar&debolution_id='.$ob->id) }}" 

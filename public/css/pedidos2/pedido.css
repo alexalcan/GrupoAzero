@@ -278,8 +278,8 @@ font-size:1.2rem;
     display:grid;
     grid-template-columns: 1fr 1fr 8rem;
     grid-template-areas: "inv st ed" "fi fi fi";
-    margin:0px 0px 20px 0px;
-    padding:10px 20px;
+    margin:0px 0px 10px 0px;
+    padding:6px 20px;
     border-bottom:#aaa 1px dashed;
     font-size:1.2rem;
     }

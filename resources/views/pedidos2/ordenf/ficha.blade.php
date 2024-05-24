@@ -19,11 +19,14 @@ $estatuses = [3=>"En Fabricación", 4=>"Fabricado"];
 
     <div rel='fi'>
     @if (isset($ob->document))
+    <!--
         <a class='atticon pdf' href='{{ asset("storage/".$ob->document) }}' target='_blank'>
             @if (!empty($ob->document))
             <embed src='{{ asset("storage/".$ob->document) }}' alt='' style='width: 100%; height: auto;' onclick='this.parentNode.click()'></embed>
             @endif
         </a>
+-->
+        {{ view('pedidos2/view_storage_item',['path'=>$ob->document]) }}
     @endif
     </div>
 

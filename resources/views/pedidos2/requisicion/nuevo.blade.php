@@ -1,6 +1,9 @@
 <?php
 $estatuses = [1=>"En Proceso", 2=>"Surtida"];
     if(in_array($user->department_id, [4,7])){
+        $estatuses[2]="Surtida";
+    }
+    if(in_array($user->department_id, [4,7])){
         $estatuses[3]="Elaborada";
     }
     if($user->role_id==1){
@@ -30,20 +33,22 @@ $estatuses = [1=>"En Proceso", 2=>"Surtida"];
     </select>
     </div>
 
+
+    @if ($user->role_id==1)
     <div class="Fila"><label>Archivo Factura</label>
-    <div>
-
-    <input type="file" name="document" class="form-control" />
+        <div>
+        <input type="file" name="document" class="form-control" />
+        </div>
     </div>
+    @endif
 
-    </div>
-
+    @if ($user->department_id == 7)
     <div class="Fila"><label>Archivo Requisición</label>
-    <div>
-    <input type="file" name="requisition" class="form-control" /> 
+        <div>
+        <input type="file" name="requisition" class="form-control" /> 
+        </div>
     </div>
-
-    </div>
+    @endif
     
     <div class="Fila"><input type="submit" name="sb" class="form-control" value="Continuar" /> </div>
 

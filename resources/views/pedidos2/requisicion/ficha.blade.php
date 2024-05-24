@@ -17,14 +17,16 @@ $estatuses = [1=>"En Proceso", 2=>"Surtida"];
         <div class="space-around">
         <span>
         @if (isset($ob->document))
-            Factura 
+            
             {{ view('pedidos2/view_storage_item',['path'=>$ob->document]) }}
+            <br/><center>Factura</center> 
         @endif
         </span>
         <span>
         @if (isset($ob->requisition))
-            Requisición 
+            
             {{ view('pedidos2/view_storage_item',['path'=>$ob->requisition]) }}
+            <br/><center>Requisición</center>
         @endif
         </span>
         </div>

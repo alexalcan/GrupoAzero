@@ -16,8 +16,8 @@ $iconHtml="X";
 switch($type){
     case "pdf":
         //$iconHtml="<a class='atticon doc' href='".asset("storage/".$name) ."' target='_blank'><img src='".url("/")."/img/pdf.png' height='40' /><br/>".basename($name)."</a>";
-        $iconHtml ="<a class='atticon ' href='".asset("storage/".$name) ."' target='_blank'>
-        <embed src='".asset("storage/".$name) ."' alt='' style='width: 100%; height: auto;' onclick='this.parentNode.click()'></embed>
+        $iconHtml ="<a class='atticon pdf' href='".asset("storage/".$name) ."' target='_blank'>
+        <embed src='".asset("storage/".$name) ."' alt='' style='width: 100%; height: auto;'></embed>
         <br/>".basename($name)."</a>";
         break;
     case "image":

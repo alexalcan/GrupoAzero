@@ -4,7 +4,7 @@ use App\Reason;
 $razones = Reason::get();
 
 ?>
-<form action="{{ url('pedidos2/set_accion/'.$order_id.'?a=devolucion') }}" id="FSetAccion" method="post">
+<form action="{{ url('pedidos2/devolucion_crear/'.$order_id) }}" id="FSetAccion" method="post">
 @csrf 
 <aside class="AccionForm">
     
@@ -22,10 +22,8 @@ $razones = Reason::get();
 </div>
 
     <div class="Fila"><label>Número</label><input type="input" name="number" maxlength="190" class="form-control" /></div>
-    
-    <div class="Fila"><label>Archivo</label><input type="file" name="archivo" class="form-control" /></div>
-    
-    <div class="Fila"><input type="submit" name="sb" class="form-control" value="Agregar" /> </div>
+        
+    <div class="Fila"><input type="submit" name="sb" class="form-control" value="Continuar" /> </div>
 
 </aside>
 

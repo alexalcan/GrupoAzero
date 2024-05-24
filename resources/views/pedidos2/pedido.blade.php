@@ -161,24 +161,35 @@ $statuses = Pedidos2::StatusesCat();
             <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=recibido') }}">Recibido por embarques</a>
             @endif
 
-            <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
+        @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true)    
+        <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
+        @endif
 
         <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
 
         @elseif ($pedido->status_id == 2)
         <!-- Recibido por embarques -->
 
-        <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a>
+        <!-- <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
+
+        @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true)  
         <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> 
+        @endif
 
         @elseif ($pedido->status_id == 3)
         <!-- En fabricación -->
-        <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a>
+
+
+       <!--  <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
         <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> -->
 
         @elseif ($pedido->status_id == 4)
         <!-- Fabricado -->
+        
+        @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true)  
         <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
+        @endif
+
 
         @elseif ($pedido->status_id == 5)
         <!-- En Ruta -->
@@ -263,19 +274,32 @@ $statuses = Pedidos2::StatusesCat();
 
     <div class="Eleccion ">
 
-    @if ($user->role_id == 1 ||  in_array($user->departamento_id, [2,4] ) )
+    @if ($pedido->status_id != 6 && $user->role_id == 1 ||  in_array($user->departamento_id, [2,4] ) )
         <a class="Candidato" rel="smaterial" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=smaterial') }}">+ Salida de Material</a>
     @endif
 
-        
+
+    @if ($pedido->status_id != 6)
         <a class="Candidato" rel="requisicion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=requisicion') }}">+ Requisición</a>
-    
-        <a class="Candidato" rel="ordenf" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=ordenf') }}">+ Orden de fábrica</a>
-    
-        <a class="NParcial Candidato subp" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=parcial') }}">+ Parcial</a>
-        
-        @if ($pedido->status_id == 7) 
+    @endif
+
+
+        @if ($pedido->status_id != 6 && $user->role_id == 1 ||  in_array($user->departamento_id, [4,5] ) )  
+        <a class="Candidato" rel="ordenf" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=ordenf') }}">+ Orden de fábricación</a>
+        @endif
+
+
+        @if ($pedido->status_id != 6)
+        <a class="NParcial Candidato subp" href="{{ url('pedidos2/parcial_nuevo/'.$pedido->id) }}">+ Parcial</a>
+        @endif
+
+        @if($pedido->status_id != 6)
         <a class="Candidato" rel="devolucion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=devolucion') }}">Devolución</a> 
+        @endif
+
+
+        @if ($pedido->status_id == 7) 
+
         <a class="Candidato" rel="refacturacion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=refacturacion') }}">Refacturación</a>
         @endif
     
@@ -352,9 +376,6 @@ if(isMobile){
 
 
 
-
-
-
 $(".Eleccion .Accion.generico").click(function(e){
     e.preventDefault();
     $(".Eleccion .Accion").removeClass("activo");
@@ -395,6 +416,7 @@ $("body").on("click", ".modalShow", function(e){
     $.ajax({
         url:href,
         success:function(h){
+            MiModal.exitButton=true;
             MiModal.content(h);
             MiModal.show();
         }
@@ -788,20 +810,29 @@ function FormaNuevoDevolucion(h){
     FormaNuevoDevolucion2();
 }
 function FormaNuevoDevolucion2(){
-    $("body").bind("MiModal-exit",function(){
-        CargarRequisiciones();
-        $("body").unbind("MiModal-exit");
-    });
+
 
     $("#FSetAccion").ajaxForm({
         error:function(err){alert(err.statusText);},
-        dataType:"json", 
-        success:function(json){
-            if(json.status==1){
-                MiModal.exit();
+       // dataType:"json", 
+        success:function(h){
+
+            MiModal.exitButton=true; 
+            MiModal.content(h); 
+            MiModal.show();
+
+            //AttachListCreate();
+            let uploadto = $("#atlSlot").attr("uploadto");
+            let listHref = $("#atlSlot").attr("listHref");
+            let val = $("#atlSlot").attr("val");
+
+            AttachListCreate("#atlSlot","debopics", uploadto, listHref, "evidence", "debolution_id", val, "edit");
+
+                $("body").on("MiModal-exit",function(){
                 CargarDevoluciones();
-            }
-            else{alert(json.errors);} 
+                $("body").off("MiModal-exit");
+                });
+
         }
     });
 
