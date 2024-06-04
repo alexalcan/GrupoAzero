@@ -10,8 +10,12 @@ class ManufacturingOrder extends Model
         'required',
         'number',
         'document',
+        'documentc',
         'iscovered',
-        'order_id'
+        'order_id',
+        'status_3',
+        'status_4',
+        'status_7'
     ];
 
     public function order()

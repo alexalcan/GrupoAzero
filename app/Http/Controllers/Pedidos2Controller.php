@@ -119,6 +119,7 @@ class Pedidos2Controller extends Controller
         $quote = Quote::where(["order_id" => $id])->first();
         $imagenesEntrega = Picture::where(["order_id"=>$id,"event"=>"entregar"])->get();
         $parciales = Partial::where(["order_id"=>$id])->get();
+        $statuses = Status::get();
         //var_dump($debolutions);
 
         //$pictures = Picture::FromOrder($id);
@@ -129,7 +130,7 @@ class Pedidos2Controller extends Controller
        
 
         return view('pedidos2.pedido', compact('id','pedido','shipments',
-        'role','user','evidences','debolutions', 'quote', 'purchaseOrder','imagenesEntrega','parciales'));
+        'role','user','evidences','debolutions', 'quote', 'purchaseOrder','imagenesEntrega','parciales',"statuses"));
     }
 
 
@@ -154,7 +155,15 @@ class Pedidos2Controller extends Controller
     
 
         foreach($list as $li){
-            echo view("pedidos2/parcial/ficha",["parcial"=>$li,"estatuses"=>$estatuses]);
+            $pictures = Picture::where(["partial_id"=>$li->id])->get();
+            $events = [];
+
+            foreach($pictures as $pic){
+                if(!in_array($pic->event, $events)){$events[]=$pic->event;}
+            }
+            //var_dump($pictures);
+            //var_dump($events);
+            echo view("pedidos2/parcial/ficha",["parcial"=>$li,"estatuses"=>$estatuses, "pictures"=>$pictures,"events"=>$events]);
         }
 
     }
@@ -474,7 +483,7 @@ class Pedidos2Controller extends Controller
             return view("pedidos2/accion/enpuerta",compact("id","order","paso","shipment"));
         }
         if($accion == "entregar"){
-            $this->set_accion_entregar($request, $id);
+           // $this->set_accion_entregar($request, $id);
             return view("pedidos2/accion/entregar",compact("id","order","paso"));
         }
         if($accion == "refacturar"){
@@ -518,7 +527,7 @@ class Pedidos2Controller extends Controller
 
         if($accion == "ordenf"){
 
-            return view("pedidos2/ordenf/nuevo",compact("order_id","order","paso"));
+            return view("pedidos2/ordenf/nuevo",compact("order_id","order","paso","user"));
         }
         if($accion == "smaterial"){
 
@@ -612,10 +621,11 @@ class Pedidos2Controller extends Controller
 
         $id = Tools::_int($id);   
         $order_id = $id;
+        //$order = Order::where(["id"=>$id])->first();
         //$partial = Partial::where(["id"=>$id])->first();
         $paso=1;
 
-        return view("pedidos2/parcial/nuevo",compact("order_id","paso"));
+        return view("pedidos2/parcial/nuevo",compact("order_id","paso","user"));
     }
 
 
@@ -635,7 +645,7 @@ class Pedidos2Controller extends Controller
                 $paso = 1;
                 $partial=(object)[];
                 $error ="Ya existe un parcial con el folio ".$invoice." para el pedido ".$order_id;
-                return view("pedidos2/parcial/nuevo",compact("order_id","paso","partial","error"));   
+                return view("pedidos2/parcial/nuevo",compact("order_id","paso","partial","error","user"));   
             }
 
         $partial = Partial::create([
@@ -647,8 +657,9 @@ class Pedidos2Controller extends Controller
         ]); 
 
         Pedidos2::Log($order_id,"Parcial", $user->name." registró un nuevo pedido #{$partial->id}", $status_id, $user);
-
-        return view("pedidos2/parcial/nuevo",compact("order_id","paso","partial"));
+        
+        $paso = 2;
+        return view("pedidos2/parcial/nuevo",compact("order_id","paso","partial","user"));
     }
 
 
@@ -660,11 +671,15 @@ class Pedidos2Controller extends Controller
         $partial = Partial::where(["id"=>$id])->first();
         //$partial = !empty($partials) ? $partials[0] : [] ; 
 
-
-
+        $pictures = Picture::where(["partial_id" => $partial->id])->get();
+        $events = [];
+        foreach($pictures as $pic){
+            if(!in_array($pic->event,$events)){$events[]=$pic->event;} 
+        }
+//var_dump($pictures);
        // Pedidos2::Log($id,"Parcial", $user->name." registró un nuevo pedido #{$partial->id}", $status_id, $user);
 
-        return view("pedidos2/parcial/edit",compact("id","partial"));
+        return view("pedidos2/parcial/edit",compact("id","partial","events"));
     }
 
 
@@ -719,11 +734,13 @@ class Pedidos2Controller extends Controller
             "order_id"=>$order_id,
             "status_id"=> $status_id,
             "created_at"=>date("Y-m-d H:i:s"),
-            "updated_at"=>date("Y-m-d H:i:s")
+            "updated_at"=>date("Y-m-d H:i:s"),
+            "status_".$status_id=>1
         ]); 
 
         Pedidos2::Log($order_id,"Salida de Material", $user->name." registró una nueva salida de material #{$smaterial->id}", $status_id, $user);
-
+        //var_dump($smaterial);
+       // die();
         $paso=2;
         return view("pedidos2/smaterial/nuevo",compact("order_id","paso","smaterial","user"));
     }
@@ -735,7 +752,7 @@ class Pedidos2Controller extends Controller
         
         $ob = Smaterial::where(["id"=>$id])->first();
 
-        return view("pedidos2/smaterial/edit",compact("id","ob"));
+        return view("pedidos2/smaterial/edit",compact("id","ob","user"));
     }
 
 
@@ -816,7 +833,7 @@ class Pedidos2Controller extends Controller
         }
 
 
-        Pedidos2::Log($order_id,"Orden de fabricación", $user->name." registró una nueva orden de fabricacion #{$ordenf->id}", 0, $user);
+        Pedidos2::Log($order_id,"Orden de fabricación", $user->name." registró una nueva orden de fabricacion #{$ordenf->id}", $status_id, $user);
 
         $paso=2;
         Feedback::value($ordenf->id);
@@ -831,7 +848,7 @@ class Pedidos2Controller extends Controller
         
         $ob = ManufacturingOrder::where(["id"=>$id])->first();
 
-        return view("pedidos2/ordenf/edit",compact("id","ob"));
+        return view("pedidos2/ordenf/edit",compact("id","ob","user"));
     }
 
 
@@ -866,12 +883,22 @@ class Pedidos2Controller extends Controller
             Storage::putFileAs('/public/Fabricaciones/', $file, $name );
             }
 
+            if($request->hasFile('documentc')){
+            $file = $request->file('documentc');
+            $name = $id.".".$file->getClientOriginalExtension();
+            $sqlPathc = 'FabricacionesCanc/' . $name;
+            Storage::putFileAs('/public/FabricacionesCanc/', $file, $name );
+            }
+
             $data = [
                 "status_id" => $status_id,
                 "updated_at"=>date("Y-m-d H:i:s")
             ];
             if(!empty($sqlPath)){
                 $data["document"]=$sqlPath;
+            }
+            if(!empty($sqlPathc)){
+                $data["documentc"]=$sqlPathc;
             }
 
             ManufacturingOrder::where("id", $id)->update($data); 
@@ -1119,12 +1146,14 @@ class Pedidos2Controller extends Controller
     }
 
 
-    function set_accion_entregar(Request $request, int $id){
+    function set_accion_entregar(int $id,Request $request){
         $user = auth()->user();
         
         Order::where(["id"=>$id])->update( ["status_id" => 6, "updated_at" => date("Y-m-d H:i:s") ] );
 
         Pedidos2::Log($id,"Entregado",$user->name." ha registrado que el pedido fue entregado", 6, $user);
+        
+        Feedback::json_service(1);
     }
 
 
@@ -1328,7 +1357,7 @@ class Pedidos2Controller extends Controller
 
         $url = url('pedidos2/attachlist?'.http_build_query($urlParams));
      
-        return view('pedidos2.attachlist', compact('list','catalog','url','rel','urlParams','mode', 'user'));
+        return view('pedidos2.attachlist', compact('list','catalog','url','rel','urlParams','mode', 'user','event'));
     }
 
 
@@ -1845,6 +1874,59 @@ class Pedidos2Controller extends Controller
             return view("pedidos2/pedido/notas",compact("list"));
         }
     }
+
+
+
+    public function set_parcial_status($id, Request $request){
+        $id = Tools::_int($id);       
+        $user = auth()->user();
+
+        $estatuses = ["4"=>"Generado", "5" => "En Puerta", "6"=>"Entregado", "7"=>"Cancelado"];
+
+        $status_id = Tools::_int($request->status_id);    
+
+        $partial = Partial::where(["id"=>$id])->first();
+
+            $data = [
+                "status_".$status_id => 1,
+                "updated_at"=>date("Y-m-d H:i:s")
+            ];
+
+        $data["status_id"] = ($partial->status_id > $status_id) ? $partial->status_id : $status_id ;
+
+        Partial::where("id", $id)->update($data);         
+
+        Pedidos2::Log($partial["order_id"], "Parcial", $user->name." edita status ".$estatuses[$status_id]." en el parcial #{$id}", $status_id, $user);
+        Feedback::j(1);
+        return;       
+    }
+
+    
+    public function set_smaterial_status($id, Request $request){
+        $id = Tools::_int($id);       
+        $user = auth()->user();
+
+        $estatuses = ["4"=>"Elaborado", "5" => "En Puerta", "6"=>"Entregado", "7"=>"Cancelado"];
+
+        $status_id = Tools::_int($request->status_id);    
+
+        $smaterial = Smaterial::where(["id"=>$id])->first();
+
+            $data = [
+                "status_".$status_id => 1,
+                "updated_at"=>date("Y-m-d H:i:s")
+            ];
+
+        $data["status_id"] = ($smaterial->status_id > $status_id) ? $smaterial->status_id : $status_id ;
+
+        Smaterial::where("id", $id)->update($data);         
+
+        Pedidos2::Log($smaterial["order_id"], "Salida de Material", $user->name." edita status ".$estatuses[$status_id]." en el parcial #{$id}", $status_id, $user);
+        Feedback::j(1);
+        return;       
+    }
+
+
 
 
 }

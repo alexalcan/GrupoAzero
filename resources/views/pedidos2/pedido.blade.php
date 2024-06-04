@@ -133,8 +133,33 @@ $statuses = Pedidos2::StatusesCat();
     </form> 
     
 
-    <div class="BigEstatus E{{ $pedido->status_id }}"><span >{{$pedido->status_name}}</span></div>
+<?php
+
+$statusName = $pedido->status_name;
+$pedidoStatusId = $pedido->status_id;
+
+if(!$parciales->isEmpty()){   
+$parcialesNum = $parciales->count();
+$entregadosNum = 0;
+    foreach($parciales as $par){ 
+        if($par->status_id == 6){
+        $entregadosNum++;
+        }
+    }
+
+if($parcialesNum == $entregadosNum){
+    $pedidoStatusId=6;
+    $statusName = "Entregado";
+}
+    
+}
+?>
+
+    <div class="BigEstatus E{{ $pedidoStatusId }}"><span >{{ $statusName }}</span></div>
+
     <div class="center">Último cambio: {{ Tools::fechaMedioLargo($pedido->updated_at, true) }}</div>
+
+
 
     <p>&nbsp;</p>
 </div>
@@ -172,9 +197,12 @@ $statuses = Pedidos2::StatusesCat();
 
         <!-- <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
 
-        @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true)  
-        <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> 
-        @endif
+            @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true)  
+            <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> 
+            @elseif (empty($pedido->invoice_number) && $parciales->isEmpty()==true)
+            <span>Falta # de Factura</span>
+
+            @endif
 
         @elseif ($pedido->status_id == 3)
         <!-- En fabricación -->
@@ -215,7 +243,7 @@ $statuses = Pedidos2::StatusesCat();
     @foreach ($shipments as $ship)
     <aside class="Proceso">
         <div class="gridThree">
-            <span class="a">Paso por Puerta: {{  ($ship->type == 1) ? "Envío" : "Entrega Directa" }}</span>
+            <span class="a"><div class="MiniEstatus E5"> Paso por Puerta: {{  ($ship->type == 1) ? "Chofer entrega" : "Recogió Cliente" }}</div></span>
             <span class="b">
              {{ Tools::fechaMedioLargo($ship->created_at) }}
             </span>
@@ -236,7 +264,7 @@ $statuses = Pedidos2::StatusesCat();
     @if ($imagenesEntrega->isEmpty()==false)
     <aside class="Proceso">
         <div class="gridThree">
-            <span class="a">Entrega</span>
+            <span class="a"><div class="MiniEstatus E6">Entrega</div></span>
             <span class="b">
             &nbsp;
             </span>
@@ -346,6 +374,12 @@ $statuses = Pedidos2::StatusesCat();
     </div>
 @endif
 
+
+
+
+
+
+<input type="hidden" name="urlConfirmaEntregado" value="{{ url('pedidos2/set_accion_entregar/'.$pedido->id) }}" />
 </main>
 
 
@@ -452,6 +486,11 @@ e.preventDefault();
 AjaxGet($(this).attr("href"),FormaEditarRequisicion);
 });
 
+$("body").on("uploaded",".attachList[rel='entregar']",function(e){
+let href = $("[name='urlConfirmaEntregado']").val();
+AjaxGetJson(href,RespuestaConfirmaEntregado);    
+});
+
 
 
 $("body").on("click",".editapg",function(e){
@@ -507,13 +546,13 @@ function FormaNuevoParcial(h){
     FormaNuevoParcial2();
 }
 function FormaNuevoParcial2(){
-    $("#FSetAccion").ajaxForm({
+    $("#FSetParcial").ajaxForm({
         error:function(err){alert(err.statusText);}, 
         success:function(h){
             MiModal.content(h);
             MiModal.show();            
 
-            if($("#atlSlot").length>0){
+            if($("#FSetParcial #atlSlot").length>0){
             let uploadto = $("#atlSlot").attr("uploadto");
             let listHref = $("#atlSlot").attr("listHref");
             let val = $("#atlSlot").attr("val");
@@ -534,8 +573,8 @@ function FormaEditarParcial(h){
     MiModal.content(h);
    // MiModal.after = FormaEditarParcial2;
     MiModal.show();
-
-    $("#FSetAccion").ajaxForm({
+console.log("formaEditarParcial");
+    $("#FSetParcial").ajaxForm({
         error:function(err){alert(err.statusText);}, 
         dataType:"json",
         success:function(json){
@@ -548,10 +587,49 @@ function FormaEditarParcial(h){
         }
     });
 
-    let uploadto = $("#atlSlot").attr("uploadto");
-    let listHref = $("#atlSlot").attr("listHref");
-    let val = $("#atlSlot").attr("val");
-    AttachListCreate("#atlSlot","edparcial",uploadto, listHref,"pictures","partial_id", val, "edit"); 
+    let monTexts =new Array();
+    monTexts[4] ="Se guardó que el parcial fue generado.";
+    monTexts[5] = "Puede agregar imágenes como evidencia";
+    monTexts[6] = "Sube evidencia. Puede ser Fotografía o Escaneo de la Hoja Parcial Física firmada por el cliente.";
+    monTexts[7] = "Sube una foto de la hoja parcial con el sello de cancelado.";
+
+    let uploadto = $("#FSetParcial [name='uploadto']").val();
+    let listHref = $("#FSetParcial [name='listHref']").val();
+    let pid = $("#FSetParcial [name='partial_id']").val();
+
+
+    let urlSS = $("#FSetParcial [name='urlSetStatus']").val();
+    $("#continuarEditParcial").click(function(e){
+        e.preventDefault();
+        let sid = $("#FSetParcial [name='status_id'] option:selected").val();
+        urlSS=updateUrlParameter(urlSS,"status_id",sid);
+        $("#FSetParcial [name='status_id']").prop("readonly",true);
+        AjaxGetJson(urlSS,null);
+        $("#terminarEditParcial").show();
+        $("#filaParcialContinuar").hide();   
+
+        $("#monitorEditParcial").text(monTexts[sid]); 
+
+        if(sid ==5 || sid ==6 || sid == 7){
+        $(".divAgregarImagenes").show();
+            
+        AttachListInsert("#alContenedor","edpar_"+sid, uploadto, listHref, "pictures", "partial_id", pid,"edit", sid);
+        }
+        
+    });
+
+    
+   
+/*
+    $("#FSetParcial [name='status_id']").change(function(){
+        let sid = $(this).val();
+       // AttachListSetEvent("edparcial",sid);
+       //AttachListInsert(contenedorPath,rel,uploadto, listHref,catalog,key,value, mode,event,callback)
+       $(".divAgregarImagenes").show();
+        AttachListInsert("#alContenedor","edpar_"+sid, uploadto, listHref, "pictures", "partial_id", pid,"edit", sid);
+    });
+    */
+
 }
 
 
@@ -564,6 +642,7 @@ function FormaNuevoSmaterial(h){
     FormaNuevoSmaterial2();
 }
 function FormaNuevoSmaterial2(){
+    console.log("Forma")
 
     if($("#atlSlot").length>0){
         let uploadto = $("#atlSlot").attr("uploadto");
@@ -572,7 +651,7 @@ function FormaNuevoSmaterial2(){
         let event = $("#atlSlot").attr("event");
         AttachListCreate("#atlSlot","nsmat",uploadto, listHref,"pictures","smaterial_id", val, "edit", event); 
         FormaNuevoSmaterial3();
-    }              
+    }  
 
     $("input[name='parcialterminar']").click(function(){
         MiModal.exit();
@@ -584,16 +663,12 @@ function FormaNuevoSmaterial2(){
         $("body").off("MiModal-exit");
     });
 
+/*
     $(".AccionForm [name='status_id']").change(function(){
         let val = $(this).val();
-        if(val == 5 ){
-            $(".AccionForm .hiddenDisclaimer").show();
-        }else{
-            $(".AccionForm .hiddenDisclaimer").hide();
-        }
+       
     });
-
-
+    */
 
     $("#FSetAccion").ajaxForm({
         error:function(err){alert(err.statusText);}, 
@@ -609,6 +684,8 @@ function FormaNuevoSmaterial2(){
 }
 
 function FormaNuevoSmaterial3(){
+
+
     $("body").on("activated",".attachList[rel='nsmat']",function(){
 
         $(".attachList[rel='nsmat']").on("uploaded",function(){
@@ -616,6 +693,8 @@ function FormaNuevoSmaterial3(){
         });
 
     });
+
+    $("#smTerminar").show();   
 }
 
 
@@ -639,11 +718,37 @@ function FormaEditarSmaterial(h){
         }
     });
 
-    let uploadto = $("#atlSlot").attr("uploadto");
-    let listHref = $("#atlSlot").attr("listHref");
-    let val = $("#atlSlot").attr("val");
 
-    AttachListCreate("#atlSlot", "edsm_"+val, uploadto, listHref,"pictures","smaterial_id", val, "edit"); 
+    let monTexts =new Array();
+    monTexts[4] = "Se guardó que el parcial fue generado.";
+    monTexts[5] = "Puede agregar imágenes como evidencia";
+    monTexts[6] = "Sube evidencia. Puede ser Fotografía o Escaneo de la Hoja Parcial Física firmada por el cliente.";
+    monTexts[7] = "Sube una foto de la hoja parcial con el sello de cancelado.";
+
+    let uploadto = $("#FSetAccion [name='uploadto']").val();
+    let listHref = $("#FSetAccion [name='listHref']").val();
+    let smid = $("#FSetAccion [name='smaterial_id']").val();
+    let urlSS = $("#FSetAccion [name='urlSetStatus']").val();
+
+    $("#FSetAccion #continuarEdit").click(function(e){
+        e.preventDefault();
+        let sid = $("#FSetAccion [name='status_id'] option:selected").val();
+        urlSS=updateUrlParameter(urlSS,"status_id",sid);
+        $("#FSetAccion [name='status_id']").prop("readonly",true);
+        AjaxGetJson(urlSS,null);
+        $(".terminarEdit").show();
+        $("#filaContinuar").hide();   
+
+        $("#FSetAccion .monitor").text(monTexts[sid]); 
+
+        if(sid ==5 || sid ==6 || sid == 7){
+        $(".agregarImagenes").show();
+        }
+
+        //AttachListCreate("#atlSlot","nsmat",uploadto, listHref,"pictures","smaterial_id", val, "edit", event); 
+        AttachListInsert("#alContenedor","nsmat_"+sid, uploadto, listHref, "pictures", "smaterial_id", smid, "edit", sid);
+    });
+
 }
 
 
@@ -673,6 +778,22 @@ function FormaNuevoOrdenf2(){
         }
     });
 
+    let monTexts =new Array();
+    monTexts[3] = "Por favor adjunta foto o PDF escaneado de la orden de fabricación.";
+    monTexts[4] = "Se guardará el estatus Fabricado";
+    monTexts[7] = "Por favor sube foto de la orden de fabricación con el sello de cancelado.";
+
+    $("#FSetAccion [name='status_id']").change(function(){
+        let sid = $(this).val();
+        $(".monitor").text(monTexts[sid]);
+        if(sid==4){$(".Fila[rel='archivo']").hide();}
+        else{$(".Fila[rel='archivo']").show();}
+    });
+
+    let sid = $("#FSetAccion [name='status_id']").val();
+    $(".monitor").text(monTexts[sid]);
+
+
 }
 
 
@@ -694,13 +815,25 @@ function FormaEditarOrdenf(h){
         }
     });
 
-/*
-    let uploadto = $("#atlSlot").attr("uploadto");
-    let listHref = $("#atlSlot").attr("listHref");
-    let val = $("#atlSlot").attr("val");
+    let monTexts =new Array();
+    monTexts[3] = "Por favor adjunta foto o PDF escaneado de la orden de fabricación.";
+    monTexts[4] = "Se guardará el estatus Fabricado";
+    monTexts[7] = "Por favor sube foto de la orden de fabricación con el sello de cancelado.";
 
-    AttachListCreate("#atlSlot","edsm_"+val,uploadto, listHref,"pictures","smaterial_id", val, "edit"); 
-    */
+    $("#FSetAccion [name='status_id']").change(function(){
+        let sid = $(this).val();
+        $(".monitor").text(monTexts[sid]);
+        $(".Fila[rel='archivo']").hide();
+        $(".Fila[rel='archivoc']").hide();
+        if(sid==3){$(".Fila[rel='archivo']").show();}
+        else if(sid==7){$(".Fila[rel='archivoc']").show();}
+    });
+
+    let sid = $("#FSetAccion [name='status_id']").val();
+    $(".monitor").text(monTexts[sid]);
+
+    $("#FSetAccion [name='status_id']").change();
+
 }
 
 
@@ -773,6 +906,7 @@ function FormaEditarProcesoGeneral(h){
                         $(rme).find(".attachList").each(function(){
                         AttachList($(this).attr("rel"));
                         });
+                    $("#filaTerminarEntrega").show();
                     });
                     MiModal.exit();
                 }else{
@@ -1143,6 +1277,12 @@ function CargarDevoluciones(){
     
 }
 
+
+function RespuestaConfirmaEntregado(json){
+    if(json.status==0){
+        alert("No se logró registrar el cambio de estatus a entregado.");
+    }
+}
 
 
 

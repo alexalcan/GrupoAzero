@@ -101,6 +101,7 @@ function isMobileOrTablet() {
 
 function AjaxGet(href,callback, datos){
     if(typeof(datos)=="undefined"){datos = {};}
+    if(typeof(callback)=="undefined"){callback=null;}
 
     $.ajax({
         url:href,
@@ -108,7 +109,7 @@ function AjaxGet(href,callback, datos){
         data:datos,
         error:function(err){alert(err.statusText);},
         success:function(h){
-            if(typeof(callback)!="undefined"){
+            if(typeof(callback)!="undefined" && callback != null){
                 callback(h);
             }
         }
@@ -116,6 +117,7 @@ function AjaxGet(href,callback, datos){
 }
 function AjaxGetJson(href,callback, datos){
     if(typeof(datos)=="undefined"){datos = {};}
+    if(typeof(callback)=="undefined"){callback=null;}
 
     $.ajax({
         url:href,
@@ -124,7 +126,7 @@ function AjaxGetJson(href,callback, datos){
         dataType:"json",
         error:function(err){alert(err.statusText);},
         success:function(json){
-            if(typeof(callback)!="undefined"){
+            if(typeof(callback)!="undefined" && callback != null){
                 callback(json);
             }
         }
@@ -132,6 +134,7 @@ function AjaxGetJson(href,callback, datos){
 }
 function AjaxPostJson(href,datos,callback){
     if(typeof(datos)=="undefined"){datos = {};}
+    if(typeof(callback)=="undefined"){callback=null;}
 
     $.ajax({
         url:href,
@@ -140,9 +143,18 @@ function AjaxPostJson(href,datos,callback){
         dataType:"json",
         error:function(err){alert(err.statusText);},
         success:function(json){
-            if(typeof(callback)!="undefined"){
+            if(typeof(callback)!="undefined" && callback != null){
                 callback(json);
             }
         }
     });
+}
+
+
+
+
+function updateUrlParameter(url, param, value){
+    var nurl = new URL(url);
+    nurl.searchParams.set(param, value);
+    return nurl;
 }

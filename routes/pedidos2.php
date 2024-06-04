@@ -20,6 +20,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('pedidos2/fragmento/{id}/{cual}', 'Pedidos2Controller@fragmento');
 
 	Route::get('pedidos2/entregar_edit/{id}', 'Pedidos2Controller@entregar_edit');
+	Route::get('pedidos2/set_accion_entregar/{id}', 'Pedidos2Controller@set_accion_entregar');
+	Route::get('pedidos2/set_parcial_status/{id}', 'Pedidos2Controller@set_parcial_status');
 
 	Route::get('pedidos2/parcial_nuevo/{id}', 'Pedidos2Controller@parcial_nuevo');	
 	Route::post('pedidos2/parcial_crear/{id}', 'Pedidos2Controller@parcial_crear');
@@ -33,6 +35,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('pedidos2/smaterial_edit/{id}', 'Pedidos2Controller@smaterial_edit');
 	Route::post('pedidos2/smaterial_update/{id}', 'Pedidos2Controller@smaterial_update');
 	Route::get('pedidos2/smaterial_lista/{id}', 'Pedidos2Controller@smaterial_lista');
+	Route::get('pedidos2/set_smaterial_status/{id}', 'Pedidos2Controller@set_smaterial_status');
+
 
 	Route::post('pedidos2/ordenf_crear/{id}', 'Pedidos2Controller@ordenf_crear');
 	Route::get('pedidos2/ordenf_edit/{id}', 'Pedidos2Controller@ordenf_edit');

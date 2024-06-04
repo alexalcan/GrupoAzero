@@ -9,8 +9,8 @@ use App\Libraries\Tools;
     <span rel='inv'><strong>Devolución {{ Tools::fechaMedioLargo($ob->created_at)  }}</strong></span>
 
     <div rel='st'>
-    <label><strong>Estatus </strong></label>
-    <span>{{ isset($ob->reason) ? $ob->reason->reason : $ob->reason_id }}</span>
+    
+        <div class="MiniEstatus  TE{{$ob->reason_id}}">{{ isset($ob->reason) ? $ob->reason->reason : $ob->reason_id }}</div>
     </div>    
     
     <div rel='ed'><a class="btn editapg" href="{{ url('pedidos2/devolucion_edit/'.$ob->id) }}">Editar</a></div>

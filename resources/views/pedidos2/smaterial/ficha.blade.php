@@ -6,15 +6,49 @@ $estatuses = [5=>"En Puerta", 6=>"Entregado", 7=>"Cancelado"];
 
     <span rel='inv'><strong>Salida de Material # {{ $ob->code }}</strong></span>
 
-    <span rel='st'>{{ isset($estatuses[$ob->status_id]) ? $estatuses[$ob->status_id] : $ob->status_id  }}</span>
+    <span rel='st'>
+    @if ( isset($estatuses[$ob->status_id]) )
+    <div class="MiniEstatus E{{ $ob->status_id }}">{{ $estatuses[$ob->status_id] }}</div>
+    @endif
+    </span>
     
     <div rel='ed'><a class="btn editarsm" href="{{ url('pedidos2/smaterial_edit/'.$ob->id) }}">Editar</a></div>
 
     <div rel='fi'>
-    <section mode="view" class='attachList' rel='sm_{{ $ob->id }}' 
-        uploadto="{{ url('pedidos2/attachlist?catalog=pictures&smaterial_id='.$ob->id) }}" 
-        href="{{ url('pedidos2/attachlist?rel=sm_'.$ob->id.'&catalog=pictures&mode=view&smaterial_id='.$ob->id) }}">
-    </section> 
+
+        <div class="alGridset">
+        @if ($ob->status_5==1)
+        <div class="alGridItem">
+        <div class="MiniEstatus E5">{{ $estatuses[5] }} </div>
+            <section mode="view" class='attachList form-control' rel='prt_{{$ob->id}}_5' event='5'
+                uploadto="{{ url('pedidos2/attachlist?catalog=pictures&smaterial_id='.$ob->id) }}" 
+                href="{{ url('pedidos2/attachlist?rel=prt_'.$ob->id.'_5&catalog=pictures&mode=view&smaterial_id='.$ob->id.'&event=5') }}">
+            </section> 
+        </div>
+        @endif
+
+        @if ($ob->status_6==1)
+        <div class="alGridItem">
+        <div class="MiniEstatus E6">{{ $estatuses[6] }} </div>
+            <section mode="view" class='attachList form-control' rel='prt_{{$ob->id}}_6' event='6'
+                uploadto="{{ url('pedidos2/attachlist?catalog=pictures&smaterial_id='.$ob->id) }}" 
+                href="{{ url('pedidos2/attachlist?rel=prt_'.$ob->id.'_6&catalog=pictures&mode=view&smaterial_id='.$ob->id.'&event=6') }}">
+            </section> 
+        </div>
+        @endif
+
+        @if ($ob->status_7==1)
+        <div class="alGridItem">
+        <div class="MiniEstatus E7">{{ $estatuses[7] }} </div>
+            <section mode="view" class='attachList form-control' rel='prt_{{$ob->id}}_7' event='7'
+                uploadto="{{ url('pedidos2/attachlist?catalog=pictures&smaterial_id='.$ob->id) }}" 
+                href="{{ url('pedidos2/attachlist?rel=prt_'.$ob->id.'_7&catalog=pictures&mode=view&smaterial_id='.$ob->id.'&event=7') }}">
+            </section> 
+        </div>
+        @endif
+
+        
+        </div>
 
     </div>
     

@@ -7,4 +7,6 @@
         </div>  
 </div>
 
+<div class="Fila "><input type="button" name="bt" class="form-control" value="Guardar" onclick="MiModal.exit()" /> </div>
+
 <p>&nbsp;</p>

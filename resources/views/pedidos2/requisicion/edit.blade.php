@@ -1,5 +1,14 @@
 <?php
-$estatuses = [1=>"En Proceso", 2=>"Surtida"];
+$estatuses = [1=>"En Proceso"];
+if(in_array($user->department_id, [4,7])){
+    $estatuses[2]="Surtida";
+}
+if(in_array($user->department_id, [4,7])){
+    $estatuses[3]="Elaborada";
+}
+if($user->role_id==1){
+    $estatuses[4]="Cancelada";
+}
 ?>
 <form action="{{ url('pedidos2/requisicion_update/'.$id) }}" id="FSetAccion" method="post">
 @csrf 

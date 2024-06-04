@@ -1,5 +1,10 @@
 <?php
 $estatuses = ["3" => "En Fabricación", "4"=>"Fabricado"];
+if($user->role_id == 1 ){
+    $estatuses[7] = "Cancelado";
+}
+
+
 ?>
 
 @if (!empty($error) )
@@ -24,7 +29,11 @@ $estatuses = ["3" => "En Fabricación", "4"=>"Fabricado"];
     </select>
     </div>
 
-    <div class="Fila"><label>Documento</label><input type="file" name="document" class="form-control" /> </div>
+    <div class="Fila"><div class="monitor"></div></div>
+
+    <div class="Fila" rel='archivo'><label>Documento</label><input type="file" name="document" class="form-control" /> </div>
+
+ 
     
     <div class="Fila"><input type="submit" name="sb" class="form-control" value="Continuar" /> </div>
 

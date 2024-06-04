@@ -1,9 +1,15 @@
 <?php
 $estatuses = [5 => "En Puerta", 6=>"Entregado"];
     if($user->role_id == 1 || in_array($user->department_id,[4,5])){
-        $estatuses[4]="Fabricado";
+        $estatuses[4]="Elaborada";
     }
 ksort($estatuses);
+
+$monTexts =[];
+$monTexts[4] ="La salida de material fue generado.";
+$monTexts[5] = "Puede agregar imágenes como evidencia";
+$monTexts[6] = "Sube evidencia. Puede ser Fotografía o Escaneo de la Hoja Parcial Física firmada por el cliente.";
+$monTexts[7] = "Sube una foto de la hoja parcial con el sello de cancelado.";
 
 
 ?>
@@ -47,14 +53,17 @@ ksort($estatuses);
 
 <aside class="AccionForm">    
 
+<div class="monitorSm">{{ $monTexts[$smaterial->status_id] }}</div>
+
+@if ($smaterial->status_id > 4)
 <div class="Fila"><label>Agregar Imágenes</label></div>
 
     <div id='atlSlot'  val="{{$smaterial->id}}" event="{{$smaterial->status_id}}"
         uploadto="{{ url('pedidos2/attachpost') }}" 
         listHref="{{ url('pedidos2/attachlist') }}">
     </div>  
-    
-    <div class="Fila" id="smTerminar" style="display: none;"><input type="button" name="parcialterminar" class="form-control" value="Terminar" /> </div>
+@endif    
+    <div class="Fila" id="smTerminar"  ><input type="button" name="parcialterminar" class="form-control" value="Terminar" /> </div>
 
 </aside>
 

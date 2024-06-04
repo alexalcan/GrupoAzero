@@ -1,5 +1,5 @@
 <?php
-$estatuses = [1=>"En Proceso", 2=>"Surtida"];
+$estatuses = [1=>"En Proceso"];
     if(in_array($user->department_id, [4,7])){
         $estatuses[2]="Surtida";
     }
@@ -7,7 +7,7 @@ $estatuses = [1=>"En Proceso", 2=>"Surtida"];
         $estatuses[3]="Elaborada";
     }
     if($user->role_id==1){
-        $estatuses[4]="Cancelar";
+        $estatuses[4]="Cancelada";
     }
 ?>
 
@@ -42,7 +42,7 @@ $estatuses = [1=>"En Proceso", 2=>"Surtida"];
     </div>
     @endif
 
-    @if ($user->department_id == 7)
+    @if ($user->role_id==1 || $user->department_id == 7)
     <div class="Fila"><label>Archivo Requisición</label>
         <div>
         <input type="file" name="requisition" class="form-control" /> 

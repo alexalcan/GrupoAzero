@@ -1,11 +1,18 @@
 <?php
-$estatuses = ["5" => "En Puerta", "6"=>"Entregado", "7"=>"Cancelado"];
+$estatuses = ["4"=>"Generado", "5" => "En Puerta", "6"=>"Entregado", "7"=>"Cancelado"];
+//var_dump($partial);
 ?>
 
-<form action="{{ url('pedidos2/parcial_update/'.$id) }}" id="FSetAccion" method="post">
+<form action="{{ url('pedidos2/parcial_update/'.$id) }}" id="FSetParcial" method="post">
 @csrf 
 <input type="hidden" name="paso" value="1" />
-<aside class="AccionForm">
+<input type="hidden" name="uploadto" value="{{ url('pedidos2/attachpost') }}" />
+<input type="hidden" name="listHref" value="{{ url('pedidos2/attachlist') }}" />
+<input type="hidden" name="partial_id" value="{{ $id }}" />
+<input type="hidden" name="urlSetStatus" value="{{ url('pedidos2/set_parcial_status/'.$id) }}" />
+
+
+<aside class="AccionForm EditInternalScroll">
     
 <div class="Fila doscol"><label>Folio</label> <b>{{ $partial->invoice}} </b></div>
 
@@ -14,21 +21,37 @@ $estatuses = ["5" => "En Puerta", "6"=>"Entregado", "7"=>"Cancelado"];
         <?php
         foreach ($estatuses as $k=>$v) {
         $sel = ($k == $partial->status_id) ? "selected" : "";
-        echo "<option value='$k' $sel >$v</option>";
+        $propName= "status_".$k;
+        echo "<option value='$k' $sel set='". $partial->{$propName} ."' >$v</option>";
         }
         ?>
     </select>
     </div>
 
+    <div class="Fila" id="filaParcialContinuar">
+        <input type="button" class="form-control" id="continuarEditParcial" value="Continuar" />
+    </div>
 
-    <div class="Fila"><label>Agregar Imágenes</label></div>
+    <div id="monitorEditParcial"></div>
 
-    <div id='atlSlot'  val="{{$partial->id}}"
-        uploadto="{{ url('pedidos2/attachpost') }}" 
-        listHref="{{ url('pedidos2/attachlist') }}">
-    </div>  
+    <div class="Fila divAgregarImagenes" style="display: none;"><label>Agregar Imágenes</label></div>
+    <div id="alContenedor"></div>
+
+    <!--
+    <div class="alGridset">
+        @foreach ($events as $ev)
+        <div>
+        <div>{{ isset($estatuses[$ev]) ? $estatuses[$ev] : $ev }}</div>    
+        <div class='atlSlot' id='atlSlot_{{$ev}}' event='{{$ev}}'  val="{{$partial->id}}"
+            uploadto="{{ url('pedidos2/attachpost') }}" 
+            listHref="{{ url('pedidos2/attachlist') }}">
+        </div>  
+        </div>
+        @endforeach 
+    </div>
+    -->
     
-    <div class="Fila"><input type="submit" name="sb" class="form-control" value="Guardar" /> </div>
+    <div class="Fila"  id="terminarEditParcial"  style="display: none;"><input type="submit" name="sb" class="form-control" value="Guardar" /> </div>
 
 </aside>
 

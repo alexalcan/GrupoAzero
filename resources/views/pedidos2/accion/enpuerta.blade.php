@@ -10,8 +10,8 @@
     <p><b><center>Es OBLIGATORIO subir evidencia en el siguiente paso.</center></b></p>
 
     <nav class="SubAccion">
-        <button rel="type" class="setto" val="1">Chofer Entrega</button>
-        <button rel="type" class="setto" val="2">Cliente Recoge</button>
+        <button rel="type" class="setto" val="1">Entrega chofer interno</button>
+        <button rel="type" class="setto" val="2">Cliente recoge</button>
     </nav>
 
 

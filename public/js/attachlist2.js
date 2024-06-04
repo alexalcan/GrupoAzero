@@ -56,6 +56,15 @@ console.log("Activado "+sectionRel);
 }
 
 
+function AttachListSetEvent(sectionRel, str){
+	$(".attachList[rel='"+sectionRel+"']").attr("event",str);
+	var href = $(".attachList[rel='"+sectionRel+"']").attr("href");
+	href = updateUrlParameter(href,"event",str);
+	$(".attachList[rel='"+sectionRel+"']").attr("href",href);
+	AttachList(sectionRel);
+}
+
+
 function EliminaAtt(esteob, sectionRel){
 	var title = $(esteob).attr("title");
 	   
@@ -98,15 +107,30 @@ function EliminaAtt(esteob, sectionRel){
 function AttachListCreate(contenedorPath,rel,uploadto, listHref,catalog,key,value, mode,event,callback){
 	if(typeof(mode)=="undefined"){mode="edit";}
 	if(typeof(event)=="undefined"){event="";}
-	if(typeof(callback)=="undefined"){callback=null;}
+	if(typeof(callback)=="undefined" || callback === false ){callback=null;}
 
 	let href = listHref + "?rel=" + rel + "&catalog=" + catalog + "&mode=" + mode + "&" + key + "=" + value + ((event.length>0)?"&event=" + event : "");
 	let uhref = uploadto + "?catalog=" + catalog;
 
-	var ht ="<section mode='"+mode+"' class='attachList form-control' rel='"+rel+"' "; 
+	var ht ="<section mode='"+mode+"' class='attachList form-control' rel='"+rel+"' event='"+event+"' "; 
 	ht += "uploadto='" + uhref + "'  href='" + href + "' ></section>";
-
+//alert(ht);
 	$(contenedorPath).replaceWith(ht);
+	AttachList(rel);
+	if(callback!==null){ callback(); }
+}
+
+function AttachListInsert(contenedorPath,rel,uploadto, listHref,catalog,key,value, mode,event,callback){
+	if(typeof(mode)=="undefined"){mode="edit";}
+	if(typeof(event)=="undefined"){event="";}
+	if(typeof(callback)=="undefined" || callback ===false){callback=null;}
+
+	let href = listHref + "?rel=" + rel + "&catalog=" + catalog + "&mode=" + mode + "&" + key + "=" + value + ((event.length>0)?"&event=" + event : "");
+	let uhref = uploadto + "?catalog=" + catalog;
+
+	var ht ="<section mode='"+mode+"' class='attachList form-control' rel='"+rel+"' event='"+event+"' "; 
+	ht += "uploadto='" + uhref + "'  href='" + href + "' ></section>";
+	$(contenedorPath).html(ht);
 	AttachList(rel);
 	if(callback!==null){ callback(); }
 }
@@ -170,6 +194,7 @@ $(section).find(":hidden.param").each(function(){
 					console.log("attachitem uploaded");
 
 				    AttachList( listRel );
+					
 					}
 				else{alert(json.error);}
             },

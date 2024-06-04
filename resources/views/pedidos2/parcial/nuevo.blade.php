@@ -1,5 +1,5 @@
 <?php
-$estatuses = ["6"=>"Entregado"];
+$estatuses = [6=>"Entregado"];
     if($user->role_id==1 ||  in_array($user->department_id, [4,8])){
         $estatuses[4]="Generado";
     }
@@ -21,7 +21,7 @@ $estatuses = ["6"=>"Entregado"];
 
 
 @if ($paso==1)
-<form action="{{ url('pedidos2/parcial_crear/'.$order_id.'?paso=1') }}" id="FSetAccion" method="post">
+<form action="{{ url('pedidos2/parcial_crear/'.$order_id.'?paso=1') }}" id="FSetParcial" rel="nuevo" method="post">
 @csrf 
 <input type="hidden" name="paso" value="1" />
 <aside class="AccionForm">
@@ -47,13 +47,15 @@ $estatuses = ["6"=>"Entregado"];
 @else
 
 <aside class="AccionForm">    
-
-<div class="Fila"><label>Agregar Imágenes</label></div>
+{{ $estatuses[$partial->status_id] }}
+    @if ( in_array($partial->status_id,[5,6]) )
+    <div class="Fila"><label>Agregar Imágenes</label></div>
 
     <div id='atlSlot'  val="{{$partial->id}}"
         uploadto="{{ url('pedidos2/attachpost') }}" 
         listHref="{{ url('pedidos2/attachlist') }}">
     </div>  
+    @endif 
     
     <div class="Fila"><input type="button" name="parcialterminar" class="form-control" value="Terminar" /> </div>
 
