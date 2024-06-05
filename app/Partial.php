@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Partial extends Model
 {
     protected $fillable = [
-        'invoice', 'order_id', 'status_id'
+        'invoice', 'order_id', 'status_id','status_4','status_5','status_6','status_7'
     ];
 
     public function status()

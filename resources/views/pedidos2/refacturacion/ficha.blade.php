@@ -1,11 +1,12 @@
 <?php
 //$estatuses = [3=>"En Fabricación", 4=>"Fabricado", 7 => "Cancelado"];
+
 $reasonsCat = [];
     foreach($reasons as $rea){$reasonsCat[$rea->id]=$rea->reason;}
 ?>
 <aside class="Subproceso">
 
-    <span rel='inv'><strong>Refacturación</strong></span>
+    <span rel='inv'><strong>Refacturación {{ !empty($ob->number) ? "#".$ob->number : ""; }}</strong></span>
 
     <div rel='st'>
     <span>
@@ -23,11 +24,21 @@ $reasonsCat = [];
 
 
     <div rel='fi'>
-        @foreach ($evidences as $ev)
-            @if ($ob->id == $ev->rebilling_id) 
+        <aside class="alGridset">
+            <?php
+            $protocol = (strpos($ob->url,"http://",0) > -1) ? "" : "http://";
+             echo !empty($ob->url) ? "<div><a href='".$protocol.$ob->url."' target='_blank'>Link nueva factura</a></div>" : "pp";
+             ?>
+             <div>
+             @foreach ($evidences as $ev)
+                @if ($ob->id == $ev->rebilling_id) 
                 {{ view('pedidos2/view_storage_item',["path"=>$ev->file]) }}
-            @endif        
-        @endforeach
+                @endif        
+             @endforeach
+             </div>
+        </aside>
+
+
     </div>
 
     

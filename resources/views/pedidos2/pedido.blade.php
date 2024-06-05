@@ -321,9 +321,8 @@ if($parcialesNum == $entregadosNum){
         <a class="NParcial Candidato subp" href="{{ url('pedidos2/parcial_nuevo/'.$pedido->id) }}">+ Parcial</a>
         @endif
 
-        @if($pedido->status_id != 6)
+       
         <a class="Candidato" rel="devolucion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=devolucion') }}">Devolución</a> 
-        @endif
 
 
         @if ($pedido->status_id == 7) 
@@ -567,11 +566,12 @@ function FormaNuevoParcial2(){
             MiModal.content(h);
             MiModal.show();            
 
-            if($("#FSetParcial #atlSlot").length>0){
+            if($("#atlSlot").length > 0 ){
             let uploadto = $("#atlSlot").attr("uploadto");
             let listHref = $("#atlSlot").attr("listHref");
             let val = $("#atlSlot").attr("val");
-            AttachListCreate("#atlSlot","nparc",uploadto, listHref,"pictures","partial_id", val, "edit");
+            let event = $("#atlSlot").attr("event");
+            AttachListCreate("#atlSlot","nparc",uploadto, listHref,"pictures","partial_id", val, "edit",event);
             }              
 
             $("input[name='parcialterminar']").click(function(){

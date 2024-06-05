@@ -304,6 +304,13 @@ class Pedidos2Controller extends Controller
 
         else if($origin =="R"){
 
+                //Preexistente
+                $existe = Stockreq::where(["number"=>$code])->get()->toArray();
+                if(count($existe) > 0 ){
+                Feedback::error("Ya existe un requerimiento de stock con el folio '$code'");
+                Feedback::j(0);    
+                }
+
             $orderData =[
                 'office' => $userOffice,
                 'invoice'=>"",
@@ -316,13 +323,6 @@ class Pedidos2Controller extends Controller
 
             $order = Order::create($orderData);
 
-                //Preexistente
-                $existe = Stockreq::where(["number"=>$code])->get()->toArray();
-                if(count($existe) > 0 ){
-                        Feedback::error("Ya existe un requerimiento de stock con el folio '$code'");
-                        Feedback::j(0);    
-                }
-
             //ARCHIVO
             $sqlPath="";
             if($request->hasFile("archivo")){
@@ -331,7 +331,6 @@ class Pedidos2Controller extends Controller
                 $sqlPath = 'Reqstock/' . $name;
                 Storage::putFileAs('/public/Reqstock/', $file, $name );
             }
-
 
             $quoteData=[
                 "order_id"=>$order["id"],
@@ -655,9 +654,11 @@ class Pedidos2Controller extends Controller
             "invoice"=>$invoice,
             "order_id"=>$order_id,
             "status_id"=> $status_id,
+            "status_".$status_id => 1,
             "created_at"=>date("Y-m-d H:i:s"),
             "updated_at"=>date("Y-m-d H:i:s")
-        ]); 
+        ]);  
+
 
         Pedidos2::Log($order_id,"Parcial", $user->name." registró un nuevo pedido #{$partial->id}", $status_id, $user);
         
@@ -1870,7 +1871,9 @@ class Pedidos2Controller extends Controller
         $error="";
 
         $reason_id = Tools::_int( $request->reason_id);  
-       // $status_id = Tools::_int($request->status_id);       
+        $number = Tools::_string( $request->number, 24);  
+        $url = Tools::_string( $request->url, 90);  
+      
         
         $previo = Rebilling::where(["order_id" => $order_id])->first();
             if(isset($previo->id)){
@@ -1879,10 +1882,19 @@ class Pedidos2Controller extends Controller
                 Feedback::j(0);
                 return;  
             }
+        
+        $urlValido = (!empty($url) && filter_var($url,FILTER_VALIDATE_URL)) ? true : false;
+            if(!$urlValido){
+                Feedback::error("La liga no es válida, por favor verifica que sea corrrecta.");
+                Feedback::j(0);
+                return;    
+            }
 
         $rebilling = Rebilling::create([
             "reason_id" => $reason_id, 
             "order_id"=>$order_id,
+            "number" => $number,
+            "url" => $url,
             "created_at"=>date("Y-m-d H:i:s"),
             "updated_at"=>date("Y-m-d H:i:s")
         ]); 
@@ -1922,8 +1934,6 @@ class Pedidos2Controller extends Controller
         $evidence = Evidence::where(["rebilling_id" => $id])->first();
 
         $reasons = Reason::get();
-       // $reasons=[];
-       // foreach($reasonsq as $re){$reasons[$re->id]=$re->reason;}
 
         return view("pedidos2/refacturacion/edit",compact("id","ob","user","evidence","reasons"));
     }
@@ -1932,12 +1942,23 @@ class Pedidos2Controller extends Controller
         $id = Tools::_int($id); 
         $user = auth()->user();
 
-        $error="";
-
         $reason_id = Tools::_int( $request->reason_id);  
+        $number = Tools::_string( $request->number, 24);  
+        $url = Tools::_string( $request->url, 90); 
+
+
+        $urlValido = (!empty($url) && filter_var($url,FILTER_VALIDATE_URL)) ? true : false;
+        if(!$urlValido){
+            Feedback::error("La liga no es válida, por favor verifica que sea corrrecta.");
+            Feedback::j(0);
+            return;    
+        }
+
       
         Rebilling::where(["id" => $id])->update([
             "reason_id" => $reason_id, 
+            "number" => $number,
+            "url" => $url,
             "created_at"=>date("Y-m-d H:i:s"),
             "updated_at"=>date("Y-m-d H:i:s")
         ]); 
@@ -1950,7 +1971,8 @@ class Pedidos2Controller extends Controller
             $sqlPath = 'Refacturaciones/' . $name;
             Storage::putFileAs('/public/Refacturaciones/', $file, $name );
     
-            Evidence::where(["rebilling_id"=>$id])->update([
+            Evidence::where(["rebilling_id"=>$id])->updateOrCreate([
+                'rebilling_id'=>$id,
                 "file"=>$sqlPath,
                 "updated_at"=> date("Y-m-d H:i:s")
             ]);

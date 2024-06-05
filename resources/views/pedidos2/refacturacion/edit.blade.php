@@ -2,7 +2,7 @@
 @csrf 
 <aside class="AccionForm">
     
-    <div class="Fila">Adjunte la evidencia de la refacturación.</div>
+    <h4>Refacturación.</h4>
 
     <!-- <div class="Fila"><label>Número</label><input type="input" name="number" class="form-control" maxlength="190" /></div> -->
     
@@ -15,8 +15,14 @@
     </div>
 
 
+    <div class="Fila"><label>Folio Nuevo</label>
+    <input type="text" name="number" class="form-control" maxlength="24" value="{{ $ob->number }}" /></div> 
+
+    <div class="Fila"><label>Liga Nueva Factura</label>
+    <input type="text" name="url" class="form-control" maxlength="90" value="{{ $ob->url }}" /></div> 
+
     <div class="Fila"><label>Archivo</label>
-    <div>{{ view('pedidos2/view_storage_item',["path"=>$evidence->file]) }}</div>
+    <div>{{ !empty($evidence) ? view('pedidos2/view_storage_item',["path"=>$evidence->file]) : "" }}</div>
     <input type="file" name="file" class="form-control" />
     </div> 
     

@@ -50,8 +50,11 @@ $estatuses = [6=>"Entregado"];
 {{ $estatuses[$partial->status_id] }}
     @if ( in_array($partial->status_id,[5,6]) )
     <div class="Fila"><label>Agregar Imágenes</label></div>
+        @if ($partial->status_id == 6)
+            <div>Sube foto de salida parcial firmada por el cliente.</div>
+        @endif
 
-    <div id='atlSlot'  val="{{$partial->id}}"
+    <div id='atlSlot'  val="{{$partial->id}}" event="{{ $partial->status_id }}"
         uploadto="{{ url('pedidos2/attachpost') }}" 
         listHref="{{ url('pedidos2/attachlist') }}">
     </div>  

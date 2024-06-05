@@ -14,6 +14,9 @@
     </select>
     </div>
 
+    <div class="Fila"><label>Folio Nuevo</label><input type="text" name="number" class="form-control" maxlength="24" /></div> 
+
+    <div class="Fila"><label>Liga Nueva Factura</label><input type="text" name="url" class="form-control" maxlength="90" /></div> 
 
     <div class="Fila"><label>Archivo</label><input type="file" name="file" class="form-control" /></div> 
     

@@ -37,19 +37,7 @@ $estatuses = ["4"=>"Generado", "5" => "En Puerta", "6"=>"Entregado", "7"=>"Cance
     <div class="Fila divAgregarImagenes" style="display: none;"><label>Agregar Imágenes</label></div>
     <div id="alContenedor"></div>
 
-    <!--
-    <div class="alGridset">
-        @foreach ($events as $ev)
-        <div>
-        <div>{{ isset($estatuses[$ev]) ? $estatuses[$ev] : $ev }}</div>    
-        <div class='atlSlot' id='atlSlot_{{$ev}}' event='{{$ev}}'  val="{{$partial->id}}"
-            uploadto="{{ url('pedidos2/attachpost') }}" 
-            listHref="{{ url('pedidos2/attachlist') }}">
-        </div>  
-        </div>
-        @endforeach 
-    </div>
-    -->
+
     
     <div class="Fila"  id="terminarEditParcial"  style="display: none;"><input type="submit" name="sb" class="form-control" value="Guardar" /> </div>
 
