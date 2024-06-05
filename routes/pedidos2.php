@@ -55,6 +55,13 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('pedidos2/devolucion_nuevo/{order_id}', 'Pedidos2Controller@devolucion_nuevo');
 	Route::post('pedidos2/devolucion_crear/{id}', 'Pedidos2Controller@devolucion_crear');
 
+
+	Route::get('pedidos2/refacturacion_lista/{id}', 'Pedidos2Controller@refacturacion_lista');
+	Route::get('pedidos2/refacturacion_edit/{id}', 'Pedidos2Controller@refacturacion_edit');
+	Route::post('pedidos2/refacturacion_update/{id}', 'Pedidos2Controller@refacturacion_update');
+	Route::get('pedidos2/refacturacion_nuevo/{order_id}', 'Pedidos2Controller@refacturacion_nuevo');
+	Route::post('pedidos2/refacturacion_crear/{id}', 'Pedidos2Controller@refacturacion_crear');
+
 	
 	Route::get('pedidos2/shipment_edit/{id}', 'Pedidos2Controller@shipment_edit');
 	Route::post('pedidos2/shipment_update/{id}', 'Pedidos2Controller@shipment_update');

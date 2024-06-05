@@ -120,6 +120,8 @@ class Pedidos2Controller extends Controller
         $imagenesEntrega = Picture::where(["order_id"=>$id,"event"=>"entregar"])->get();
         $parciales = Partial::where(["order_id"=>$id])->get();
         $statuses = Status::get();
+        $rebilling = Rebilling::where(["order_id"=>$id])->first();
+        $reasons = Reason::get();
         //var_dump($debolutions);
 
         //$pictures = Picture::FromOrder($id);
@@ -130,7 +132,8 @@ class Pedidos2Controller extends Controller
        
 
         return view('pedidos2.pedido', compact('id','pedido','shipments',
-        'role','user','evidences','debolutions', 'quote', 'purchaseOrder','imagenesEntrega','parciales',"statuses"));
+        'role','user','evidences','debolutions', 'quote', 'purchaseOrder','imagenesEntrega','parciales',
+        "statuses","rebilling","reasons"));
     }
 
 
@@ -548,8 +551,8 @@ class Pedidos2Controller extends Controller
             return view("pedidos2/devolucion/nuevo",compact("order_id","order","paso"));
         }
         if($accion == "refacturacion"){
-
-            return view("pedidos2/accion/refacturar",compact("order_id","order","paso"));
+            $reasons = Reason::get();
+            return view("pedidos2/refacturacion/nuevo",compact("order_id","order","paso","user","reasons"));
         }
     }
 
@@ -596,7 +599,7 @@ class Pedidos2Controller extends Controller
 
         elseif($accion == "entregar"){
           
-            $this->set_accion_entregar($request,$id);
+            $this->set_accion_entregar($id, $request);
 
         }
 
@@ -1854,6 +1857,115 @@ class Pedidos2Controller extends Controller
         Feedback::j(1);
         return;
     }
+
+
+
+
+
+
+    public function refacturacion_crear($order_id, Request $request){
+        $order_id = Tools::_int($order_id); 
+        $user = auth()->user();
+
+        $error="";
+
+        $reason_id = Tools::_int( $request->reason_id);  
+       // $status_id = Tools::_int($request->status_id);       
+        
+        $previo = Rebilling::where(["order_id" => $order_id])->first();
+            if(isset($previo->id)){
+                $error ="Ya existe una refacturación para el pedido ".$order_id;
+                Feedback::error($error);
+                Feedback::j(0);
+                return;  
+            }
+
+        $rebilling = Rebilling::create([
+            "reason_id" => $reason_id, 
+            "order_id"=>$order_id,
+            "created_at"=>date("Y-m-d H:i:s"),
+            "updated_at"=>date("Y-m-d H:i:s")
+        ]); 
+
+        //ARCHIVO
+        if($request->hasFile("file")){
+            $file = $request->file('file');
+            $name = $rebilling->id.".".$file->getClientOriginalExtension();
+            $sqlPath = 'Refacturaciones/' . $name;
+            Storage::putFileAs('/public/Refacturaciones/', $file, $name );
+    
+            Evidence::create([
+                "file"=>$sqlPath,
+                "rebilling_id"=>$rebilling->id,
+                "created_at"=>date("Y-m-d H:i:s"),
+                "updated_at"=> date("Y-m-d H:i:s")
+            ]);
+        }
+
+        $res =[];
+
+        Pedidos2::Log($order_id,"Refacturación", $user->name." creó una refacturación #{$rebilling->id}", 0, $user);
+
+        Feedback::value($rebilling->id);
+        Feedback::j(1);
+    }
+
+
+    public function refacturacion_edit($id,Request $request){
+        //$user = User::find(auth()->user()->id);
+        $user = auth()->user();
+
+        $id = Tools::_int($id);   
+        
+        $ob = Rebilling::where([ "id" => $id ])->first();
+
+        $evidence = Evidence::where(["rebilling_id" => $id])->first();
+
+        $reasons = Reason::get();
+       // $reasons=[];
+       // foreach($reasonsq as $re){$reasons[$re->id]=$re->reason;}
+
+        return view("pedidos2/refacturacion/edit",compact("id","ob","user","evidence","reasons"));
+    }
+
+    public function refacturacion_update($id, Request $request){
+        $id = Tools::_int($id); 
+        $user = auth()->user();
+
+        $error="";
+
+        $reason_id = Tools::_int( $request->reason_id);  
+      
+        Rebilling::where(["id" => $id])->update([
+            "reason_id" => $reason_id, 
+            "created_at"=>date("Y-m-d H:i:s"),
+            "updated_at"=>date("Y-m-d H:i:s")
+        ]); 
+      $rebilling = Rebilling::where(["id"=>$id])->first();
+
+        //ARCHIVO
+        if($request->hasFile("file")){
+            $file = $request->file('file');
+            $name = $id.".".$file->getClientOriginalExtension();
+            $sqlPath = 'Refacturaciones/' . $name;
+            Storage::putFileAs('/public/Refacturaciones/', $file, $name );
+    
+            Evidence::where(["rebilling_id"=>$id])->update([
+                "file"=>$sqlPath,
+                "updated_at"=> date("Y-m-d H:i:s")
+            ]);
+        }
+
+        Pedidos2::Log($rebilling->order_id,"Refacturación", $user->name." modificó la refacturación #{$id}", 0, $user);
+
+        Feedback::value($rebilling->id);
+        Feedback::j(1);
+    }
+
+
+
+
+
 
 
     public function fragmento($id,$cual){

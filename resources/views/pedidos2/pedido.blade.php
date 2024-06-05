@@ -345,6 +345,13 @@ if($parcialesNum == $entregadosNum){
     <div id="ParcialesDiv" href="{{ url('pedidos2/parcial_lista/'.$pedido->id) }}"></div>
 
 
+
+    <div id="RefacturacionDiv" class="SubProcesoContainer">
+    @if(isset($rebilling->id))
+    {{ view('pedidos2/refacturacion/ficha',['ob'=>$rebilling,'reasons'=>$reasons,"evidences"=>$evidences]) }}
+    @endif
+    </div>
+
     <p>&nbsp;</p>
 </div>
 
@@ -491,6 +498,11 @@ let href = $("[name='urlConfirmaEntregado']").val();
 AjaxGetJson(href,RespuestaConfirmaEntregado);    
 });
 
+$("body").on("click",".editref",function(e){
+e.preventDefault();
+AjaxGet($(this).attr("href"),FormaEditarRefacturacion);
+});
+
 
 
 $("body").on("click",".editapg",function(e){
@@ -519,6 +531,9 @@ let rel = $(this).attr("rel");
     }
     else if(rel == "devolucion"){
         AjaxGet(href,FormaNuevoDevolucion);        
+    }
+    else if(rel == "refacturacion"){
+        AjaxGet(href,FormaNuevoRefacturacion);        
     }
 
 });
@@ -987,6 +1002,60 @@ function FormaEditarDevolucion(h){
                 CargarDevoluciones();
             }else{
                 console.log(json);
+            }
+        }
+    });
+
+}
+
+
+
+
+
+
+function FormaNuevoRefacturacion(h){
+    MiModal.content(h);
+    MiModal.show();
+
+    FormaNuevoRefacturacion2();
+}
+function FormaNuevoRefacturacion2(){
+
+    $("#FSetAccion").ajaxForm({
+        error:function(err){alert(err.statusText);},
+        dataType:"json", 
+        success:function(json){
+            if(json.status == 1){
+                MiModal.exit();
+                window.location.reload();
+            }else{
+                alert(json.errors);
+            }
+        }
+    });
+
+
+    $("body").on("MiModal-exit",function(){
+        CargarRefacturaciones();
+        $("body").off("MiModal-exit");
+    });
+
+}
+
+function FormaEditarRefacturacion(h){
+    MiModal.content(h);
+    MiModal.show();
+
+    $("#FSetAccion").ajaxForm({
+        error:function(err){alert(err.statusText);}, 
+        dataType:"json",
+        success:function(json){
+            if(json.status==1){
+                MiModal.exit();
+                window.location.reload();
+            }else{
+                console.log(json);
+                alert(json.errors);
             }
         }
     });
