@@ -456,6 +456,38 @@ font-size:1.2rem;
     color:#333;
 }
 
+.Monitor{
+    font-size:1.2rem;
+    color:#C72029;
+}
+
+.Notes{
+    margin:1rem 4rem;
+    font-size: 1.1rem;
+    color:#888;
+}
+
+.ScrollModal{
+    max-height:60vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.reload{
+    width:42px;
+    height:42px;
+    background: url(reload.png) no-repeat center center;
+    cursor:pointer;
+}
+.BigEstatusSet{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    gap:10px;
+    width:40vw;
+    margin:0px auto;
+}
+
 
 @media screen and (max-width:600px) {
     

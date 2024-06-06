@@ -155,11 +155,23 @@ if($parcialesNum == $entregadosNum){
 }
 ?>
 
+    <div class="BigEstatusSet">
     <div class="BigEstatus E{{ $pedidoStatusId }}"><span >{{ $statusName }}</span></div>
+    <a class="reload" href="{{ url()->current() }}"></a>
+    </div>
+    
+
 
     <div class="center">Último cambio: {{ Tools::fechaMedioLargo($pedido->updated_at, true) }}</div>
 
 
+    <blockquote class="Notes">
+    @foreach ($notes as $note)
+        <div>
+        {{$note->note}}
+        </div>
+    @endforeach
+    </blockquote>
 
     <p>&nbsp;</p>
 </div>
@@ -180,19 +192,19 @@ if($parcialesNum == $entregadosNum){
 
     ?>
         <div class="Eleccion">
-        @if ($pedido->status_id == 1)
+        @if ($pedido->status_id == 1 && $pedido->origin !="R")
 
             @if ($user->role_id == 1 || $user->department_id == 4)
             <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=recibido') }}">Recibido por embarques</a>
             @endif
 
-        @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true)    
+        @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true && $pedido->origin !="R")    
         <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
         @endif
 
         <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
 
-        @elseif ($pedido->status_id == 2)
+        @elseif ($pedido->status_id == 2 && $pedido->origin !="R")
         <!-- Recibido por embarques -->
 
         <!-- <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
@@ -204,33 +216,30 @@ if($parcialesNum == $entregadosNum){
 
             @endif
 
-        @elseif ($pedido->status_id == 3)
+        @elseif ($pedido->status_id == 3 && $pedido->origin !="R")
         <!-- En fabricación -->
 
 
        <!--  <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
         <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> -->
 
-        @elseif ($pedido->status_id == 4)
+        @elseif ($pedido->status_id == 4 && $pedido->origin !="R")
         <!-- Fabricado -->
         
-        @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true)  
+        @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true && $pedido->origin !="R")  
         <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
         @endif
 
 
-        @elseif ($pedido->status_id == 5)
+        @elseif ($pedido->status_id == 5 && $pedido->origin !="R")
         <!-- En Ruta -->
         <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=entregar') }}">Entregado</a>
 
-        @elseif ($pedido->status_id == 6)
+        @elseif ($pedido->status_id == 6 && $pedido->origin !="R")
         <!-- Entregado -->
-        @elseif ($pedido->status_id == 7)
+        @elseif ($pedido->status_id == 7 && $pedido->origin !="R")
 
-        @elseif ($pedido->status_id == 8)
-
-
-
+        @elseif ($pedido->status_id == 8 && $pedido->origin !="R")
 
         @endif
 
@@ -281,6 +290,21 @@ if($parcialesNum == $entregadosNum){
     </aside>
     @endif
 
+
+
+@if ( isset($stockreq->id) ) 
+    <aside class="Proceso">
+        <div class="gridThree">
+            <span class="a">Requerimiento Stock #{{$stockreq->number}}</span>
+            <span class="b">
+            {{ !empty($stockreq->document) ? view('pedidos2/view_storage_item',["path"=>$stockreq->document]) :"" }}
+            </span>
+            <span class="last">
+                <a class="btn  editapg" href="{{ url('pedidos2/stockreq_edit/'.$stockreq->id) }}">Editar</a>
+            </span>
+        </div>    
+    </aside>
+@endif
     
 </div>
 

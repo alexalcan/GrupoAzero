@@ -122,6 +122,8 @@ class Pedidos2Controller extends Controller
         $statuses = Status::get();
         $rebilling = Rebilling::where(["order_id"=>$id])->first();
         $reasons = Reason::get();
+        $stockreq = Stockreq::where(["order_id"=>$id])->first();
+        $notes = Note::where(["order_id"=>$id])->get();
         //var_dump($debolutions);
 
         //$pictures = Picture::FromOrder($id);
@@ -133,7 +135,7 @@ class Pedidos2Controller extends Controller
 
         return view('pedidos2.pedido', compact('id','pedido','shipments',
         'role','user','evidences','debolutions', 'quote', 'purchaseOrder','imagenesEntrega','parciales',
-        "statuses","rebilling","reasons"));
+        "statuses","rebilling","reasons","stockreq","notes"));
     }
 
 
@@ -188,11 +190,12 @@ class Pedidos2Controller extends Controller
 
         $code = !empty($request->code) ? Tools::_string($request->code,18) : "" ;
         $client = !empty($request->client) ? Tools::_string($request->client,24) : '';
+        $nota = !empty($request->nota) ? Tools::_string($request->nota,190) : '';
 
        // $invoice = Tools::_string($request->invoice,24);
 
         //Validación requerida
-        if(empty($client)){
+        if($origin!="R" &&  empty($client)){
         Feedback::error("El código de cliente es requerido");
         Feedback::j(0);  
         }
@@ -298,14 +301,12 @@ class Pedidos2Controller extends Controller
             ];
             Quote::create($quoteData);
 
-        }
-        
-
+        }     
 
         else if($origin =="R"){
 
-                //Preexistente
-                $existe = Stockreq::where(["number"=>$code])->get()->toArray();
+            //Preexistente
+            $existe = Stockreq::where(["number"=>$code])->get()->toArray();
                 if(count($existe) > 0 ){
                 Feedback::error("Ya existe un requerimiento de stock con el folio '$code'");
                 Feedback::j(0);    
@@ -318,7 +319,7 @@ class Pedidos2Controller extends Controller
                 'client' => $client,
                 'credit' => 0,
                 'status_id' => 1,
-                'created_at' => $now,
+                'created_at' => $now
             ];
 
             $order = Order::create($orderData);
@@ -327,20 +328,33 @@ class Pedidos2Controller extends Controller
             $sqlPath="";
             if($request->hasFile("archivo")){
                 $file = $request->file('archivo');
-                $name = $order["id"].".".$file->getClientOriginalExtension();
-                $sqlPath = 'Reqstock/' . $name;
-                Storage::putFileAs('/public/Reqstock/', $file, $name );
+                $name = $order->id.".".$file->getClientOriginalExtension();
+                $sqlPath = 'Stockreq/' . $name;
+                Storage::putFileAs('/public/Stockreq/', $file, $name );
             }
 
-            $quoteData=[
-                "order_id"=>$order["id"],
-                "number"=>$code,
-                "document"=>$sqlPath,
-                "created_at"=>$now
+            $srData=[
+                "order_id" => $order["id"],
+                "number" => $code,
+                "created_at" => $now,
+                "updated_at" => $now
             ];
-            Stockreq::create($quoteData);
 
+            if( !empty($sqlPath) ) {
+                $srData["document"] = $sqlPath;
+            }            
+        
+            Stockreq::create($srData);
         }
+
+
+    $note =Note::create([
+        "note"=>$nota,
+        "order_id"=>$order->id,
+        "user_id" => $user->id,
+        "created_at"=>$now,
+        "updated_at"=>$now
+    ]);
 
 
         //******************************************     LOG ****
@@ -803,27 +817,28 @@ class Pedidos2Controller extends Controller
         $error="";
 
         $code = Tools::_string( $request->code, 24);  
-        $status_id = Tools::_int($request->status_id);       
+        $status_id = Tools::_int($request->status_id);    
+       
         
         $previo = ManufacturingOrder::where(["order_id" => $order_id,"number"=>$code])->get()->toArray();
-            if(count($previo)>0){
-                $paso = 1;
-                $smaterial=(object)[];
+            if(count($previo)>0){       
                 $error ="Ya existe una orden de fabricacion con el numero ".$code." para el pedido ".$order_id;
                 Feedback::error($error);
                 Feedback::j(0);
                 return;  
             }
-
-        $ordenf = ManufacturingOrder::create([
+        $ordenData = [
             "number"=>$code,
             "required"=>1,
             "document"=>"",
             "status_id" => $status_id, 
+            "status_".$status_id => 1,
             "order_id"=>$order_id,
             "created_at"=>date("Y-m-d H:i:s"),
             "updated_at"=>date("Y-m-d H:i:s")
-        ]); 
+        ];
+   
+        $ordenf = ManufacturingOrder::create($ordenData); 
 
         //ARCHIVO
         if($request->hasFile("document")){
@@ -873,11 +888,11 @@ class Pedidos2Controller extends Controller
     }
 
     public function ordenf_update($id,Request $request){
-        $user = User::find(auth()->user()->id);
         $id = Tools::_int($id);       
         $user = auth()->user();
 
         $status_id = Tools::_int($request->status_id);       
+
         $sqlPath='';
         //ARCHIVO        
             if($request->hasFile('document')){
@@ -896,6 +911,7 @@ class Pedidos2Controller extends Controller
 
             $data = [
                 "status_id" => $status_id,
+                "status_".$status_id => 1,
                 "updated_at"=>date("Y-m-d H:i:s")
             ];
             if(!empty($sqlPath)){
@@ -905,13 +921,11 @@ class Pedidos2Controller extends Controller
                 $data["documentc"]=$sqlPathc;
             }
 
-            ManufacturingOrder::where("id", $id)->update($data); 
+        ManufacturingOrder::where("id", $id)->update($data); 
 
-            Pedidos2::Log($id,"Salida Material Update", $user->name." cambió la salida de material #{$id}", 0, $user);
-            Feedback::j(1);
-            return;
-
-       Feedback::j(0);
+        Pedidos2::Log($id,"Salida Material Update", $user->name." cambió la salida de material #{$id}", 0, $user);
+        Feedback::j(1);
+        return;
     }
 
 
@@ -1984,6 +1998,56 @@ class Pedidos2Controller extends Controller
         Feedback::j(1);
     }
 
+
+
+
+
+    public function stockreq_edit($id,Request $request){
+        //$user = User::find(auth()->user()->id);
+        $user = auth()->user();
+
+        $id = Tools::_int($id);   
+        
+        $ob = Stockreq::where([ "id" => $id ])->first();
+
+      //  $evidence = Evidence::where(["rebilling_id" => $id])->first();
+
+        //$reasons = Reason::get();
+
+        return view("pedidos2/stockreq/edit",compact("id","ob","user"));
+    }
+
+    public function stockreq_update($id, Request $request){
+        $id = Tools::_int($id); 
+        $user = auth()->user();
+
+  
+        $number = Tools::_string( $request->number, 24);  
+
+        //ARCHIVO
+        $sqlPath="";
+        if($request->hasFile("document")){
+            $file = $request->file('document');
+            $name = $id.".".$file->getClientOriginalExtension();
+            $sqlPath = 'Stockreq/' . $name;
+            Storage::putFileAs('/public/Stockreq/', $file, $name );
+        }
+
+        Stockreq::where(["id" => $id])->update([
+            "number" => $number,
+            "document" => $sqlPath,
+            "created_at"=>date("Y-m-d H:i:s"),
+            "updated_at"=>date("Y-m-d H:i:s")
+        ]); 
+      $rebilling = Stockreq::where(["id"=>$id])->first();
+
+
+
+        Pedidos2::Log($rebilling->order_id,"Refacturación", $user->name." modificó la refacturación #{$id}", 0, $user);
+
+        Feedback::value($rebilling->id);
+        Feedback::j(1);
+    }
 
 
 

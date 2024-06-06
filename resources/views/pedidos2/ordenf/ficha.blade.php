@@ -24,22 +24,32 @@ $estatuses = [3=>"En Fabricación", 4=>"Fabricado", 7 => "Cancelado"];
     <div rel='fi'>
         <div class="alGridset">
             
-            @if (isset($ob->document))   
+            @if ($ob->status_3==1)   
             <div class="alGridItem center">
                 <div class="MiniEstatus E3">En fabricación</div>
+                @if (isset($ob->document))   
                 <div>
                 {{ view('pedidos2/view_storage_item',['path'=>$ob->document]) }}
                 </div>
+                @endif
+            </div>
+            @endif
+
+            @if($ob->status_4==1)
+            <div class="alGridItem center">
+                <div class="MiniEstatus E4">Fabricado</div>
             </div>
             @endif
             
             
-            @if (isset($ob->documentc))
+            @if ($ob->status_7==1)
             <div class="alGridItem center">
                 <div class="MiniEstatus E7">Cancelado</div>
+                @if (isset($ob->documentc))
                 <div>
                 {{ view('pedidos2/view_storage_item',['path'=>$ob->documentc]) }}
                 </div>
+                @endif
             </div>
             @endif
             

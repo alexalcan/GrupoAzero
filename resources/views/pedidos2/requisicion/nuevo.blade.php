@@ -20,8 +20,8 @@ $estatuses = [1=>"En Proceso"];
 @csrf 
 <input type="hidden" name="paso" value="1" />
 <aside class="AccionForm">
-    
-<div class="Fila"><label>Folio</label><input type="text" name="number" class="form-control" maxlength="24" /></div>
+    <div class="ScrollModal">
+    <div class="Fila"><label>Folio</label><input type="text" name="number" class="form-control" maxlength="24" /></div>
 
     <div class="Fila"><label>Estatus</label>
     <select class="form-control" name="status_id">
@@ -49,6 +49,8 @@ $estatuses = [1=>"En Proceso"];
         </div>
     </div>
     @endif
+    </div>
+
     
     <div class="Fila"><input type="submit" name="sb" class="form-control" value="Continuar" /> </div>
 

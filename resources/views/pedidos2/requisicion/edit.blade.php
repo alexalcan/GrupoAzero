@@ -13,8 +13,8 @@ if($user->role_id==1){
 <form action="{{ url('pedidos2/requisicion_update/'.$id) }}" id="FSetAccion" method="post">
 @csrf 
 <input type="hidden" name="paso" value="1" />
-<aside class="AccionForm">
-    
+<aside class="AccionForm ">
+    <div class="ScrollModal">
     <div class="Fila doscol"><label>Número</label> 
     @if ($user->role_id == 1 )
     <span><input type="text" name="number" maxlength="18" value="{{ $ob->number }}" /></span> 
@@ -66,6 +66,8 @@ if($user->role_id==1){
 
     </div>
 
+
+    </div>
     
     <div class="Fila "><input type="submit" name="sb" class="form-control" value="Guardar" /> </div>
 

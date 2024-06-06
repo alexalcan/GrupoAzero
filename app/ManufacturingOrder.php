@@ -13,6 +13,7 @@ class ManufacturingOrder extends Model
         'documentc',
         'iscovered',
         'order_id',
+        'status_id',
         'status_3',
         'status_4',
         'status_7'

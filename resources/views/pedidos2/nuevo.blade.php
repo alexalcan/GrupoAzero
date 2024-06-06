@@ -27,7 +27,9 @@
             <div class="Eleccion">
                 <button class="Tipo" rel="F">Factura</button>
                 <button class="Tipo" rel="C">Cotización</button>
+                @if ($user->role_id ==1 || in_array($user->department_id,[4,7]) )
                 <button class="Tipo" rel="R">Requerimiento Stock</button>
+                @endif
             </div>
         </fieldset>
         <input type="hidden" name="origin" value=""/>
@@ -35,17 +37,17 @@
 
         <fieldset class="Tiposet or">
             <dl>
-            <dt><label rel="code" F="Folio Factura *" C="Num Cotizacion *" R="Num Requerimiento *">Folio/Codigo</label></dt> 
-            <dd><input type="text" name="code" class="form-control"  maxlength="24" autocomplete="off" /></dd>
+            <dt><label rel="code" F="Folio Factura *" C="Num Cotizacion *" R="Num Requisici[on *">Folio/Codigo</label></dt> 
+            <dd><input type="text" name="code" class="form-control"  maxlength="24" autocomplete="off" placeholder="Min 4 caracteres" /></dd>
             
-            <dt><label>Clave de Cliente *</label></dt> 
-            <dd> <input type="text" name="client" class="form-control"   maxlength="45"/></dd>
+            <dt rel='client'><label>Clave de Cliente *</label></dt> 
+            <dd rel='client'> <input type="text" name="client" class="form-control"   maxlength="45"/></dd>
 
-            @if ($user->role_id == 1)
-            <!--
-            <dt><label rel="archivo" F="Archivo Factura" C="Archivo Cotizacion" R="Archivo Requerimiento">Archivo</label> </dt> 
-            <dd><input type="file" name="archivo"  class="form-control" /></dd>
-            -->
+            @if ($user->role_id == 1 || in_array($user->department_id,[4,7]) )
+            
+            <dt rel='archivo'><label rel="archivo" F="Archivo Factura" C="Archivo Cotizacion" R="Archivo Requisición">Archivo</label> </dt> 
+            <dd rel='archivo'><input type="file" name="archivo"  class="form-control" /></dd>
+            
             @endif
 
             <dt><label>Note</label></dt> 
@@ -55,6 +57,8 @@
             <dd><input type="submit" name="sb" value="Guardar"><span id="preGuardar">Indique todos los datos obligatorios * para guardar</span></dd>
         </dl>
         </fieldset>
+
+        <blockquote class="Monitor"></blockquote>
 
     
     </form>
@@ -133,44 +137,66 @@ function ShowTiposet(r){
     $(".Tiposet label[rel='code']").text($(".Tiposet label[rel='code']").attr(r));
     $(".Tiposet label[rel='archivo']").text($(".Tiposet label[rel='archivo']").attr(r));
 
+    if(r=="F"){
+        $("dt[rel='archivo']").hide();
+        $("dd[rel='archivo']").hide();
+    }else{
+        $("dt[rel='archivo']").show();
+        $("dd[rel='archivo']").show();       
+    }
+
+    if(r=="R"){
+        $("dt[rel='client']").hide();
+        $("dd[rel='client']").hide();       
+    }else{
+        $("dt[rel='client']").show();
+        $("dd[rel='client']").show();        
+    }
+
 }
 
 function UnlockContinuar(){
     let cd = $(".Tiposet").find("[name='code']").val();
     let ar = $(".Tiposet").find("[name='archivo']").val();
     let cli = $(".Tiposet").find("[name='client']").val();
+    let ori = $("[name='origin']").val();
 
     var mostrar = true;
-    var formato = true;
-
-    if(cd.length > 4 && cli.length > 4){
- 
-    }else{
+    //var formato = true;
+    var errMsg="";
+    //Code Len
+    if(cd.length < 4){ 
         mostrar=false;
+        errMsg += "El folio/número debe contener mínimo 4 caracteres. ";
+    }
+    //Cliente
+    if(ori!="R" && cli.length < 4){
+    mostrar=false;
+    errMsg += "El número de cliente debe contener mínimo 4 caracteres. ";
     }
 
+    //Formato Factura
         if(cd.length>2){
             cd = cd.toLowerCase();
-            let ini = cd.substr(0,2);
-            let ori = $("[name='origin']").val();
+            let ini = cd.substr(0,2);            
             console.log(ini);
-            if(ini!="a0" && ini!="bb" && ori == "F"){
+            if(ori == "F" && ini!="a0" && ini!="bb"){
                 
                 mostrar = false;
-                formato = false;
+               // formato = false;
+                errMsg += "El folio de la factura debe iniciar con A0 o BB. ";
             }
         }
 
     if(mostrar){
     $("#FNuevo [name='sb']").show();
     $("#preGuardar").hide();
+    $(".Monitor").text("");
     }
     else{
         $("#FNuevo [name='sb']").hide();
         $("#preGuardar").show();
-        if(formato==false){
-            alert("el folio de la factura debe iniciar con A0 o BB");
-        }
+        $(".Monitor").text(errMsg);
     }
     
 }
