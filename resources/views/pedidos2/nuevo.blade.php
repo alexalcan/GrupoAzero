@@ -170,9 +170,9 @@ function UnlockContinuar(){
         errMsg += "El folio/número debe contener mínimo 4 caracteres. ";
     }
     //Cliente
-    if(ori!="R" && cli.length < 4){
+    if(ori!="R" && cli.length < 3){
     mostrar=false;
-    errMsg += "El número de cliente debe contener mínimo 4 caracteres. ";
+    errMsg += "El número de cliente debe contener mínimo 3 caracteres. ";
     }
 
     //Formato Factura

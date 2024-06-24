@@ -1,5 +1,5 @@
 <?php
-$estatuses = [5=>"En Puerta", 6=>"Entregado", 7=>"Cancelado"];
+$estatuses = [4 => "Elaborada", 5=>"En Puerta", 6=>"Entregado", 7=>"Cancelado"];
 
 ?>
 <aside class="Subproceso">
@@ -7,6 +7,7 @@ $estatuses = [5=>"En Puerta", 6=>"Entregado", 7=>"Cancelado"];
     <span rel='inv'><strong>Salida de Material # {{ $ob->code }}</strong></span>
 
     <span rel='st'>
+
     @if ( isset($estatuses[$ob->status_id]) )
     <div class="MiniEstatus E{{ $ob->status_id }}">{{ $estatuses[$ob->status_id] }}</div>
     @endif
@@ -17,6 +18,16 @@ $estatuses = [5=>"En Puerta", 6=>"Entregado", 7=>"Cancelado"];
     <div rel='fi'>
 
         <div class="alGridset">
+        @if ($ob->status_4==1)
+        <div class="alGridItem">
+        <div class="MiniEstatus E4">{{ $estatuses[4] }} </div>
+            <section mode="view" class='attachList form-control' rel='prt_{{$ob->id}}_4' event='4'
+                uploadto="{{ url('pedidos2/attachlist?catalog=pictures&smaterial_id='.$ob->id) }}" 
+                href="{{ url('pedidos2/attachlist?rel=prt_'.$ob->id.'_4&catalog=pictures&mode=view&smaterial_id='.$ob->id.'&event=4') }}">
+            </section> 
+        </div>
+        @endif
+
         @if ($ob->status_5==1)
         <div class="alGridItem">
         <div class="MiniEstatus E5">{{ $estatuses[5] }} </div>

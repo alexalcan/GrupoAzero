@@ -1,9 +1,10 @@
 <?php
 $estatuses = [1=>"En Proceso"];
-    if(in_array($user->department_id, [4,7])){
+var_dump($user);
+    if(in_array($user->department_id, [4,7]) || $user->role_id == 1){
         $estatuses[2]="Surtida";
     }
-    if(in_array($user->department_id, [4,7])){
+    if(in_array($user->department_id, [4,7]) || $user->role_id == 1){
         $estatuses[3]="Elaborada";
     }
     if($user->role_id==1){

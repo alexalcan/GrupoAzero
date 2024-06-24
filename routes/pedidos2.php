@@ -22,6 +22,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('pedidos2/entregar_edit/{id}', 'Pedidos2Controller@entregar_edit');
 	Route::get('pedidos2/set_accion_entregar/{id}', 'Pedidos2Controller@set_accion_entregar');
 	Route::get('pedidos2/set_parcial_status/{id}', 'Pedidos2Controller@set_parcial_status');
+	Route::get('pedidos2/unset_entregado/{id}', 'Pedidos2Controller@unset_entregado');
 
 	Route::get('pedidos2/parcial_nuevo/{id}', 'Pedidos2Controller@parcial_nuevo');	
 	Route::post('pedidos2/parcial_crear/{id}', 'Pedidos2Controller@parcial_crear');
@@ -64,7 +65,8 @@ Route::group(['middleware' => 'auth'], function () {
 
 	Route::get('pedidos2/stockreq_edit/{id}', 'Pedidos2Controller@stockreq_edit');
 	Route::post('pedidos2/stockreq_update/{id}', 'Pedidos2Controller@stockreq_update');
-
+	Route::post('pedidos2/set_accion_surters/{id}', 'Pedidos2Controller@set_accion_surters');
+	
 	
 	Route::get('pedidos2/shipment_edit/{id}', 'Pedidos2Controller@shipment_edit');
 	Route::post('pedidos2/shipment_update/{id}', 'Pedidos2Controller@shipment_update');

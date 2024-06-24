@@ -1,8 +1,17 @@
 <?php
 use App\Libraries\Paginacion;
 
-
+Paginacion::total($total);
+Paginacion::actual($pag);
+Paginacion::rpp($rpp);
+Paginacion::items("resultados");
+Paginacion::calc();
 ?>
+<?php
+echo Paginacion::render_largo(url("pedidos2/lista"));
+?>
+
+
 @foreach ($lista as $item)
 
 {{ view("pedidos2.pedido_item",compact("item","estatuses")) }}
@@ -15,12 +24,6 @@ use App\Libraries\Paginacion;
 @endif
 
 <?php
-
-Paginacion::total($total);
-Paginacion::actual($pag);
-Paginacion::rpp($rpp);
-Paginacion::items("resultados");
-Paginacion::calc();
 echo Paginacion::render_largo(url("pedidos2/lista"));
 ?>
 

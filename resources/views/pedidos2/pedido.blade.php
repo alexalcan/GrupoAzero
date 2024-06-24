@@ -138,6 +138,10 @@ $statuses = Pedidos2::StatusesCat();
 $statusName = $pedido->status_name;
 $pedidoStatusId = $pedido->status_id;
 
+if($pedido->origin =="R" && $pedido->status_id==6){
+    $statusName="Surtida";
+}
+/*
 if(!$parciales->isEmpty()){   
 $parcialesNum = $parciales->count();
 $entregadosNum = 0;
@@ -153,6 +157,7 @@ if($parcialesNum == $entregadosNum){
 }
     
 }
+*/
 ?>
 
     <div class="BigEstatusSet">
@@ -198,44 +203,61 @@ if($parcialesNum == $entregadosNum){
             <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=recibido') }}">Recibido por embarques</a>
             @endif
 
-        @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true && $pedido->origin !="R")    
-        <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
         @endif
+
+        
+        @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true && $pedido->origin !="R" 
+        && $pedido->status_5==0 && $pedido->status_6==0 && $shipments->isEmpty()==true)  
+            <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> 
+        @elseif (empty($pedido->invoice_number) && $parciales->isEmpty()==true && $pedido->origin !="R")
+            <!-- <span>Falta # de Factura para sacar a puerta</span> -->
+            <span class="Alerta" title="Falta # de Factura para sacar a puerta">!</span> 
+        @endif
+
 
         <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
 
-        @elseif ($pedido->status_id == 2 && $pedido->origin !="R")
+
+        @if ( $pedido->origin == "R" && $pedido->status_6== 0 )
+        <!-- Requerimiento Stock -->
+
+        <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=surters') }}">Surtido</a> 
+
+        @endif
+
+
+
+        @if ($pedido->status_id == 2 && $pedido->origin !="R")
         <!-- Recibido por embarques -->
 
         <!-- <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
 
-            @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true)  
-            <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> 
-            @elseif (empty($pedido->invoice_number) && $parciales->isEmpty()==true)
-            <span>Falta # de Factura</span>
 
-            @endif
 
-        @elseif ($pedido->status_id == 3 && $pedido->origin !="R")
+        @endif
+
+        @if ($pedido->status_id == 3 && $pedido->origin !="R")
         <!-- En fabricación -->
 
 
        <!--  <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
         <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> -->
-
-        @elseif ($pedido->status_id == 4 && $pedido->origin !="R")
-        <!-- Fabricado -->
-        
-        @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true && $pedido->origin !="R")  
-        <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>
         @endif
 
+        @if ($pedido->status_id == 4 && $pedido->origin !="R")
+        <!-- Fabricado -->
+ 
 
-        @elseif ($pedido->status_id == 5 && $pedido->origin !="R")
+        @endif
+
+        @if (($pedido->status_id == 5 && $pedido->origin !="R") || ($pedido->status_id < 6 &&  ($smateriales_num > 0 || $parciales->isEmpty()) )   )
         <!-- En Ruta -->
         <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=entregar') }}">Entregado</a>
 
-        @elseif ($pedido->status_id == 6 && $pedido->origin !="R")
+        @endif
+
+
+        @if ($pedido->status_id == 6 && $pedido->origin !="R")
         <!-- Entregado -->
         @elseif ($pedido->status_id == 7 && $pedido->origin !="R")
 
@@ -295,7 +317,7 @@ if($parcialesNum == $entregadosNum){
 @if ( isset($stockreq->id) ) 
     <aside class="Proceso">
         <div class="gridThree">
-            <span class="a">Requerimiento Stock #{{$stockreq->number}}</span>
+            <span class="a">Requisicion #{{$stockreq->number}}</span>
             <span class="b">
             {{ !empty($stockreq->document) ? view('pedidos2/view_storage_item',["path"=>$stockreq->document]) :"" }}
             </span>
@@ -326,12 +348,12 @@ if($parcialesNum == $entregadosNum){
 
     <div class="Eleccion ">
 
-    @if ($pedido->status_id != 6 && $user->role_id == 1 ||  in_array($user->departamento_id, [2,4] ) )
-        <a class="Candidato" rel="smaterial" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=smaterial') }}">+ Salida de Material</a>
+    @if (!in_array($pedido->status_id,[6,7])  && $user->role_id == 1 ||  in_array($user->departamento_id, [2,4] ) )
+        <a class="Candidato" rel="smaterial" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=smaterial') }}">+ Salida de Materiales</a>
     @endif
 
 
-    @if ($pedido->status_id != 6)
+    @if ( !in_array($pedido->status_id,[6,7]) && !isset($purchaseOrder->id) )
         <a class="Candidato" rel="requisicion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=requisicion') }}">+ Requisición</a>
     @endif
 
@@ -341,7 +363,7 @@ if($parcialesNum == $entregadosNum){
         @endif
 
 
-        @if ($pedido->status_id != 6)
+        @if (!in_array($pedido->status_id,[6,7]) && !empty($pedido->invoice_number) )
         <a class="NParcial Candidato subp" href="{{ url('pedidos2/parcial_nuevo/'.$pedido->id) }}">+ Parcial</a>
         @endif
 
@@ -349,7 +371,7 @@ if($parcialesNum == $entregadosNum){
         <a class="Candidato" rel="devolucion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=devolucion') }}">Devolución</a> 
 
 
-        @if ($pedido->status_id == 7) 
+        @if ($pedido->status_id == 7 && !isset($rebilling->id) ) 
 
         <a class="Candidato" rel="refacturacion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=refacturacion') }}">Refacturación</a>
         @endif
@@ -527,6 +549,22 @@ AjaxGet($(this).attr("href"),FormaEditarRefacturacion);
 });
 
 
+$("body").on("click",".deshacerEntregado",function(e){
+    e.preventDefault();
+    let href = $(this).attr("href");
+    let tit = $(this).attr("title");
+    if(!confirm(tit)){return false;}
+    AjaxGetJson(href,RespuestaDeshacerEntregado);
+});
+
+$("body").on("click",".rehacerEntregado",function(e){
+    e.preventDefault();
+    let href = $(this).attr("href");
+    let tit = $(this).attr("title");
+    if(!confirm(tit)){return false;}
+    AjaxGetJson(href,RespuestaDeshacerEntregado);
+});
+
 
 $("body").on("click",".editapg",function(e){
 e.preventDefault();
@@ -536,6 +574,21 @@ let spc = $(this).closest(".SubProcesoContainer");
     }
 AjaxGet($(this).attr("href"),FormaEditarProcesoGeneral);
 });
+
+
+$(".Alerta").tooltip();
+
+/*
+$('.Alerta').on({
+  "click": function() {
+    $(this).tooltip({ items: ".Alerta", content: "Displaying on click"});
+    $(this).tooltip("open");
+  },
+  "mouseout": function() {      
+     $(this).tooltip("disable");   
+  }
+});
+*/
 
 
 
@@ -759,7 +812,7 @@ function FormaEditarSmaterial(h){
 
 
     let monTexts =new Array();
-    monTexts[4] = "Se guardó que el parcial fue generado.";
+    monTexts[4] = "Se guardó que la salida de material fue generado.";
     monTexts[5] = "Puede agregar imágenes como evidencia";
     monTexts[6] = "Sube evidencia. Puede ser Fotografía o Escaneo de la Hoja Parcial Física firmada por el cliente.";
     monTexts[7] = "Sube una foto de la hoja parcial con el sello de cancelado.";
@@ -1377,6 +1430,17 @@ function RespuestaConfirmaEntregado(json){
     }
 }
 
+
+
+
+
+function RespuestaDeshacerEntregado(json){
+    if(json.status == 1){
+        window.location.reload();
+    }else{
+        alert(json.errors);
+    }
+}
 
 
 </script>    

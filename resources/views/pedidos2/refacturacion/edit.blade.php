@@ -27,7 +27,7 @@
     </div> 
     
 
-    <div class="Fila"><input type="submit" name="sb" value="Agregar" class="form-control" /> </div>
+    <div class="Fila"><input type="submit" name="sb" value="Guardar" class="form-control" /> </div>
 
 </aside>
 

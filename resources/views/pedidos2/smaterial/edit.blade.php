@@ -16,6 +16,8 @@ ksort($estatuses);
 <input type="hidden" name="urlSetStatus" value="{{ url('pedidos2/set_smaterial_status/'.$id) }}" />
 
 <aside class="AccionForm">
+
+    <h4>Salida de Material</h4>
     
     <div class="Fila doscol"><label>Código</label> <span>{{$ob->code}}</span> </div>
 

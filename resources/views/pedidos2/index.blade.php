@@ -1,5 +1,7 @@
 <?php
 use App\Pedidos2;
+use App\Http\Controllers\Pedidos2Controller;
+//var_dump($statuses->toArray());
 ?>
 @extends('layouts.app', ['activePage' => 'orders', 'titlePage' => __('Administrar Pedidos')])
 
@@ -9,6 +11,8 @@ use App\Pedidos2;
 <link rel="stylesheet" href="{{ asset('js/drp/daterangepicker.css') }}" />
 <link rel="stylesheet" href="{{ asset('css/paginacion.css') }}" />
 <link rel="stylesheet" href="{{ asset('css/piedramuda.css') }}" />
+<link rel="stylesheet" href="{{ asset('jqueryui/jquery-ui.min.css') }}" />
+
 <main class="content">
     <div class="card">
     <div class="card-header card-header-primary">
@@ -21,7 +25,7 @@ use App\Pedidos2;
 
 
     <form id="fbuscar" action="{{ url('pedidos2/lista') }}" method="get" enctype="multipart/form-data">
-        <input type="hidden" name="p" value="1" />
+        <input type="hidden" name="p" value="{{ $pag }}" />
         <section class="formaBuscar">
             <div class="terminoBox">
                 <input type="text" name="termino"  maxlength="90" />
@@ -53,21 +57,49 @@ use App\Pedidos2;
                 <div class="AvanzadosSet">
                 <fieldset>
                     <legend>Status</legend>
+               
                     @foreach ($statuses as $k=>$v)
-                    <div class="checkpair"><input type="checkbox" name="st[]" value="{{ $k }}" id="st_{{ $v }}"> <label for="st_{{ $v }}">{{ $v }}</label></div>
+                        @if ($k < 8)
+                        <div class="checkpair"><input type="checkbox" name="st[]" value="{{ $k }}" id="st_{{ $v }}"> <label for="st_{{ $v }}">{{ $v }}</label></div>
+
+                        @endif
                     @endforeach 
 
                 </fieldset>
                 <fieldset>
                     <legend>Subprocesos</legend>
                     @foreach ($events as $k=>$v)
-                    <div class="checkpair"><input type="checkbox" name="sp[]" value="{{ $k }}" id="sp_{{ $v }}"> <label for="sp_{{ $v }}">{{ $v }}</label></div>
+                    <div class="checkpair parent" rel="{{ $k }}"><input type="checkbox" name="sp[]" value="{{ $k }}" id="sp_{{ $v }}"> <label for="sp_{{ $v }}">{{ $v }}</label></div>
+                            @if ($k =="ordenc") 
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_4" id="spsub_4"> <label for="spsub_4">Elaborado</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_6" id="spsub_6"> <label for="spsub_6">Surtida</label></div>                            
+                            
+                            @elseif ($k =="ordenf") 
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_3" id="spsub_3"> <label for="spsub_3">En fabricación</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_4" id="spsub_4"> <label for="spsub_4">Fabricada</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_7" id="spsub_7"> <label for="spsub_7">Cancelado</label></div>
+                            
+                            @elseif ($k =="parcial") 
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_4" id="spsub_4"> <label for="spsub_4">Elaborada</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_5" id="spsub_5"> <label for="spsub_5">En puerta</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_6" id="spsub_6"> <label for="spsub_6">Entregada</label></div>
+
+                            @elseif ($k =="sm") 
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_4" id="spsub_4"> <label for="spsub_4">Elaborada</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_5" id="spsub_5"> <label for="spsub_5">En puerta</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_6" id="spsub_6"> <label for="spsub_6">Entregada</label></div>
+                            @endif
+
                     @endforeach
                 </fieldset>
                 <fieldset>
                     <legend>Origen</legend>
                     <div class="checkpair"><input type="checkbox" name="or[]" value="C" id="or_C"> <label for="or_C">Cotización</label></div>
                     <div class="checkpair"><input type="checkbox" name="or[]" value="F" id="or_F"> <label for="or_F">Factura</label></div>
+                    
+                    <legend>Recolección</legend>
+                    <div class="checkpair"><input type="checkbox" name="rec[]" value="1" id="rec_1"> <label for="rec_1">Chofer Entrega</label></div>
+                    <div class="checkpair"><input type="checkbox" name="rec[]" value="2" id="rec_2"> <label for="rec_2">Cliente recoge</label></div>
 
                 </fieldset>
                 <fieldset>
@@ -76,7 +108,7 @@ use App\Pedidos2;
                     <div class="checkpair"><input type="checkbox" name="suc[]" value="La Noria" id="suc_N"> <label for="suc_N">La Noria</label></div>
                 </fieldset>
                 </div>
-                <div class="Fila center"><input type="button" value="Buscar" onclick="GetLista()" /> </div>
+                <div class="Fila center"><input type="button" class="form-control btnGrande" value="Buscar" onclick="GetLista()" /> </div>
             </aside>
             
             
@@ -117,12 +149,16 @@ use App\Pedidos2;
 
 @push('js')
 {{-- Comment --}}
+
 <script type="text/javascript" src="{{ asset('js/drp/moment.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('js/jquery.form.js') }}"></script>
 <script type="text/javascript" src="{{ asset('js/drp/daterangepicker.js') }}"></script>
-<script type="text/javascript" src="{{ asset('js/piedramuda.js') }}"></script>
+<script type="text/javascript" src="{{ asset('jqueryui/jquery-ui.min.js') }}"></script>
+ <script type="text/javascript" src="{{ asset('js/piedramuda.js') }}"></script> 
 
-<script>
+
+<script type="text/javascript" >
+    
 $(document).ready(function(){
 
     $('input[name="fechas"]').daterangepicker({
@@ -168,7 +204,7 @@ $(document).ready(function(){
     var end = moment();
 
     FormatearFecha(start,end);
-
+   
     
     $("#MuestraAvanzada a").click(function(e){
         e.preventDefault();
@@ -180,11 +216,14 @@ $(document).ready(function(){
     });
     MuestraSimple();
 
+
+    //Buscar
     $("#buscarBoton").click(function(e){
         e.preventDefault();
         GetLista();
     });
 
+    //paginacion
     $("body").on("click", ".paginacion a", function(e){
         e.preventDefault();
         let rel=$(this).attr("rel");
@@ -192,6 +231,7 @@ $(document).ready(function(){
         GetLista(parseInt(rel));
     });
 
+    //Masinfo
     $("body").on("click", ".masinfo", function(e){
         e.preventDefault();
         let href=$(this).attr("href");
@@ -210,30 +250,36 @@ $(document).ready(function(){
         });
     });
 
+    //NUEVO
     $(".nuevo").click(function(){
         window.location.href = $(this).attr("href");
     });
 
 
-    
 
+
+    
+    //ICONS
     $("body").on("click",".iconSet a",function(e){
         e.preventDefault();
-        let href = $(this).attr("href");
+        e.stopPropagation();
+        let href = $(this).attr("href");      
+        
         $.ajax({
             url:href,
             success:function(h){
                 MiModal.content(h);
-                MiModal.show();
+                MiModal.show();     
             }
-        });
+        });          
+
     });
 
 
     Querystring();
 
 
-    GetLista();
+   GetLista();
 
 });
 
@@ -258,7 +304,7 @@ function Querystring(){
         }    
 
     }
-    if(typeof(qsob.fechas) != "undefined"){
+    if(typeof(qsob.fechas) != "undefined" && qsob.fechas != null){
      $("[name='fechas']").val(qsob.fechas);   
      var fechasArr = qsob.fechas.split(' - ');
      let ini = new Date(fechasArr[0]+"T00:00:00");
@@ -314,9 +360,12 @@ function MuestraSimple(){
 
 
 function GetLista(p){
-    if(typeof(p)=="undefined"){p=1;}
+    if(typeof(p)=="undefined"){p=0;}
 console.log("GetLista");
-    $("#fbuscar [name='p']").val(p);
+    if(p != 0){
+        $("#fbuscar [name='p']").val(p);
+    }
+
 
     $("#Lista").html("<p>Cargando...</p>");
 
@@ -326,10 +375,31 @@ console.log("GetLista");
         error:function(err){alert(err.statusText);},
         success:function(h){
         $("#Lista").html(h);
+
+        LimpiaFiltros();
+        $("#fbuscar [name='p']").val(1);
+        $("#Lista").tooltip();
+
         }
     });
 
-    CuentaFiltros();
+    
+    //Subfiltros
+    $(".checkpair.sub").hide();
+    $(".checkpair.parent").click(function(){
+        let ch = $(this).find(":checkbox").is(":checked");
+        let rel = $(this).attr("rel");
+        if(ch){
+            $(".checkpair.sub[parent='"+rel+"']").show();
+        }else{
+            $(".checkpair.sub[parent='"+rel+"']").hide();
+        }       
+    });
+
+
+    $("#Lista").tooltip();
+
+  //  CuentaFiltros();
 }
 
 function GetListaPre(p){
@@ -397,6 +467,10 @@ function MuestraIconFiltros(es){
     }else{
         $(".filtrosIcon").css("display","none");
     }
+}
+
+function LimpiaFiltros(){
+    document.getElementById("fbuscar").reset();  
 }
 
 </script>

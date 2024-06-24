@@ -27,7 +27,7 @@ $reasonsCat = [];
         <aside class="alGridset">
             <?php
             $protocol = (strpos($ob->url,"http://",0) > -1) ? "" : "http://";
-             echo !empty($ob->url) ? "<div><a href='".$protocol.$ob->url."' target='_blank'>Link nueva factura</a></div>" : "pp";
+             echo !empty($ob->url) ? "<div><a href='".$protocol.$ob->url."' target='_blank'>Link nueva factura</a></div>" : "";
              ?>
              <div>
              @foreach ($evidences as $ev)

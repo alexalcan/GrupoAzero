@@ -37,15 +37,16 @@ class Pedidos2Controller extends Controller
 {
 
     const QS ="";
+    const PAG = "last_pag";
 
     public function index(Request $request)
     {
         $user = auth()->user();
 
         //$order = Order::find($id);
-        $role = auth()->user()->role;
-        $department = auth()->user()->department;
-        $statuses = Status::all();
+        $role = $user->role;
+        $department = $user->department;
+       // $statuses = Status::all();
         $reasons = Reason::all();
 
         
@@ -53,8 +54,10 @@ class Pedidos2Controller extends Controller
 
 
         $queryString = Session::get(self::QS);
+        $pag = Session::get(self::PAG,1);
 
-        return view('pedidos2.index', compact('statuses','reasons','department','role','queryString','user'));
+
+        return view('pedidos2.index', compact('reasons','department','role','queryString','user','pag'));
     }
 
     public function lista(Request $request){
@@ -75,6 +78,7 @@ class Pedidos2Controller extends Controller
             $desde = $fob->format("Y-m-d 00:00:00");
         }
 //var_dump($desde);
+        
 
         Session::put(self::QS,$request->query());
 
@@ -82,15 +86,29 @@ class Pedidos2Controller extends Controller
         $subprocesos = (array)$request->query("sp");
         $origen = (array)$request->query("or");
         $sucursal = (array)$request->query("suc");
+
+        $subpstatus = (array)$request->query("spsub");
+        $recogido = (array)$request->query("rec");
         //var_dump($sucursal);
         //var_dump($subprocesos);
 
-        $pag = $request->query("p",1);
-        $pag = !empty($pag) ? $pag : 1 ;
+      //  $pagDefault = Session::get(self::PAG, 1);
+       // $pagDefault = intval($pagDefault);
+//var_dump($pagDefault);
+        $pag = $request->query("p",0);
+        $pag = intval($pag);
+
+        $pag = ($pag > 0) ? $pag : 1 ;        
+        
+        Session::put(self::PAG, $pag);
+
+        foreach($status as $sk=>$sv){
+            if(empty($sv)){unset($status[$sk]);}            
+        }
 
 
         $statuses = Status::all();
-        $lista=Pedidos2::Lista($pag,$termino,$desde,$hasta, $status,$subprocesos,$origen,$sucursal);
+        $lista = Pedidos2::Lista($pag, $termino, $desde, $hasta, $status, $subprocesos, $origen, $sucursal,$subpstatus,$recogido);
 
         $estatuses = [];
         foreach($statuses as $st){
@@ -108,8 +126,9 @@ class Pedidos2Controller extends Controller
 
         $id= intval($id);
 
-        $role = auth()->user()->role;
+        
         $user = auth()->user();
+        $role = $user->role;
 
         $pedido = Pedidos2::uno($id);
 
@@ -124,6 +143,7 @@ class Pedidos2Controller extends Controller
         $reasons = Reason::get();
         $stockreq = Stockreq::where(["order_id"=>$id])->first();
         $notes = Note::where(["order_id"=>$id])->get();
+        $smateriales_num = Smaterial::where(["order_id"=>$id])->count();
         //var_dump($debolutions);
 
         //$pictures = Picture::FromOrder($id);
@@ -135,7 +155,7 @@ class Pedidos2Controller extends Controller
 
         return view('pedidos2.pedido', compact('id','pedido','shipments',
         'role','user','evidences','debolutions', 'quote', 'purchaseOrder','imagenesEntrega','parciales',
-        "statuses","rebilling","reasons","stockreq","notes"));
+        "statuses","rebilling","reasons","stockreq","notes","smateriales_num"));
     }
 
 
@@ -502,12 +522,18 @@ class Pedidos2Controller extends Controller
            // $this->set_accion_entregar($request, $id);
             return view("pedidos2/accion/entregar",compact("id","order","paso"));
         }
+
+        if($accion == "surters"){
+            $stockreq = Stockreq::where(["order_id"=>$id])->first();
+            return view("pedidos2/accion/surters",compact("id","order","paso","stockreq"));
+        }
+
+        /*
         if($accion == "refacturar"){
 
             return view("pedidos2/accion/refacturar",compact("id","order","paso"));
         }
 
-        /*
         if($accion == "devolucion"){
 
             return view("pedidos2/accion/devolucion",compact("id","order","paso"));
@@ -596,12 +622,9 @@ class Pedidos2Controller extends Controller
         }
 
         elseif($accion == "fabricado"){
-            $data=[
-                "status_id"=>4,
-                "updated_at"=>date("Y-m-d H:i:s")
-            ];
-            Order::where(["id"=>$id])->update($data);
-            Pedidos2::Log($id,"Fabricado",$user->name." ha registrado que el pedido fue fabricado", 4,$user);
+
+            $this->set_accion_fabricado($request,$id,$user);
+            
         }
 
         elseif($accion == "enpuerta"){
@@ -787,7 +810,7 @@ class Pedidos2Controller extends Controller
 
 
     public function smaterial_update($id,Request $request){
-        $user = User::find(auth()->user()->id);
+       // $user = User::find(auth()->user()->id);
         $id = Tools::_int($id);       
         $user = auth()->user();
 
@@ -795,6 +818,7 @@ class Pedidos2Controller extends Controller
 
         Smaterial::where("id", $id)->update([
             "status_id"=> $status_id,   
+            "status_".$status_id => 1,
             "updated_at"=>date("Y-m-d H:i:s")
         ]); 
 
@@ -1090,6 +1114,15 @@ class Pedidos2Controller extends Controller
 
 
 
+    function set_accion_fabricado(Request $request, int $id, object $user){
+        $data=[
+            "status_id"=>4,
+            "status_4"=>1,
+            "updated_at"=>date("Y-m-d H:i:s")
+        ];
+        Order::where(["id"=>$id])->update($data);
+        Pedidos2::Log($id,"Fabricado",$user->name." ha registrado que el pedido fue fabricado", 4,$user);
+    }
 
 
 
@@ -1099,7 +1132,7 @@ class Pedidos2Controller extends Controller
         
         $type= isset($request->type) ? (int)($request->type) : 1;
   
-        Order::where(["id"=>$id])->update( ["status_id" => 5, "updated_at"=>date("Y-m-d H:i:s") ] );
+        Order::where(["id"=>$id])->update( ["status_id" => 5,"status_5" => 1, "updated_at"=>date("Y-m-d H:i:s") ] );
 
         Shipment::create([
               'file' => '',
@@ -1153,6 +1186,7 @@ class Pedidos2Controller extends Controller
             if(intval($order["status_id"]) < 3){
                 $data=[
                     "status_id"=>3,
+                    "status_3"=>1,
                     "updated_at"=>date("Y-m-d H:i:s")
                 ];
         
@@ -1164,16 +1198,28 @@ class Pedidos2Controller extends Controller
     }
 
 
+    
     function set_accion_entregar(int $id,Request $request){
         $user = auth()->user();
         
-        Order::where(["id"=>$id])->update( ["status_id" => 6, "updated_at" => date("Y-m-d H:i:s") ] );
+        Order::where(["id"=>$id])->update( ["status_id" => 6, "status_6"=>1, "updated_at" => date("Y-m-d H:i:s") ] );
+
+        Pedidos2::Log($id,"Surtido",$user->name." ha registrado que el pedido fue surtido", 6, $user);
+        
+        Feedback::json_service(1);
+    }
+
+
+
+    function set_accion_surters(int $id,Request $request){
+        $user = auth()->user();
+        
+        Order::where(["id"=>$id])->update( ["status_id" => 6, "status_6"=>1, "updated_at" => date("Y-m-d H:i:s") ] );
 
         Pedidos2::Log($id,"Entregado",$user->name." ha registrado que el pedido fue entregado", 6, $user);
         
         Feedback::json_service(1);
     }
-
 
 
     function set_accion_devolucion_borrar(Request $request, int $id){
@@ -1690,7 +1736,7 @@ class Pedidos2Controller extends Controller
         $order = !empty($orders) ? $orders[0] : [] ;
 
         if(!empty($order)){
-            Order::where(["id"=>$id])->update(["status_id" => 7, "updated_at"=>date("Y-m-d H:i:s")]);
+            Order::where(["id"=>$id])->update(["status_id" => 7, "status_7"=>1 ,"updated_at"=>date("Y-m-d H:i:s")]);
         }
         return redirect("pedidos2/pedido/$id");
     }
@@ -1705,7 +1751,7 @@ class Pedidos2Controller extends Controller
             $log = !empty($logs) ? $logs[0] : [] ;
             $sid = (!empty($log) && !empty($log["status_id"])) ? $log["status_id"] : 2;
     
-            Order::where(["id"=>$id])->update(["status_id" => $sid, "updated_at"=>date("Y-m-d H:i:s")]);
+            Order::where(["id"=>$id])->update(["status_id" => $sid, "status_7"=>0, "updated_at"=>date("Y-m-d H:i:s")]);
          }
          return redirect("pedidos2/pedido/$id");
      }
@@ -1853,7 +1899,7 @@ class Pedidos2Controller extends Controller
 
         $order = Order::where(["id"=>$id])->first();
 
-        return view("pedidos2/pedido/entregar_edit",compact("id","ob","types","order_id","order"));
+        return view("pedidos2/pedido/entregar_edit",compact("id","ob","types","order_id","order","user"));
     }
 
     public function entregar_update($id,Request $request){
@@ -1898,6 +1944,8 @@ class Pedidos2Controller extends Controller
             }
         
         $urlValido = (!empty($url) && filter_var($url,FILTER_VALIDATE_URL)) ? true : false;
+        $urlValido = !empty($url)?$urlValido : true;
+
             if(!$urlValido){
                 Feedback::error("La liga no es válida, por favor verifica que sea corrrecta.");
                 Feedback::j(0);
@@ -1962,6 +2010,7 @@ class Pedidos2Controller extends Controller
 
 
         $urlValido = (!empty($url) && filter_var($url,FILTER_VALIDATE_URL)) ? true : false;
+        $urlValido = !empty($url)?$urlValido : true;
         if(!$urlValido){
             Feedback::error("La liga no es válida, por favor verifica que sea corrrecta.");
             Feedback::j(0);
@@ -2122,6 +2171,34 @@ class Pedidos2Controller extends Controller
         Pedidos2::Log($smaterial["order_id"], "Salida de Material", $user->name." edita status ".$estatuses[$status_id]." en el parcial #{$id}", $status_id, $user);
         Feedback::j(1);
         return;       
+    }
+
+
+
+    function unset_entregado(int $id, Request $request){
+        $user = auth()->user();
+
+        $order = Order::where(["id"=>$id])->first();
+            if(empty($order)){
+                Feedback::error("No order");
+                Feedback::j(0);
+            } 
+
+        $estatusesq = Status::get();    
+        $estatuses=[];
+        foreach($estatusesq as $es){$estatuses[$es["id"]]=$es["name"];}
+
+        $revertTo = 1;
+            if($order->status_5 == 1){$revertTo = 5 ; }
+            elseif($order->status_4 == 1){$revertTo = 4 ; }
+            elseif($order->status_3 == 1){$revertTo = 3 ; }
+            elseif($order->status_2 == 1){$revertTo = 2 ; }
+
+        Order::where(["id"=>$id])->update( ["status_id" => $revertTo, "status_6"=>0,"updated_at" => date("Y-m-d H:i:s") ] );
+
+        Pedidos2::Log($id,"DesEntregado",$user->name." ha Revertido el estatus de entregado del pedido a ".$estatuses[$revertTo], $revertTo, $user);
+        
+        Feedback::json_service(1);
     }
 
 

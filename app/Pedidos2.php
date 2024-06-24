@@ -29,7 +29,7 @@ class Pedidos2 extends Model
     }
 
     public static function Lista(int $pag, string $termino, string $desde, string $hasta, 
-    array $status=[], array $subprocesos=[], array $origen=[], array $sucursal=[]) : array {
+    array $status=[], array $subprocesos=[], array $origen=[], array $sucursal=[], array $subpstatus=[], array $recogidos=[]) : array {
 
         $ini= ($pag>1) ? ($pag -1) * self::$rpp : 0;
 
@@ -49,10 +49,20 @@ class Pedidos2 extends Model
             }
             if(in_array("ordenc",$subprocesos)){
                 $wheres[]="IF(LENGTH(o.invoice) > 0,1,0)  > 0";
+                foreach($subpstatus as $sps){
+                $arr=explode("_",$sps);
+                    if($arr[0]=="ordenc"){$wheres[]="p.status_id = '".$arr[1]."'";}
+                }
+                
             }
             if(in_array("ordenf",$subprocesos)){
                 $wheres[]="(SELECT COUNT(*) FROM manufacturing_orders WHERE manufacturing_orders.order_id = o.id) > 0";
+                    foreach($subpstatus as $sps){
+                    $arr=explode("_",$sps);
+                        if($arr[0]=="ordenf"){$wheres[]="p.status_id = '".$arr[1]."'";}
+                    }
             }
+            
             if(in_array("parcial",$subprocesos)){
                 $wheres[]="(SELECT COUNT(*) FROM partials WHERE partials.order_id = o.id) > 0";
             }
@@ -64,6 +74,7 @@ class Pedidos2 extends Model
             }
 
         }
+
         if(!empty($origen)){
             $orarr=[];
             foreach($origen as $ori){$orarr[]="'$ori'";}
@@ -94,10 +105,18 @@ class Pedidos2 extends Model
         p.document AS document,
         p.requisition AS requisition_document,
         q.number AS quote, 
-        q.document quote_document 
+        q.document quote_document, 
+        r.id AS stockreq_id,
+        r.number AS stockreq_number,
+        r.document AS stockreq_document, 
+        (SELECT m.number FROM manufacturing_orders m WHERE m.order_id = o.id ORDER BY id DESC LIMIT 1) AS ordenf_number,
+        (SELECT m.status_id FROM manufacturing_orders m WHERE m.order_id = o.id ORDER BY id DESC LIMIT 1) AS ordenf_status_id,
+        (SELECT pa.invoice FROM partials pa WHERE pa.order_id = o.id ORDER BY id DESC LIMIT 1) AS parcial_number,
+        (SELECT pa.status_id FROM partials pa WHERE pa.order_id = o.id ORDER BY id DESC LIMIT 1) AS parcial_status_id
         FROM orders o 
         LEFT JOIN purchase_orders p ON p.order_id = o.id 
         LEFT JOIN quotes q ON q.order_id = o.id 
+        LEFT JOIN stockreq r ON r.order_id = o.id 
         WHERE 
         ". $wherestring  ." ORDER BY updated_at DESC LIMIT ".$ini.", ". self::$rpp;
     //echo $q;
@@ -108,7 +127,7 @@ class Pedidos2 extends Model
 
 
     public static function Statuses() : array {
-         return DB::table('statuses')->where("v2",1)->get()->toArray();
+         return DB::table('statuses')->get()->toArray();
     }
     public static function StatusesCat(string $default="") : array{
         $arr=[];

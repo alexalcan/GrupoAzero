@@ -6,11 +6,11 @@ use App\Libraries\Tools;
 
 <aside class="Subproceso">
 
-    <span rel='inv'><strong>Devolución {{ Tools::fechaMedioLargo($ob->created_at)  }}</strong></span>
+    <span rel='inv'><b>Devolución por {{ isset($ob->reason) ? $ob->reason->reason : $ob->reason_id }} </b></span>
 
     <div rel='st'>
     
-        <div class="MiniEstatus  TE{{$ob->reason_id}}">{{ isset($ob->reason) ? $ob->reason->reason : $ob->reason_id }}</div>
+        <div class="">{{ Tools::fechaMedioLargo($ob->created_at)  }}</div>
     </div>    
     
     <div rel='ed'><a class="btn editapg" href="{{ url('pedidos2/devolucion_edit/'.$ob->id) }}">Editar</a></div>
