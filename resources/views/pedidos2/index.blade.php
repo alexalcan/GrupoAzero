@@ -125,7 +125,13 @@ use App\Http\Controllers\Pedidos2Controller;
 
     @if ($user->role_id == 1 || (in_array($user->department_id, [3, 4 , 8]) ) )
     <div class="container-fluid">
-        <div class="right Fila"><button class="nuevo" href="{{ url('pedidos2/nuevo') }}">Crear Nuevo Pedido</button></div>    
+        <div class="right Fila">
+        
+        <button class="nuevo" href="{{ url('pedidos2/multie') }}">Multiple Estatus </button>
+
+        <button class="nuevo" href="{{ url('pedidos2/nuevo') }}">Crear Nuevo Pedido</button>
+    
+        </div>    
     </div>
     @endif
 

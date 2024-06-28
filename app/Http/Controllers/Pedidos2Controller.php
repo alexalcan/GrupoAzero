@@ -2204,4 +2204,76 @@ class Pedidos2Controller extends Controller
 
 
 
+
+    public function multie(Request $request){
+        
+        $user = auth()->user();
+        $role = $user->role;
+
+        $estatus = $request->get("estatus");
+
+        $estatus = intval($estatus);
+        $validos =[2,3,4];
+        $estatus = in_array($estatus,$validos) ? $estatus : 0;       
+
+        return view('pedidos2.multie.multie', compact('user','role','estatus'));
+    }
+
+
+    public function multie_lista(Request $request){
+        $user = auth()->user();
+        $role = $user->role;
+
+        $term = $request->get("term");
+        $term = Tools::_string($term,16);
+
+        $estatus= $request->get("estatus");
+        $estatus = Tools::_int($estatus);
+
+        $wseg = (strlen($term) > 1 ) ? "AND (invoice_number LIKE '%{$term}%' OR invoice LIKE '%{$term}%')" : "" ;
+
+        $q = "SELECT * FROM orders 
+        WHERE status_id < $estatus $wseg LIMIT 10";
+        //echo $q;
+
+        $shipments = DB::select(DB::raw($q));
+        $statusesq = Status::all();
+        $statuses = [];
+            foreach($statusesq as $st){
+                $statuses[$st->id] = $st->name;
+            }
+
+        return view("pedidos2.multie.lista",compact('user','shipments',"statuses"));
+    }
+
+
+    public function set_status($id, Request $request){
+        $id = Tools::_int($id);       
+        $user = auth()->user();
+
+        $estatuses = [2=>"Entregado", 3 => "En Fabricaicón", 4=>"Fabricado"];
+
+        $status_id = Tools::_int($request->ids);    
+            if(!isset($estatuses[$status_id])){
+                Feedback::error("Status off range");
+                Feedback::j(0);
+            }
+
+        $data = [
+                "status_id"=>$status_id,
+                "updated_at"=>date("Y-m-d H:i:s")
+            ];
+
+            if($status_id > 2){
+                $data["status_".$status_id] = 1;
+            }
+
+        Order::where("id", $id)->update($data);         
+
+        Pedidos2::Log($id, "Order", $user->name." edita status ".$estatuses[$status_id]." en el pedido #{$id}", $status_id, $user);
+        Feedback::j(1);
+        return;       
+    }
+
+
 }

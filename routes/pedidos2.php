@@ -82,4 +82,10 @@ Route::group(['middleware' => 'auth'], function () {
 
 	Route::get('pedidos2/cancelar/{id}', 'Pedidos2Controller@cancelar');
 	Route::get('pedidos2/descancelar/{id}', 'Pedidos2Controller@descancelar');
+
+
+
+	Route::get('pedidos2/multie', 'Pedidos2Controller@multie');
+	Route::get('pedidos2/multie_lista', 'Pedidos2Controller@multie_lista');
+	Route::get('pedidos2/set_status/{id}', 'Pedidos2Controller@set_status');
 });

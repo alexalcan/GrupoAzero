@@ -1,0 +1,153 @@
+select[name='estatus']{
+    font-size:1.5rem;
+    padding:.5rem 1rem;
+    margin:0px auto;
+    width:24rem;
+}
+
+
+.tdSearch{
+    width:10rem;
+}
+
+.Filita{
+    display:flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.buscar{
+    display:inline-block;
+    width: 30px;
+    height:26px;
+    background: url(icon_buscar.png) top left no-repeat;
+    background-size: 100% 100%;
+    margin:0px 0px 0px 10px;
+}
+
+.SearchZone{
+    display:grid;
+    grid-template-columns: 14rem 1fr;
+}
+.SearchDiv{
+    padding:1rem 1rem;
+    text-align: center;
+    border-right: #aaa 1px dotted;
+    margin-left:20px;
+}
+
+.Cuerpo{
+    padding:20px;
+}
+
+.ShipsLista{
+    padding:0px 0px 20px 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 18rem;
+    position:relative;
+}
+
+
+
+.Pedido{
+margin:0px 0px 20px 0px;
+padding:10px;
+border:#eee 1px solid;
+border-radius:5px;
+box-shadow:#ccc 2px 2px 6px;
+position:relative;
+}
+
+.Pedido:focus, .Pedido.focus{
+border:green 2px solid;
+scroll-snap-align: start;
+background-color: #eeffee;
+}
+.Pedido label{
+    font-weight:normal;
+}
+.Pedido .Cont{
+    display:flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    column-gap:1rem;
+    row-gap:.2rem;
+    margin-top:20px;
+}
+
+
+.Pedido .estatus{
+    display:inline-block;
+    margin-left:5px;
+    border-bottom:#fff 1px solid;
+    border-right:#fff 1px solid;
+    border-bottom-right-radius: 11px;
+    box-shadow: #ccc 2px 2px 3px;
+    padding:2px 4px 2px 32px;
+    background:green;
+    color:#fff;
+    font-size:.9rem;
+    background-size: auto 70%;
+    background-position: top 5px left 5px;
+    background-repeat: no-repeat;
+    position:absolute;
+    top:-6px;
+    right:10px;
+    }
+    .Pedido .estatus.main{
+        box-shadow: #666 3px 3px 5px;    
+        padding:6px 9px 6px 36px;
+        border:#aaa 1px solid;
+        background-position: top 7px left 8px;
+        margin-left:20px;
+    }
+    .Pedido .estatus.E1{
+        background-color:#999;  
+        background-image: url(icon_status_1.png);
+    }
+    .Pedido .estatus.E2{
+        background-color:#8f4183;  
+        background-image: url(icon_status_2.png) ;
+    }
+    .Pedido .estatus.E3{
+        background-color:#88cc88;  
+        background-image: url(icon_status_3.png);
+    }
+    .Pedido .estatus.E4{
+        background-color:#45981e;  
+        background-image: url(icon_status_4.png);
+    }
+    .Pedido .estatus.E5{
+        background-color:#32977c;  
+        background-image: url(icon_status_5.png) ;
+    }
+    .Pedido .estatus.E6{
+        background-color:#2a712a;  
+        background-image: url(icon_status_6.png);
+    }
+    .Pedido .estatus.E7{
+        background-color:#7c1c27;  
+        background-image: url(icon_status_7.png) ;
+    }
+    .Pedido .estatus.E8{
+        background-color:#669966;  
+        background-image: url(icon_status_8.png) ;
+    }
+    .Pedido .estatus.E9{
+        background-color:#7f5613;  
+        background-image: url(icon_status_9.png);
+    }
+
+
+
+
+    @media screen and ( max-width:670px) {
+
+
+        .SearchZone{
+            display:grid;
+            grid-template-columns: 1fr;
+        }
+
+    }
