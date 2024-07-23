@@ -1,9 +1,10 @@
 .attachList{
 margin:0;
 padding:10px 0px 20px 0px;
-background:#eeeeee;
+background:#fff;
+/*
 background: linear-gradient(0deg, #eeeeee 0%, #f6f6f6 50%, #ffffff 100%);
-
+*/
 }
 .attachList ul{
 display:flex;

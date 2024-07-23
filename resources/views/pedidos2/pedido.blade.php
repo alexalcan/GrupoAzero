@@ -42,7 +42,9 @@ $statuses = Pedidos2::StatusesCat();
 
     <form action="{{ url('pedidos2/guardar/'.$pedido->id) }}" method="post" enctype="multipart/form-data">
     @csrf
+
         <fieldset class='MainInfo'>
+        @if ($pedido->origin != "R" && ($user->role->id == 1 || in_array($user->department->id, [2,3,4,7,9]) ) )
         <div class='FormRow'>
             <label>Folio Cotización</label>
             <input type="text" class="form-control" name="invoice" value="{{$pedido->invoice}}" />
@@ -69,14 +71,20 @@ $statuses = Pedidos2::StatusesCat();
                 <div class="flex-start">
                 <input type="file" class="form-control" name="factura" />
                 
-                @if (!empty($purchaseOrder->document))
+                @if (!empty($purchaseOrder) && !empty($purchaseOrder->document) )
                 <span>  &nbsp; &nbsp; Actual: 
                 &nbsp; <a class="pdf" target="_blank" href="{{ asset('storage/'.$purchaseOrder->document) }}"></a>
                 </span> 
+                @elseif (!empty($pedido->invoice_document))
+                <span>  &nbsp; &nbsp; Actual: 
+                &nbsp; <a class="pdf" target="_blank" href="{{ asset('storage/'.$pedido->invoice_document) }}"></a>
+                </span>              
                 @endif
                 
                 </div>
         </div>
+        @endif 
+
         <div class='FormRow'>
             <label>Cliente</label>
             <input type="text" class="form-control" name="client" value="{{$pedido->client}}" />
@@ -94,7 +102,7 @@ $statuses = Pedidos2::StatusesCat();
 
         <fieldset class='MiniInfo'>
 
-
+        
             <div>
                 <label># Factura</label><span>{{$pedido->invoice_number}}
                 <?php 
@@ -102,6 +110,8 @@ $statuses = Pedidos2::StatusesCat();
                 ?>
                 @if (!empty($purchaseOrder->document))
                 &nbsp; <a class="pdf" target="_blank" href="{{ asset('storage/'.$purchaseOrder->document) }}"></a>
+                @elseif (!empty($pedido->invoice_document))
+                &nbsp; <a class="pdf" target="_blank" href="{{ asset('storage/'.$pedido->invoice_document) }}"></a>
                 @endif 
 
             </span>
@@ -115,7 +125,7 @@ $statuses = Pedidos2::StatusesCat();
                 @endif 
                 </span>
             </div>
-
+     
 
             <div><label>Cliente</label><span>{{$pedido->client}}</span></div>
 
@@ -138,9 +148,9 @@ $statuses = Pedidos2::StatusesCat();
 $statusName = $pedido->status_name;
 $pedidoStatusId = $pedido->status_id;
 
-if($pedido->origin =="R" && $pedido->status_id==6){
-    $statusName="Surtida";
-}
+//if($pedido->origin =="R" && $pedido->status_id==5){
+//    $statusName="En Puerta";
+//}
 /*
 if(!$parciales->isEmpty()){   
 $parcialesNum = $parciales->count();
@@ -172,11 +182,30 @@ if($parcialesNum == $entregadosNum){
 
     <blockquote class="Notes">
     @foreach ($notes as $note)
-        <div>
-        {{$note->note}}
+        <div class="Note">
+        <p>{{$note->note}}</p>
+        <div><small>{{ $note->getUserOf($note->id)->name }} {{Tools::fechaMedioLargo($note->created_at) }}</small></div>
         </div>
     @endforeach
+
+        
+    
     </blockquote>
+
+    <div class="FilaAddNotes"><a class="clickable" onclick="MostrarNotasForm()">+ Nota</a></div>
+    
+
+    <form class="NotasForm" action="{{ url('pedidos2/add_nota/'.$pedido->id) }}" method="post">
+    @csrf
+    <div class="Fila">
+        <label>Agregar Nota</label>
+            <div class="Fila"><textarea name="texto" class="form-control semivisible" maxlength="180" cols="30" rows="2"></textarea></div>
+            <div class="Fila"><input type="submit" class="form-control" value="Agregar" /></div>
+      
+    </div>
+    </form>
+
+
 
     <p>&nbsp;</p>
 </div>
@@ -209,6 +238,11 @@ if($parcialesNum == $entregadosNum){
         @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true && $pedido->origin !="R" 
         && $pedido->status_5==0 && $pedido->status_6==0 && $shipments->isEmpty()==true)  
             <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> 
+       
+        @elseif ($pedido->origin =="R" && $pedido->status_id < 5 && $pedido->status_5==0)
+
+        <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> 
+
         @elseif (empty($pedido->invoice_number) && $parciales->isEmpty()==true && $pedido->origin !="R")
             <!-- <span>Falta # de Factura para sacar a puerta</span> -->
             <span class="Alerta" title="Falta # de Factura para sacar a puerta">!</span> 
@@ -218,11 +252,11 @@ if($parcialesNum == $entregadosNum){
         <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
 
 
-        @if ( $pedido->origin == "R" && $pedido->status_6== 0 )
-        <!-- Requerimiento Stock -->
+        @if ( $pedido->origin == "R" && $pedido->status_5== 0 && $pedido->status_id < 5 && $pedido->status_id != 7 )
+        <!-- Requerimiento Stock 
 
-        <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=surters') }}">Surtido</a> 
-
+        <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=surters') }}">En Puerta</a> 
+-->
         @endif
 
 
@@ -250,9 +284,16 @@ if($parcialesNum == $entregadosNum){
 
         @endif
 
-        @if (($pedido->status_id == 5 && $pedido->origin !="R") || ($pedido->status_id < 6 &&  ($smateriales_num > 0 || $parciales->isEmpty()) )   )
-        <!-- En Ruta -->
-        <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=entregar') }}">Entregado</a>
+        @if ($pedido->origin !="R" &&  $pedido->status_id < 6 &&  $smateriales_num < 1   )
+
+        <a class="Accion entregado" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=entregar') }}">Entregado</a>
+
+        @endif
+
+
+        @if ( ($user->role_id ==1 || in_array($user->department->id,[2,9])) && $pedido->status_id == 10  )
+
+        <a class="Accion desauditoria" title="Deshacer recibido por auditoria" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=desauditoria') }}">Deshacer Recibido por Auditoria</a>
 
         @endif
 
@@ -271,6 +312,7 @@ if($parcialesNum == $entregadosNum){
 
 
     @if ( $shipments->isEmpty() == false)
+ 
     @foreach ($shipments as $ship)
     <aside class="Proceso">
         <div class="gridThree">
@@ -316,14 +358,31 @@ if($parcialesNum == $entregadosNum){
 
 @if ( isset($stockreq->id) ) 
     <aside class="Proceso">
-        <div class="gridThree">
-            <span class="a">Requisicion #{{$stockreq->number}}</span>
-            <span class="b">
+        <div class="space-between ">
+            <div class="a">
+                <div><b>Requisicion Stock</b></div>  
+                <div>#{{$stockreq->number}}</div> 
+            </div>
+            
+            <div class="b">
             {{ !empty($stockreq->document) ? view('pedidos2/view_storage_item',["path"=>$stockreq->document]) :"" }}
-            </span>
-            <span class="last">
+            </div>
+
+            @if ($pedido->status_4 == 1)
+            <div class="statusItem">
+                <div class="MiniEstatus E4">Surtido</div>
+            </div>
+            @endif
+
+            @if ($pedido->status_6 == 1)
+            <div class="statusItem">
+                <div class="MiniEstatus E6">Entregado</div>
+            </div>
+            @endif
+            
+            <div class="last">
                 <a class="btn  editapg" href="{{ url('pedidos2/stockreq_edit/'.$stockreq->id) }}">Editar</a>
-            </span>
+            </div>
         </div>    
     </aside>
 @endif
@@ -342,29 +401,33 @@ if($parcialesNum == $entregadosNum){
 
 
 <div class="card">
+
     <div class="headersub">
      Sub Procesos
     </div>
 
     <div class="Eleccion ">
 
-    @if (!in_array($pedido->status_id,[6,7])  && $user->role_id == 1 ||  in_array($user->departamento_id, [2,4] ) )
+    @if ( $user->role_id == 1 || ( in_array($user->departamento_id, [2,4] ) && !in_array($pedido->status_id,[6,7]) )  )
         <a class="Candidato" rel="smaterial" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=smaterial') }}">+ Salida de Materiales</a>
     @endif
 
 
-    @if ( !in_array($pedido->status_id,[6,7]) && !isset($purchaseOrder->id) )
+    @if ( ($user->role_id == 1 || ( !in_array($pedido->status_id,[6,7]) && !isset($purchaseOrder->id)  ) ) && $pedido->origin != "R" )
         <a class="Candidato" rel="requisicion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=requisicion') }}">+ Requisición</a>
     @endif
 
 
-        @if ($pedido->status_id != 6 && $user->role_id == 1 ||  in_array($user->departamento_id, [4,5] ) )  
+        @if ( $user->role_id == 1 || ( !in_array($pedido->status_id, [6,7]) ||  in_array($user->departamento_id, [4,5] ) ) )  
         <a class="Candidato" rel="ordenf" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=ordenf') }}">+ Orden de fábricación</a>
         @endif
 
 
-        @if (!in_array($pedido->status_id,[6,7]) && !empty($pedido->invoice_number) )
-        <a class="NParcial Candidato subp" href="{{ url('pedidos2/parcial_nuevo/'.$pedido->id) }}">+ Parcial</a>
+        @if ( 
+            !empty($pedido->invoice_number) && $pedido->origin != "R" && 
+            ( $user->role_id == 1 || ( !in_array($pedido->status_id,[6,7]) && !empty($pedido->invoice_number) ) ) 
+            )
+        <a class="NParcial Candidato subp" href="{{ url('pedidos2/parcial_nuevo/'.$pedido->id) }}">+ Salida Parcial</a>
         @endif
 
        
@@ -477,6 +540,13 @@ $(".Eleccion .Accion.enpuerta").click(function(e){
     AccionPresionadoEnPuerta(this);
 });
 
+$(".Eleccion .Accion.entregado").click(function(e){
+    e.preventDefault();
+    $(".Eleccion .Accion").removeClass("activo");
+    $(this).addClass("activo");
+    AccionPresionadoEntregado(this);
+});
+
 
 
 $(".attachList").each(function(){
@@ -538,9 +608,22 @@ e.preventDefault();
 AjaxGet($(this).attr("href"),FormaEditarRequisicion);
 });
 
+$("body").on("click",".desauditoria",function(e){
+e.preventDefault();
+//let tit = $(this).attr("title");
+let href = $(this).attr("href");
+   // if(!confirm(tit)){return false;}
+    AjaxGet(href,FormaDesauditoria);
+//AjaxGetJson(href,()=>{window.location.reload();});
+
+});
+
+
+
 $("body").on("uploaded",".attachList[rel='entregar']",function(e){
 let href = $("[name='urlConfirmaEntregado']").val();
 AjaxGetJson(href,RespuestaConfirmaEntregado);    
+$("#filaTerminarEntrega").show();
 });
 
 $("body").on("click",".editref",function(e){
@@ -726,6 +809,13 @@ console.log("formaEditarParcial");
 
 
 
+function MostrarNotasForm(){
+    $(".NotasForm").show();
+    $(".FilaAddNotes").hide();
+}
+
+
+
 function FormaNuevoSmaterial(h){
 
     MiModal.content(h);
@@ -885,6 +975,9 @@ function FormaNuevoOrdenf2(){
     let sid = $("#FSetAccion [name='status_id']").val();
     $(".monitor").text(monTexts[sid]);
 
+    $("[name='document']").change(function(){
+        $("#rowContinuar").show();
+    });
 
 }
 
@@ -944,6 +1037,14 @@ function FormaNuevoRequisicion2(){
         $("body").unbind("MiModal-exit");
     });
 
+    $("select[name='status_id']").change(function(){
+        let v = $(this).val();
+        if(v=="2"){$("#rowFolioSM").show();}
+        else{$("#rowFolioSM").hide();}
+    });
+    $("select[name='status_id']").change();
+
+
     $("#FSetAccion").ajaxForm({
         error:function(err){alert(err.statusText);},
         dataType:"json", 
@@ -954,6 +1055,11 @@ function FormaNuevoRequisicion2(){
             }
             else{alert(json.errors);} 
         }
+    });
+
+    $("#SubmitButtonRow").hide();
+    $(".AccionForm [name='requisition']").change(function(){
+        $("#SubmitButtonRow").show(); 
     });
 
 }
@@ -976,6 +1082,22 @@ function FormaEditarRequisicion(h){
             }
         }
     });
+    let hayArchivo = $("#fileDiv").length;
+
+    if(hayArchivo < 1){
+        $("#SubmitButtonRow").hide();
+    }
+    
+    $(".Fila.archivo").hide();
+    $(".AccionForm  [name='status_id']").change(function(){
+        let val = $(this).val();
+        if(val==1 || val==5 || val==6 | val==7){
+            $(".Fila.archivo").hide();
+            $(".Fila.archivo[rel='"+val+"']").show();
+        }
+    });
+
+    $(".Fila.archivo[rel='"+ $(".AccionForm  [name='status_id']").val() +"']").show();
 
 }
 
@@ -1323,6 +1445,40 @@ $.ajax({
 
 
 
+function AccionPresionadoEntregado(ob){
+   let href = $(ob).attr("href");
+   console.log(ob);
+
+   $.ajax({
+    url:href,
+    type:"get",
+    error:function(err){alert(err.statusText);},
+    success:function(h){
+        AccionEntregadoForma(h,ob);
+    }
+   });
+
+ }
+ function AccionEntregadoForma(html,ob){
+    if(typeof(ob)=="undefined"){ob=null;}
+    else{
+        $(ob).addClass("completo");
+    }    
+
+    MiModal.content(html);
+    MiModal.show();
+
+    $("body").on("MiModal-exit",function(){
+        window.location.reload();
+    });
+
+
+    AttachList("entregar");
+}
+
+
+
+
 
 
 
@@ -1442,6 +1598,12 @@ function RespuestaDeshacerEntregado(json){
     }
 }
 
+
+function FormaDesauditoria(html){
+    MiModal.content(html);
+    MiModal.show();
+    
+}
 
 </script>    
 @endpush

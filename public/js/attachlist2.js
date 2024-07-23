@@ -1,3 +1,8 @@
+/**
+ * 
+ * event: section.attachList:uploaded()
+ * @returns 
+ */
 
 
 function AttachList(sectionRel){
@@ -191,7 +196,7 @@ $(section).find(":hidden.param").each(function(){
 
 					$(section).trigger("uploaded");
 
-					console.log("attachitem uploaded");
+					console.log("attachitem[rel="+listRel+"] uploaded");
 
 				    AttachList( listRel );
 					

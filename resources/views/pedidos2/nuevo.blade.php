@@ -18,7 +18,7 @@
 
 
 
-    <form action="{{ url('pedidos2/crear') }}" id="FNuevo" class="Cuerpo" method="post">
+    <form action="{{ url('pedidos2/crear') }}" id="FNuevo" class="Cuerpo" method="post" enctype="multipart/form-data">
         @csrf
     <fieldset>
             
@@ -28,7 +28,7 @@
                 <button class="Tipo" rel="F">Factura</button>
                 <button class="Tipo" rel="C">Cotización</button>
                 @if ($user->role_id ==1 || in_array($user->department_id,[4,7]) )
-                <button class="Tipo" rel="R">Requerimiento Stock</button>
+                <button class="Tipo" rel="R">Requisición Stock</button>
                 @endif
             </div>
         </fieldset>

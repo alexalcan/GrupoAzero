@@ -14,6 +14,7 @@ class ManufacturingOrder extends Model
         'iscovered',
         'order_id',
         'status_id',
+        'status_1',
         'status_3',
         'status_4',
         'status_7'

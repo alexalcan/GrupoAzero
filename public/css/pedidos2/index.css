@@ -138,6 +138,7 @@ input[type='checkbox']{
     padding:.5rem 1%;
     cursor:pointer;
     margin-bottom:1rem;
+    border:#333 3px solid;
 }
 
 
@@ -173,7 +174,7 @@ padding:2px 4px 2px 32px;
 background:green;
 color:#fff;
 font-size:.9rem;
-background-size: auto 70%;
+background-size: auto 40%;
 background-position: top 5px left 5px;
 background-repeat: no-repeat;
 }
@@ -183,6 +184,7 @@ background-repeat: no-repeat;
     border:#aaa 1px solid;
     background-position: top 7px left 8px;
     margin-left:20px;
+    background-size: auto 70%;
 }
 .Pedido .estatus.E1{
     background-color:#999;  
@@ -220,17 +222,29 @@ background-repeat: no-repeat;
     background-color:#7f5613;  
     background-image: url(icon_status_9.png);
 }
+.Pedido .estatus.E10{
+    background-color:#b7aa45;  
+    background-image: url(icon_status_10.png);
+}
 
+.Pedido .estatus small{
+    display:block;
+    text-align: center;
+}
+.Pedido .estatus b{
+ font-weight: bold;
+
+}
 
 .Pedido .granliga{
 display: block;
 }
 .Pedido .Elementos{
     display:grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     grid-template-areas: 
-    "main cli fab par sm  ." 
-    "sec  suc fab par sm  .";
+    "main cli    " 
+    "sec  suc    ";
     align-items: start;
     gap:4px;
 }
@@ -298,7 +312,7 @@ color:#222;
 
     .SuperElementos{
         display:grid;
-        grid-template-columns: 1fr 4rem;
+        grid-template-columns: 40% 1fr 4rem;
     }
 
 
@@ -418,6 +432,8 @@ left:0;
 
 
 
+
+
 .filtrosIcon{
     display:none;
     margin:0px 20px 0px 0px;
@@ -436,10 +452,17 @@ left:0;
 
 
 .btnGrande{
-    font-size:1.2rem;
+    font-size:1.4rem;
     padding:.5rem 1rem;
     height:2.4rem;
     cursor:pointer;
+}
+
+.BotsPrincipales{
+    display:flex;
+    justify-content: flex-end;
+    flex-direction: row;
+    column-gap: 2rem;
 }
 
 
@@ -454,8 +477,8 @@ left:0;
         grid-template-areas: 
         "main cli" 
         "sec  suc"
-        "fab par"
-        "sm .";
+    
+        ". .";
     }
 
     a.editar{
@@ -516,8 +539,8 @@ left:0;
         grid-template-areas: 
         "main cli" 
         "sec  suc"
-        "fab par"
-        "sm .";
+
+        ". .";
         margin-top:2rem;
         row-gap: 12px;
         column-gap:8px;

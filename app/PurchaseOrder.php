@@ -12,7 +12,11 @@ class PurchaseOrder extends Model
         'document',
         'requisition',
         'iscovered',
-        'order_id'
+        'order_id',
+        'code_smaterial',
+        'document_5',
+        'document_6',
+        'document_7',
     ];
 
     public function order()

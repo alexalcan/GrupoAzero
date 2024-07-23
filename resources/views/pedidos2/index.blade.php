@@ -28,7 +28,9 @@ use App\Http\Controllers\Pedidos2Controller;
         <input type="hidden" name="p" value="{{ $pag }}" />
         <section class="formaBuscar">
             <div class="terminoBox">
+                
                 <input type="text" name="termino"  maxlength="90" />
+
                 <input type="button" id="buscarBoton" value="Buscar" />
             </div>
             <div class="fechasBox">
@@ -48,6 +50,10 @@ use App\Http\Controllers\Pedidos2Controller;
                 <a class='toggleLink' tabindex="3">Búsqueda Avanzada</a>
             </div>
 
+
+            <div>&nbsp;</div>
+
+
             <?php
         $statuses = Pedidos2::StatusesCat();
         $events = Pedidos2::EventsCat();
@@ -59,7 +65,7 @@ use App\Http\Controllers\Pedidos2Controller;
                     <legend>Status</legend>
                
                     @foreach ($statuses as $k=>$v)
-                        @if ($k < 8)
+                        @if ( !in_array($k, [3,4,9] ))
                         <div class="checkpair"><input type="checkbox" name="st[]" value="{{ $k }}" id="st_{{ $v }}"> <label for="st_{{ $v }}">{{ $v }}</label></div>
 
                         @endif
@@ -69,34 +75,47 @@ use App\Http\Controllers\Pedidos2Controller;
                 <fieldset>
                     <legend>Subprocesos</legend>
                     @foreach ($events as $k=>$v)
-                    <div class="checkpair parent" rel="{{ $k }}"><input type="checkbox" name="sp[]" value="{{ $k }}" id="sp_{{ $v }}"> <label for="sp_{{ $v }}">{{ $v }}</label></div>
+                        @if ($k == "refacturar")
+                            @continue
+                        @endif 
+                    <div class="checkpair parent" rel="{{ $k }}"><input type="checkbox" name="sp[]" value="{{ $k }}" id="sp_{{ $v }}"> <label for="sp_{{ $v }}">{{ ($k=="ordenc") ? "Requisición": $v }}</label></div>
                             @if ($k =="ordenc") 
-                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_4" id="spsub_4"> <label for="spsub_4">Elaborado</label></div>
-                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_6" id="spsub_6"> <label for="spsub_6">Surtida</label></div>                            
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_1" id="spsub_{{$k}}_1"> <label for="spsub_{{$k}}_1">Elaborado</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_3" id="spsub_{{$k}}_3"> <label for="spsub_{{$k}}_3">En fabricación</label></div>                            
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_4" id="spsub_{{$k}}_4"> <label for="spsub_{{$k}}_4">Fabricada</label></div>   
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_7" id="spsub_{{$k}}_7"> <label for="spsub_{{$k}}_7">Cancelada</label></div>   
                             
                             @elseif ($k =="ordenf") 
-                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_3" id="spsub_3"> <label for="spsub_3">En fabricación</label></div>
-                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_4" id="spsub_4"> <label for="spsub_4">Fabricada</label></div>
-                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_7" id="spsub_7"> <label for="spsub_7">Cancelado</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_1" id="spsub_{{$k}}_1"> <label for="spsub_{{$k}}_1">Elaborada</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_3" id="spsub_{{$k}}_3"> <label for="spsub_{{$k}}_3">En fabricación</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_4" id="spsub_{{$k}}_4"> <label for="spsub_{{$k}}_4">Fabricada</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_7" id="spsub_{{$k}}_7"> <label for="spsub_{{$k}}_7">Cancelado</label></div>
                             
                             @elseif ($k =="parcial") 
-                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_4" id="spsub_4"> <label for="spsub_4">Elaborada</label></div>
-                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_5" id="spsub_5"> <label for="spsub_5">En puerta</label></div>
-                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_6" id="spsub_6"> <label for="spsub_6">Entregada</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_4" id="spsub_{{$k}}_4"> <label for="spsub_{{$k}}_4">Elaborada</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_5" id="spsub_{{$k}}_5"> <label for="spsub_{{$k}}_5">En puerta</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_6" id="spsub_{{$k}}_6"> <label for="spsub_{{$k}}_6">Entregada</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_7" id="spsub_{{$k}}_7"> <label for="spsub_{{$k}}_7">Cancelada</label></div>
 
                             @elseif ($k =="sm") 
-                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_4" id="spsub_4"> <label for="spsub_4">Elaborada</label></div>
-                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_5" id="spsub_5"> <label for="spsub_5">En puerta</label></div>
-                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_6" id="spsub_6"> <label for="spsub_6">Entregada</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_4" id="spsub_{{$k}}_4"> <label for="spsub_{{$k}}_4">Elaborada</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_5" id="spsub_{{$k}}_5"> <label for="spsub_{{$k}}_5">En puerta</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_6" id="spsub_{{$k}}_6"> <label for="spsub_{{$k}}_6">Entregada</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_7" id="spsub_{{$k}}_7"> <label for="spsub_{{$k}}_7">Cancelada</label></div>
                             @endif
 
                     @endforeach
                 </fieldset>
                 <fieldset>
                     <legend>Origen</legend>
-                    <div class="checkpair"><input type="checkbox" name="or[]" value="C" id="or_C"> <label for="or_C">Cotización</label></div>
-                    <div class="checkpair"><input type="checkbox" name="or[]" value="F" id="or_F"> <label for="or_F">Factura</label></div>
+                    <div class="checkpair parent" rel="C"><input type="checkbox" name="or[]" value="C" id="or_C"> <label for="or_C">Cotización</label></div>
+                        <div class="checkpair sub" parent="C"><input type="checkbox" name="orsub[]" value="C_0" id="orsub_C_0"> <label for="orsub_C_0">Sin Factura</label></div>
+                        <div class="checkpair sub" parent="C"><input type="checkbox" name="orsub[]" value="C_1" id="orsub_C_1"> <label for="orsub_C_1">Con Factura</label></div>
                     
+                    <div class="checkpair"><input type="checkbox" name="or[]" value="F" id="or_F"> <label for="or_F">Factura</label></div>
+                    <div class="checkpair"><input type="checkbox" name="or[]" value="R" id="or_R"> <label for="or_R">Requisición Stock</label></div>
+                    
+
                     <legend>Recolección</legend>
                     <div class="checkpair"><input type="checkbox" name="rec[]" value="1" id="rec_1"> <label for="rec_1">Chofer Entrega</label></div>
                     <div class="checkpair"><input type="checkbox" name="rec[]" value="2" id="rec_2"> <label for="rec_2">Cliente recoge</label></div>
@@ -111,6 +130,7 @@ use App\Http\Controllers\Pedidos2Controller;
                 <div class="Fila center"><input type="button" class="form-control btnGrande" value="Buscar" onclick="GetLista()" /> </div>
             </aside>
             
+            <div>&nbsp;</div>
             
             <div class="Fila center" id="MuestraSimple"><a class='toggleLink' tabindex="4">Búsqueda Simple</a></div>
         
@@ -125,9 +145,10 @@ use App\Http\Controllers\Pedidos2Controller;
 
     @if ($user->role_id == 1 || (in_array($user->department_id, [3, 4 , 8]) ) )
     <div class="container-fluid">
-        <div class="right Fila">
+        <div class="BotsPrincipales">
         
-        <button class="nuevo" href="{{ url('pedidos2/multie') }}">Multiple Estatus </button>
+        <button class="nuevo" href="{{ url('pedidos2/multie') }}">Cambio de Estatus Masivo </button>   
+
 
         <button class="nuevo" href="{{ url('pedidos2/nuevo') }}">Crear Nuevo Pedido</button>
     
@@ -261,6 +282,11 @@ $(document).ready(function(){
         window.location.href = $(this).attr("href");
     });
 
+
+    
+    $("input[name='termino']").on("keyup",function(e){
+        if(e.keyCode==13){$("#buscarBoton").click();}
+    });
 
 
 

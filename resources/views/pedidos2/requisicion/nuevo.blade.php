@@ -1,11 +1,11 @@
 <?php
-$estatuses = [1=>"En Proceso"];
-var_dump($user);
+$estatuses = [1=>"Elaborada"];
+
     if(in_array($user->department_id, [4,7]) || $user->role_id == 1){
-        $estatuses[2]="Surtida";
+        $estatuses[5]="En Puerta";
     }
     if(in_array($user->department_id, [4,7]) || $user->role_id == 1){
-        $estatuses[3]="Elaborada";
+        $estatuses[6]="Entregada";
     }
     if($user->role_id==1){
         $estatuses[4]="Cancelada";
@@ -22,7 +22,10 @@ var_dump($user);
 <input type="hidden" name="paso" value="1" />
 <aside class="AccionForm">
     <div class="ScrollModal">
-    <div class="Fila"><label>Folio</label><input type="text" name="number" class="form-control" maxlength="24" /></div>
+
+    <div class="Fila"><label># Requisición</label><input type="text" name="number" class="form-control" maxlength="24" /></div>
+
+    
 
     <div class="Fila"><label>Estatus</label>
     <select class="form-control" name="status_id">
@@ -35,12 +38,17 @@ var_dump($user);
     </div>
 
 
+    <div class="Fila" id="rowFolioSM" style="display: none;"><label>Folio Salida de Materiales</label><input type="text" name="code_smaterial" class="form-control" maxlength="24" /></div>
+
+
     @if ($user->role_id==1)
+    <!--
     <div class="Fila"><label>Archivo Factura</label>
         <div>
         <input type="file" name="document" class="form-control" />
         </div>
     </div>
+    -->
     @endif
 
     @if ($user->role_id==1 || $user->department_id == 7)
@@ -52,8 +60,9 @@ var_dump($user);
     @endif
     </div>
 
-    
-    <div class="Fila"><input type="submit" name="sb" class="form-control" value="Continuar" /> </div>
+
+    <div class="Fila" id="SubmitButtonRow"><input type="submit" name="sb" class="form-control" value="Continuar" /> </div>
+
 
 </aside>
 

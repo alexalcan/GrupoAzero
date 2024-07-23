@@ -60,10 +60,13 @@ class Pedidos2Controller extends Controller
         return view('pedidos2.index', compact('reasons','department','role','queryString','user','pag'));
     }
 
+
+
     public function lista(Request $request){
 
-
         $termino = (string)$request->query("termino","");
+        $termino = addslashes($termino);
+
         $fechas = (string)$request->query("fechas","");
 
         $fechaspts= explode(" - ",$fechas);
@@ -77,11 +80,11 @@ class Pedidos2Controller extends Controller
             $fob->modify("-7 day");
             $desde = $fob->format("Y-m-d 00:00:00");
         }
-//var_dump($desde);
         
 
         Session::put(self::QS,$request->query());
 
+        //*****************************************   FILTROS  *******************
         $status = (array)$request->query("st");
         $subprocesos = (array)$request->query("sp");
         $origen = (array)$request->query("or");
@@ -89,12 +92,8 @@ class Pedidos2Controller extends Controller
 
         $subpstatus = (array)$request->query("spsub");
         $recogido = (array)$request->query("rec");
-        //var_dump($sucursal);
-        //var_dump($subprocesos);
+        $orsub = (array)$request->query("orsub");
 
-      //  $pagDefault = Session::get(self::PAG, 1);
-       // $pagDefault = intval($pagDefault);
-//var_dump($pagDefault);
         $pag = $request->query("p",0);
         $pag = intval($pag);
 
@@ -108,7 +107,7 @@ class Pedidos2Controller extends Controller
 
 
         $statuses = Status::all();
-        $lista = Pedidos2::Lista($pag, $termino, $desde, $hasta, $status, $subprocesos, $origen, $sucursal,$subpstatus,$recogido);
+        $lista = Pedidos2::Lista($pag, $termino, $desde, $hasta, $status, $subprocesos, $origen, $sucursal,$subpstatus,$recogido,$orsub);
 
         $estatuses = [];
         foreach($statuses as $st){
@@ -260,7 +259,7 @@ class Pedidos2Controller extends Controller
                 $sqlPath = 'OrdenesDeCompra/' . $name;
                 Storage::putFileAs('/public/OrdenesDeCompra/', $file, $name );
     
-    
+    /*
                 $purchaseOrder=[
                     "required"=> 1,
                     "document"=> $sqlPath,
@@ -271,6 +270,9 @@ class Pedidos2Controller extends Controller
                     "v2"=>1
                 ];      
                 PurchaseOrder::create($purchaseOrder);
+                */
+       
+                Order::where("id",$order->id)->update(["invoice_document"=>$sqlPath]);
             }
 
             
@@ -356,6 +358,7 @@ class Pedidos2Controller extends Controller
             $srData=[
                 "order_id" => $order["id"],
                 "number" => $code,
+                "document"=>"",
                 "created_at" => $now,
                 "updated_at" => $now
             ];
@@ -368,18 +371,19 @@ class Pedidos2Controller extends Controller
         }
 
 
-    $note =Note::create([
-        "note"=>$nota,
-        "order_id"=>$order->id,
-        "user_id" => $user->id,
-        "created_at"=>$now,
-        "updated_at"=>$now
-    ]);
+        $note =Note::create([
+            "note"=>$nota,
+            "order_id"=>$order->id,
+            "user_id" => $user->id,
+            "created_at"=>$now,
+            "updated_at"=>$now
+        ]);
 
 
         //******************************************     LOG ****
         $status = Status::find(1);
-        $action = $user->name .' creó una orden : '.$order->id;
+
+        $action = $user->name .' creó una orden : '.$code;
 
         Log::create([
             'status' => $status->name,
@@ -404,10 +408,14 @@ class Pedidos2Controller extends Controller
          
          $invoice = !empty($request->invoice) ? Tools::_string($request->invoice,18) : "" ;
          $invoice_number = !empty($request->invoice_number) ? Tools::_string($request->invoice_number,18) : "" ;
-
          
          $client = !empty($request->client) ? Tools::_string($request->client,24) : '';
  
+         $obPrevio = Order::where("id",$id)->first();
+         $aFactura=false;
+            if(empty($obPrevio->invoice_number) && !empty($invoice_number)){
+                $aFactura=true;
+            }
 
          $now = date("Y-m-d H:i:s");
 
@@ -418,6 +426,7 @@ class Pedidos2Controller extends Controller
             'updated_at' => $now
         ];        
         Order::where("id",$id)->update($orderData);
+        /*
         if(!empty($invoice_number)){
             $hay = PurchaseOrder::where("order_id",$id)->first();
             if($hay==null){
@@ -435,7 +444,7 @@ class Pedidos2Controller extends Controller
         }else{
             PurchaseOrder::where(["order_id"=>$id])->update(["number"=>$invoice_number]);
         }
-        
+        */
         Quote::where(["order_id"=>$id])->update(["number"=>$invoice]);
 
          //ARCHIVO
@@ -447,7 +456,8 @@ class Pedidos2Controller extends Controller
             Storage::putFileAs('/public/Cotizaciones/', $file, $name );
             
             $quo = Quote::where(["order_id"=>$id])->first();
-                if(is_null($quo) || $quo->isEmpty()){                    
+            //var_dump($quo);die();
+                if(is_null($quo) || $quo->exists()==false){                    
                     $quo = Quote::create([
                         "order_id"=>$id,
                         "number"=>$invoice,
@@ -469,13 +479,22 @@ class Pedidos2Controller extends Controller
             $sqlPath = 'OrdenesDeCompra/' . $name;
             Storage::putFileAs('/public/OrdenesDeCompra/', $file, $name );
             
-            $po = PurchaseOrder::where(["order_id"=>$id])->first();
-            $po->document = $sqlPath;
-            $po->save();
+            //$po = PurchaseOrder::where(["order_id"=>$id])->first();
+            //$po->document = $sqlPath;
+            //$po->save();
+            Order::where("id",$id)->update(["invoice_document"=>$sqlPath,"updated_at"=>date("Y-m-d H:i:s")]);
          }
 
-    $ob = Order::where("id",$id)->first();
-    Pedidos2::Log($id,"Pedido","El pedido $id fue modificado por ".$user->name,$ob->status_id,$user);         
+    $ob = Order::where("id",$id)->first();   
+   
+         if($aFactura==true){
+            $accionTxt = "La cotización {$obPrevio->invoice} se convierrió en factura {$invoice_number}, hecho por ".$user->name;
+         }else{
+            $idLog = Pedidos2::CodigoDe($ob);
+            $accionTxt = "El pedido $idLog fue modificado por ".$user->name;
+         }
+
+    Pedidos2::Log($id,"Pedido", $accionTxt, $ob->status_id,$user);         
 
     return redirect("pedidos2/pedido/".$id);     
 
@@ -528,6 +547,11 @@ class Pedidos2Controller extends Controller
             return view("pedidos2/accion/surters",compact("id","order","paso","stockreq"));
         }
 
+        if($accion == "desauditoria"){
+
+            return view("pedidos2/accion/desauditoria",compact("id","order","paso"));  
+        }
+
         /*
         if($accion == "refacturar"){
 
@@ -576,13 +600,16 @@ class Pedidos2Controller extends Controller
             return view("pedidos2/smaterial/nuevo",compact("order_id","order","paso","user"));
         }
         if($accion == "requisicion"){
-            $ob = PurchaseOrder::where(["order_id"=>$order_id])->first();
-            if($ob == null){
-                return view("pedidos2/requisicion/nuevo",compact("order_id","order","paso","user"));
-            }else{
-                $id=$order_id;
-                return view("pedidos2/requisicion/edit",compact("order_id","order","paso","ob","id","user"));
+            if( ($order->origin == "F" && (empty($order->invoice_number) || empty($order->invoice_document)))
+            ||
+            ($order->origin == "C" && (empty($order->invoice) || empty($order->quote())) ) ){
+                var_dump($order->quote());
+                return view("pedidos2/requisicion/faltafactura",compact("order_id","order","paso","user"));
             }
+            else{
+                return view("pedidos2/requisicion/nuevo",compact("order_id","order","paso","user"));
+            }
+            
             
         }
         if($accion == "devolucion"){
@@ -697,7 +724,7 @@ class Pedidos2Controller extends Controller
         ]);  
 
 
-        Pedidos2::Log($order_id,"Parcial", $user->name." registró un nuevo pedido #{$partial->id}", $status_id, $user);
+        Pedidos2::Log($order_id,"Parcial", $user->name." registró una nueva salida parcial #{$invoice}", $status_id, $user);
         
         $paso = 2;
         return view("pedidos2/parcial/nuevo",compact("order_id","paso","partial","user"));
@@ -745,7 +772,7 @@ class Pedidos2Controller extends Controller
 
         $partial = Partial::where(["id" => $id])->first(); 
 
-        Pedidos2::Log($id,"Parcial Update", $user->name." cambió el pedido #{$partial->id}", $status_id, $user);
+        Pedidos2::Log($id,"Parcial Update", $user->name." cambió el parcial #{$partial->invoice}", $status_id, $user);
 
         Feedback::j(1);
     }
@@ -779,7 +806,7 @@ class Pedidos2Controller extends Controller
             "status_".$status_id=>1
         ]); 
 
-        Pedidos2::Log($order_id,"Salida de Material", $user->name." registró una nueva salida de material #{$smaterial->id}", $status_id, $user);
+        Pedidos2::Log($order_id,"Salida de Material", $user->name." registró una nueva salida de material #{$code}", $status_id, $user);
         //var_dump($smaterial);
        // die();
         $paso=2;
@@ -824,7 +851,7 @@ class Pedidos2Controller extends Controller
 
         $ob = Smaterial::where(["id" => $id])->first(); 
 
-        Pedidos2::Log($id,"Salida Material Update", $user->name." cambió la salida de material #{$ob->id}", $status_id, $user);
+        Pedidos2::Log($id,"Salida Material Update", $user->name." cambió la salida de material #{$ob->code}", $status_id, $user);
 
         Feedback::j(1);
     }
@@ -876,9 +903,9 @@ class Pedidos2Controller extends Controller
         }
 
 
-        Pedidos2::Log($order_id,"Orden de fabricación", $user->name." registró una nueva orden de fabricacion #{$ordenf->id}", $status_id, $user);
+        Pedidos2::Log($order_id,"Orden de fabricación", $user->name." registró una nueva orden de fabricacion #{$ordenf->number}", $status_id, $user);
 
-        $paso=2;
+       // $paso=2;
         Feedback::value($ordenf->id);
         Feedback::j(1);
        // return view("pedidos2/ordenf/nuevo",compact("order_id","paso","smaterial"));
@@ -915,7 +942,11 @@ class Pedidos2Controller extends Controller
         $id = Tools::_int($id);       
         $user = auth()->user();
 
-        $status_id = Tools::_int($request->status_id);       
+        $status_id = Tools::_int($request->status_id);   
+        
+        $morder = ManufacturingOrder::where("id", $id)->first(); 
+    
+        $current_status_id = $morder->status_id;
 
         $sqlPath='';
         //ARCHIVO        
@@ -933,8 +964,10 @@ class Pedidos2Controller extends Controller
             Storage::putFileAs('/public/FabricacionesCanc/', $file, $name );
             }
 
+     
+
             $data = [
-                "status_id" => $status_id,
+                "status_id" => ($current_status_id< $status_id) ? $status_id : $current_status_id,
                 "status_".$status_id => 1,
                 "updated_at"=>date("Y-m-d H:i:s")
             ];
@@ -946,8 +979,9 @@ class Pedidos2Controller extends Controller
             }
 
         ManufacturingOrder::where("id", $id)->update($data); 
+        $morder = ManufacturingOrder::where("id", $id)->first(); 
 
-        Pedidos2::Log($id,"Salida Material Update", $user->name." cambió la salida de material #{$id}", 0, $user);
+        Pedidos2::Log($id,"Salida Material Update", $user->name." cambió la orden de fabricación #{$morder->number}", 0, $user);
         Feedback::j(1);
         return;
     }
@@ -962,7 +996,8 @@ class Pedidos2Controller extends Controller
         $error="";
 
         $number = Tools::_string( $request->number, 24);  
-        $status_id = Tools::_int($request->status_id);       
+        $status_id = Tools::_int($request->status_id);      
+        $code_smaterial = Tools::_string($request->code_smaterial,24);       
         
         $previo = PurchaseOrder::where(["order_id" => $order_id,"number"=>$number])->get()->toArray();
             if(count($previo)>0){
@@ -977,13 +1012,16 @@ class Pedidos2Controller extends Controller
             "required"=>1,
             "document"=>"",
             "requisition"=>"",
+            "code_smaterial"=>$code_smaterial,
             "status_id" => $status_id, 
+            "status_1" => date("Y-m-d H:i:s"),
             "order_id"=>$order_id,
             "created_at"=>date("Y-m-d H:i:s"),
             "updated_at"=>date("Y-m-d H:i:s")
         ]); 
 
         //ARCHIVO
+        /*
         if($request->hasFile("document")){
             $file = $request->file('document');
             $name = $porder->id.".".$file->getClientOriginalExtension();
@@ -993,6 +1031,7 @@ class Pedidos2Controller extends Controller
             $porder->document = $sqlPath;
             $porder->save();
         }
+        */
 
         if($request->hasFile("requisition")){
             $file = $request->file('requisition');
@@ -1005,7 +1044,7 @@ class Pedidos2Controller extends Controller
         }
 
 
-        Pedidos2::Log($order_id,"Requisición", $user->name." registró una nueva requisición #{$porder->id}", 0, $user);
+        Pedidos2::Log($order_id,"Requisición", $user->name." registró una nueva requisición #{$number}", 0, $user);
 
         //$paso=2;
         Feedback::value($porder->id);
@@ -1033,7 +1072,7 @@ class Pedidos2Controller extends Controller
 
         $list = PurchaseOrder::where(['order_id' => $order_id])->orderBy("id","DESC")->get();
         $estatuses = Pedidos2::StatusesCat();
-    
+
 
         foreach($list as $li){
             echo view("pedidos2/requisicion/ficha",["order_id"=>$order_id,"estatuses"=>$estatuses, "ob" => $li]);
@@ -1048,10 +1087,13 @@ class Pedidos2Controller extends Controller
 
         $status_id = Tools::_int($request->status_id); 
         $number = Tools::_string( $request->number, 24);  
+        $code_smaterial = Tools::_string($request->code_smaterial,24);  
 
         $dsqlPath="";
         $rsqlPath="";
-
+        $rd5Path="";
+        $rd6Path="";
+        $rd7Path="";
 
         //ARCHIVO
         if($request->hasFile("document")){
@@ -1068,8 +1110,42 @@ class Pedidos2Controller extends Controller
             Storage::putFileAs('/public/OrdenesDeCompra/', $file, $name );  
         }
 
+
+        if($request->hasFile("document_5")){
+            $file = $request->file('document_5');
+            $name = $id."_d5_". ".".$file->getClientOriginalExtension();
+            $rd5Path = 'OrdenesDeCompra/' . $name;
+            Storage::putFileAs('/public/OrdenesDeCompra/', $file, $name );  
+        }
+
+        if($request->hasFile("document_6")){
+            $file = $request->file('document_6');
+            $name = $id."_d6_".".".$file->getClientOriginalExtension();
+            $rd6Path = 'OrdenesDeCompra/' . $name;
+            Storage::putFileAs('/public/OrdenesDeCompra/', $file, $name );  
+        }
+
+        if($request->hasFile("document_7")){
+            $file = $request->file('document_7');
+            $name = $id."_d7_".".".$file->getClientOriginalExtension();
+            $rd7Path = 'OrdenesDeCompra/' . $name;
+            Storage::putFileAs('/public/OrdenesDeCompra/', $file, $name );  
+        }
+
+        $pord = PurchaseOrder::where("id", $id)->first(); 
+        $status_date = date("Y-m-d H:i:s");
+            if($pord->exists()==true){
+                $prev = !empty($pord->{"status_".$status_id}) ? new \DateTime($pord->{"status_".$status_id}) : null;
+                if($prev!=null){
+                    $hoy = new \DateTime();
+                    $diff = $hoy->diff($prev)->days;
+                    $status_date = ( $diff > 0 ) ? date("Y-m-d H:i:s") : $pord->{"status_".$status_id} ;
+                }                
+            }
+
             $data = [
                 "status_id" => $status_id,
+                "status_".$status_id => $status_date,
                 "updated_at"=>date("Y-m-d H:i:s")
             ];
             if(!empty($dsqlPath)){
@@ -1081,10 +1157,22 @@ class Pedidos2Controller extends Controller
             if(!empty($number)){
                 $data["number"]=$number;
             }
+            if(!empty($code_smaterial)){
+                $data["code_smaterial"]=$code_smaterial;
+            }
+            if(!empty($rd5Path)){
+                $data["document_5"]=$rd5Path;
+            }
+            if(!empty($rd6Path)){
+                $data["document_6"]=$rd6Path;
+            }
+            if(!empty($rd7Path)){
+                $data["document_7"]=$rd7Path;
+            }
             
             PurchaseOrder::where("id", $id)->update($data); 
 
-            Pedidos2::Log($id,"Salida Material Update", $user->name." cambió la salida de material #{$id}", 0, $user);
+            Pedidos2::Log($id,"Salida Material Update", $user->name." cambió la requisición #{$number}", 0, $user);
             Feedback::j(1);
             return;
 
@@ -1194,7 +1282,7 @@ class Pedidos2Controller extends Controller
             }
 
 
-        Pedidos2::Log($id,"Orden de Fabricación",$user->name." ha registrado una orden de fabricación", 3, $user);
+        Pedidos2::Log($id,"Orden de Fabricación",$user->name." ha registrado una orden de fabricación $number", 3, $user);
     }
 
 
@@ -1204,7 +1292,7 @@ class Pedidos2Controller extends Controller
         
         Order::where(["id"=>$id])->update( ["status_id" => 6, "status_6"=>1, "updated_at" => date("Y-m-d H:i:s") ] );
 
-        Pedidos2::Log($id,"Surtido",$user->name." ha registrado que el pedido fue surtido", 6, $user);
+        Pedidos2::Log($id,"Entregado",$user->name." ha registrado que el pedido fue entregado", 6, $user);
         
         Feedback::json_service(1);
     }
@@ -1214,9 +1302,9 @@ class Pedidos2Controller extends Controller
     function set_accion_surters(int $id,Request $request){
         $user = auth()->user();
         
-        Order::where(["id"=>$id])->update( ["status_id" => 6, "status_6"=>1, "updated_at" => date("Y-m-d H:i:s") ] );
+        Order::where(["id"=>$id])->update( ["status_id" => 5, "status_5"=>1, "updated_at" => date("Y-m-d H:i:s") ] );
 
-        Pedidos2::Log($id,"Entregado",$user->name." ha registrado que el pedido fue entregado", 6, $user);
+        Pedidos2::Log($id, "En Puerta",$user->name." ha registrado que el pedido con stockreq está en puerta", 5, $user);
         
         Feedback::json_service(1);
     }
@@ -1850,7 +1938,7 @@ class Pedidos2Controller extends Controller
 
         Debolution::where("id", $id)->update($data); 
 
-        Pedidos2::Log($id,"Devolucion", $user->name." hizo un cambio en devolución #{$id}", 0, $user);
+        Pedidos2::Log($id,"Devolucion", $user->name." hizo un cambio en devolución", 0, $user);
         Feedback::j(1);
         return;
     }
@@ -1880,7 +1968,7 @@ class Pedidos2Controller extends Controller
             ];
         Shipment::where("id", $id)->update($data); 
 
-        Pedidos2::Log($id,"Shipment", $user->name." hizo un cambio en el embarque #{$id}", 0, $user);
+        Pedidos2::Log($id,"Shipment", $user->name." hizo un cambio en el embarque", 0, $user);
         Feedback::j(1);
         return;
     }
@@ -1914,7 +2002,7 @@ class Pedidos2Controller extends Controller
             ];
         Shipment::where("id", $id)->update($data); 
 
-        Pedidos2::Log($id,"Shipment", $user->name." hizo un cambio en el embarque #{$id}", 0, $user);
+        Pedidos2::Log($id,"Shipment", $user->name." hizo un cambio en el embarque", 0, $user);
         Feedback::j(1);
         return;
     }
@@ -1978,7 +2066,7 @@ class Pedidos2Controller extends Controller
 
         $res =[];
 
-        Pedidos2::Log($order_id,"Refacturación", $user->name." creó una refacturación #{$rebilling->id}", 0, $user);
+        Pedidos2::Log($order_id,"Refacturación", $user->name." creó una refacturación #{$number}", 0, $user);
 
         Feedback::value($rebilling->id);
         Feedback::j(1);
@@ -2041,7 +2129,7 @@ class Pedidos2Controller extends Controller
             ]);
         }
 
-        Pedidos2::Log($rebilling->order_id,"Refacturación", $user->name." modificó la refacturación #{$id}", 0, $user);
+        Pedidos2::Log($rebilling->order_id,"Refacturación", $user->name." modificó la refacturación #{$number}", 0, $user);
 
         Feedback::value($rebilling->id);
         Feedback::j(1);
@@ -2066,10 +2154,10 @@ class Pedidos2Controller extends Controller
         return view("pedidos2/stockreq/edit",compact("id","ob","user"));
     }
 
+
     public function stockreq_update($id, Request $request){
         $id = Tools::_int($id); 
         $user = auth()->user();
-
   
         $number = Tools::_string( $request->number, 24);  
 
@@ -2090,9 +2178,7 @@ class Pedidos2Controller extends Controller
         ]); 
       $rebilling = Stockreq::where(["id"=>$id])->first();
 
-
-
-        Pedidos2::Log($rebilling->order_id,"Refacturación", $user->name." modificó la refacturación #{$id}", 0, $user);
+        Pedidos2::Log($rebilling->order_id,"Refacturación", $user->name." modificó la Requisición Stock #{$number}", 0, $user);
 
         Feedback::value($rebilling->id);
         Feedback::j(1);
@@ -2143,7 +2229,7 @@ class Pedidos2Controller extends Controller
 
         Partial::where("id", $id)->update($data);         
 
-        Pedidos2::Log($partial["order_id"], "Parcial", $user->name." edita status ".$estatuses[$status_id]." en el parcial #{$id}", $status_id, $user);
+        Pedidos2::Log($partial["order_id"], "Parcial", $user->name." edita status ".$estatuses[$status_id]." en el parcial #{$partial->invoice}", $status_id, $user);
         Feedback::j(1);
         return;       
     }
@@ -2168,7 +2254,7 @@ class Pedidos2Controller extends Controller
 
         Smaterial::where("id", $id)->update($data);         
 
-        Pedidos2::Log($smaterial["order_id"], "Salida de Material", $user->name." edita status ".$estatuses[$status_id]." en el parcial #{$id}", $status_id, $user);
+        Pedidos2::Log($smaterial["order_id"], "Salida de Material", $user->name." edita status ".$estatuses[$status_id]." en el parcial #{$smaterial->code}", $status_id, $user);
         Feedback::j(1);
         return;       
     }
@@ -2213,7 +2299,7 @@ class Pedidos2Controller extends Controller
         $estatus = $request->get("estatus");
 
         $estatus = intval($estatus);
-        $validos =[2,3,4];
+        $validos =[2,3,4,10];
         $estatus = in_array($estatus,$validos) ? $estatus : 0;       
 
         return view('pedidos2.multie.multie', compact('user','role','estatus'));
@@ -2231,19 +2317,36 @@ class Pedidos2Controller extends Controller
         $estatus = Tools::_int($estatus);
 
         $wseg = (strlen($term) > 1 ) ? "AND (invoice_number LIKE '%{$term}%' OR invoice LIKE '%{$term}%')" : "" ;
+        $wsegmo = (strlen($term) > 1 ) ? "AND mo.`number` LIKE '%{$term}%' " : "" ;
 
         $q = "SELECT * FROM orders 
         WHERE status_id < $estatus $wseg LIMIT 10";
+
+        $qo = "SELECT mo.*, o.invoice_number, o.invoice FROM manufacturing_orders mo JOIN orders o ON o.id = mo.order_id 
+        WHERE mo.status_id < $estatus $wsegmo LIMIT 10";
         //echo $q;
 
-        $shipments = DB::select(DB::raw($q));
-        $statusesq = Status::all();
-        $statuses = [];
-            foreach($statusesq as $st){
-                $statuses[$st->id] = $st->name;
-            }
+        if($estatus==2 || $estatus == 10 ){
+            $shipments = DB::select(DB::raw($q));
+            $statusesq = Status::all();
+            $statuses = [];
+                foreach($statusesq as $st){
+                    $statuses[$st->id] = $st->name;
+                }
+    
+            return view("pedidos2.multie.lista",compact('user','shipments',"statuses"));
+        }else{
+           // echo DB::raw($qo);
+            $lista = DB::select(DB::raw($qo));
+            $statusesq = Status::all();
+            $statuses = [];
+                foreach($statusesq as $st){
+                    $statuses[$st->id] = $st->name;
+                }
+    
+            return view("pedidos2.multie.listamo",compact('user','lista',"statuses"));
+        }
 
-        return view("pedidos2.multie.lista",compact('user','shipments',"statuses"));
     }
 
 
@@ -2268,12 +2371,117 @@ class Pedidos2Controller extends Controller
                 $data["status_".$status_id] = 1;
             }
 
-        Order::where("id", $id)->update($data);         
+        Order::where("id", $id)->update($data);      
+        $order = Order::where("id", $id)->first();     
 
-        Pedidos2::Log($id, "Order", $user->name." edita status ".$estatuses[$status_id]." en el pedido #{$id}", $status_id, $user);
+        $idLog = !empty($order->invoice_number) ? $order->invoice_order: $order->invoice ;
+        Pedidos2::Log($id, "Order", $user->name." edita status ".$estatuses[$status_id]." en el pedido #{$idLog}", $status_id, $user);
         Feedback::j(1);
         return;       
     }
+
+
+
+    public function set_multistatus(Request $request){
+             
+        $user = auth()->user();
+
+        $estatuses = [2=>"Entregado", 3 => "En Fabricaicón", 4=>"Fabricado",10=>"Recibido por Auditoria"];
+
+        $catalogo = isset($request->catalogo) ? (string)$request->catalogo : "";
+        $listaor = $request->lista;
+        $status_id = Tools::_int($request->status_id);  
+
+        $lista=[];
+
+        if(!in_array($status_id,array_keys($estatuses))){
+            Feedback::j(0);
+        }
+        foreach($listaor as $li){
+            $lista[]=(int)$li;
+        }
+
+        $n=0;
+
+        $d = date("Y-m-d H:i:s");
+        foreach($lista as $li){
+            $data = [
+                "status_id"=> $status_id,
+                "updated_at"=> $d
+            ];
+            if($catalogo==="order"){
+                if($status_id > 2){$data["status_".$status_id] = 1; }
+
+                Order::where("id", $li)->update($data);    
+                $order = Order::where("id", $li)->first();       
+
+                $idLog = !empty($order->invoice_number) ? $order->invoice_number : $order->invoice ;
+                Pedidos2::Log($li, "Order", $user->name." edita status ".$estatuses[$status_id]." en el pedido #{$idLog}", $status_id, $user);
+                $n++;
+            }
+            else if($catalogo=="morder"){
+                if($status_id > 2){$data["status_".$status_id] = 1; }
+
+                ManufacturingOrder::where("id", $li)->update($data);
+                $morder = ManufacturingOrder::where("id", $li)->first();          
+        
+                Pedidos2::Log($li, "Orden de Fabricación", $user->name." edita status ".$estatuses[$status_id]." en Orden Fabricación #{$morder->number}", $status_id, $user);                
+                $n++;
+            }
+
+        }
+
+        Feedback::value($n);
+        Feedback::j(1);
+        return;       
+    }
+
+
+    public function set_accion_desauditoria($id, Request $request){
+    $id = Tools::_int($id);       
+    $user = auth()->user();
+
+    $order = Order::where("id",$id)->first();
+
+    $comentario = !empty($request->comentario) ? Tools::_string($request->comentario,162) : "";
+
+        $maxStatus=3;
+        for($i=$maxStatus; $i < 9 ; $i++){
+            if(isset($order->{"status_".$i}) && $order->{"status:".$id}==1){
+                $maxStatus=$i;
+            }
+        }
+    
+    Order::where("id",$id)->update(["status_id"=>$maxStatus,"status_10"=>0]);
+
+    Pedidos2::Log($id,"Deshacer Auditoria","El pedido ".Pedidos2::CodigoDe($order). " fue revertido desde recibido por auditoria.",$maxStatus,$user);
+    Pedidos2::Log($id,"Deshacer Auditoria","Comentario: ".$comentario,$maxStatus,$user);
+    
+    return redirect("pedidos2/pedido/".$order->id);
+    }
+
+
+
+    public function add_nota($id, Request $request){
+        $id = Tools::_int($id);       
+        $user = auth()->user();
+
+        $texto = Tools::_string($request->texto,180);
+    
+       // $order = Order::where("id",$id)->first();   
+
+        $data=[
+            "note"=>$texto,
+            "order_id" => $id,
+            "user_id" =>$user->id,
+            "created_at"=>date("Y-m-d H:i:s")      
+        ];
+        Note::create($data);     
+
+        return redirect("pedidos2/pedido/".$id);
+    }
+
+
 
 
 }

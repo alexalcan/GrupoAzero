@@ -88,4 +88,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('pedidos2/multie', 'Pedidos2Controller@multie');
 	Route::get('pedidos2/multie_lista', 'Pedidos2Controller@multie_lista');
 	Route::get('pedidos2/set_status/{id}', 'Pedidos2Controller@set_status');
+	Route::post('pedidos2/set_multistatus', 'Pedidos2Controller@set_multistatus');
+	Route::post('pedidos2/set_accion_desauditoria/{id}', 'Pedidos2Controller@set_accion_desauditoria');
+	Route::post('pedidos2/add_nota/{id}', 'Pedidos2Controller@add_nota');
+
 });

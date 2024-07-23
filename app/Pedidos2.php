@@ -28,8 +28,12 @@ class Pedidos2 extends Model
         return !empty($list) ? $list[0] : [];
     }
 
+
+
+
     public static function Lista(int $pag, string $termino, string $desde, string $hasta, 
-    array $status=[], array $subprocesos=[], array $origen=[], array $sucursal=[], array $subpstatus=[], array $recogidos=[]) : array {
+    array $status=[], array $subprocesos=[], array $origen=[], array $sucursal=[], array $subpstatus=[], 
+    array $recogido=[], array $suborigen=[]) : array {
 
         $ini= ($pag>1) ? ($pag -1) * self::$rpp : 0;
 
@@ -38,7 +42,11 @@ class Pedidos2 extends Model
         if(!empty($termino)){
             $wheres[]="(o.office LIKE '%$termino%' OR o.invoice LIKE '%$termino%' 
             OR o.invoice_number LIKE '%$termino%' OR o.client LIKE '%$termino%' 
-            OR p.number LIKE '%termino%' OR q.number LIKE '%$termino%')";
+            OR (SELECT COUNT(*) FROM purchase_orders p WHERE p.order_id = o.id AND p.number LIKE '%$termino%') > 0 
+            OR (SELECT COUNT(*) FROM partials pa WHERE pa.order_id = o.id AND pa.invoice LIKE '%$termino%') > 0 
+            OR (SELECT COUNT(*) FROM smaterial sm WHERE sm.order_id = o.id AND sm.code LIKE '%$termino%') > 0 
+            OR (SELECT COUNT(*) FROM stockreq s WHERE s.order_id = o.id AND s.number LIKE '%$termino%') > 0 
+            OR q.number LIKE '%$termino%')";
         }
         if(!empty($status)){
             $wheres[]="o.status_id  IN (".implode(",",$status).")";
@@ -51,16 +59,18 @@ class Pedidos2 extends Model
                 $wheres[]="IF(LENGTH(o.invoice) > 0,1,0)  > 0";
                 foreach($subpstatus as $sps){
                 $arr=explode("_",$sps);
-                    if($arr[0]=="ordenc"){$wheres[]="p.status_id = '".$arr[1]."'";}
+                    if($arr[0]=="ordenc"){$wheres[]="(SELECT COUNT(*) FROM purchase_orders po WHERE po.order_id = o.id AND po.status_id = '".$arr[1]."') > 0 ";}
                 }
                 
             }
-            if(in_array("ordenf",$subprocesos)){
-                $wheres[]="(SELECT COUNT(*) FROM manufacturing_orders WHERE manufacturing_orders.order_id = o.id) > 0";
+            if(in_array("ordenf",$subprocesos)){     
+            $subwheres=[];           
                     foreach($subpstatus as $sps){
                     $arr=explode("_",$sps);
-                        if($arr[0]=="ordenf"){$wheres[]="p.status_id = '".$arr[1]."'";}
+                        if($arr[0]=="ordenf"){$subwheres[]=$arr[1];}
                     }
+            $subWhere = !empty($subwheres) ? " AND mof.status_id IN (".implode(",",$subwheres).")" : "";
+            $wheres[]="(SELECT COUNT(*) FROM manufacturing_orders mof WHERE mof.order_id = o.id $subWhere) > 0";
             }
             
             if(in_array("parcial",$subprocesos)){
@@ -86,13 +96,29 @@ class Pedidos2 extends Model
             $wheres[]="o.office IN (".implode(",",$suarr).")";
         }
 
+        if(!empty($recogido)){
+            $rearr=[];
+            foreach($recogido as $reco){
+                $rearr[]="'".$reco."'";
+            }      
+        $wheres[]="(SELECT COUNT(*) FROM shipments sh WHERE sh.order_id = o.id AND sh.type  IN (".implode(",",$rearr).") ) > 0";      
+        }
+
+        if(!empty($suborigen)){            
+            foreach($suborigen as $subor){
+                $valpar = explode("_",$subor);
+                if($valpar[0]=="C" && $valpar[1]==0){$wheres[] = "(o.invoice_number='' OR o.invoice_number IS NULL)"; }
+                elseif($valpar[0]=="C" && $valpar[1]==1){$wheres[] = "(o.invoice_number IS NOT NULL AND o.invoice_number !='')"; }
+            }
+           
+        }
+
         $wherestring = implode(" AND ",$wheres);
 
         //QUERY TOTAL
         $listt = DB::select(DB::raw("SELECT 
         COUNT(*) AS tot 
         FROM orders o 
-        LEFT JOIN purchase_orders p ON p.order_id = o.id 
         LEFT JOIN quotes q ON q.order_id = o.id 
         WHERE ". $wherestring));
 
@@ -101,9 +127,9 @@ class Pedidos2 extends Model
         //QUERY MAIN***********
         $q = "SELECT 
         o.*,
-        p.number AS requisition_code, 
-        p.document AS document,
-        p.requisition AS requisition_document,
+        (SELECT p.number FROM purchase_orders p wHERE p.order_id = o.id LIMIT 1) AS requisition_code,      
+        (SELECT p.document FROM purchase_orders p wHERE p.order_id = o.id LIMIT 1) AS document,
+        (SELECT p.requisition FROM purchase_orders p wHERE p.order_id = o.id LIMIT 1) AS requisition_document,
         q.number AS quote, 
         q.document quote_document, 
         r.id AS stockreq_id,
@@ -114,7 +140,6 @@ class Pedidos2 extends Model
         (SELECT pa.invoice FROM partials pa WHERE pa.order_id = o.id ORDER BY id DESC LIMIT 1) AS parcial_number,
         (SELECT pa.status_id FROM partials pa WHERE pa.order_id = o.id ORDER BY id DESC LIMIT 1) AS parcial_status_id
         FROM orders o 
-        LEFT JOIN purchase_orders p ON p.order_id = o.id 
         LEFT JOIN quotes q ON q.order_id = o.id 
         LEFT JOIN stockreq r ON r.order_id = o.id 
         WHERE 
@@ -214,5 +239,22 @@ class Pedidos2 extends Model
     ])->id;
         return $nid;
    }
+
+
+   public static function CodigoDe(object $order) : string {
+    $invn = isset($order->invoice_number) ? $order->invoice_number : "";
+    $inv = isset($order->invoice) ? $order->invoice : "";
+
+        if(!empty($invn)){return $invn;}
+        elseif(!empty($inv)){return $inv;}
+        else{
+            $sr = Stockreq::where("order_id",$order->id)->first();
+            $str = !empty($sr) ? $sr->number : " ";
+            return $str;
+        }
+
+    }
+
+
 
 }

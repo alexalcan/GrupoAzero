@@ -248,6 +248,10 @@ a.cancelar{
     background:#c27568;  
     background: linear-gradient(0deg, #c27568 0%, #c27568 50%, #E29588 100%);
 }
+.BigEstatus.E10{
+    background:#b7aa45;  
+    background: linear-gradient(0deg, #b7aa45 0%, #b7aa45 50%, #b7a93c 100%);
+}
 
 
 .Proceso{
@@ -262,9 +266,12 @@ display:grid;
 grid-template-columns: 14rem 1fr 8rem;
 grid-template-areas: "inv st ed" "fi fi fi";
 margin:0px 0px 20px 0px;
-padding:10px 20px;
-border-bottom:#aaa 1px dashed;
+padding:10px 20px 30px 20px;
+border-bottom:#333 3px dashed;
 font-size:1.2rem;
+
+background: rgb(240,240,240);
+background: linear-gradient(0deg, rgba(240,240,240,1) 0%, rgba(246,246,246,1) 40%, rgba(255,255,255,1) 100%);
 }
 .Parcial label{font-size:1.2rem;}
 .Parcial [rel='inv']{grid-area:inv;}
@@ -279,10 +286,12 @@ font-size:1.2rem;
     display:grid;
     grid-template-columns: 14rem 1fr 8rem;
     grid-template-areas: "inv st ed" "fi fi fi";
-    margin:0px 0px 10px 0px;
-    padding:6px 20px;
-    border-bottom:#aaa 1px dashed;
+    margin:0px 0px 30px 0px;
+    padding:10px 20px 30px 20px;
+    border-bottom:#333 3px dashed;
     font-size:1.2rem;
+    background: rgb(240,240,240);
+    background: linear-gradient(0deg, rgba(240,240,240,1) 0%, rgba(246,246,246,1) 40%, rgba(255,255,255,1) 100%);
     }
 .Subproceso label{font-size:1.2rem;}
 .Subproceso [rel='inv']{grid-area:inv;}
@@ -425,6 +434,10 @@ font-size:1.2rem;
     background:#c27568;  
     background: linear-gradient(0deg, #c27568 0%, #c27568 50%, #E29588 100%);
 }
+.MiniEstatus.E10{
+    background:#b7aa45;  
+    background: linear-gradient(0deg, #b7aa45 0%, #b7aa45 50%, #b8ae63 100%);
+}
 
 .MiniEstatus.TE1{
     background:#e2b597;  
@@ -434,6 +447,8 @@ font-size:1.2rem;
     background:#e4d68d;  
     background: linear-gradient(0deg, #e4d68d 0%, #e4d68d 50%, #efe6ba 100%);
 }
+
+
 
 
 .alGridset{
@@ -506,7 +521,53 @@ font-size:1.2rem;
     background-color: #eee;
 }
 
+.statusItem{
+    padding:0px 10px 2px 10px;
+    background:#fff;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
 
+
+.NotasForm{
+    padding:20px 80px;
+    margin:0px;
+    display:none;
+}
+.semivisible{
+    border:#ddd 1px solid;
+}
+.Notes{
+    display: flex;
+    justify-content: flex-start;
+    column-gap: 16px;
+    row-gap: 8px;
+    flex-wrap: wrap;
+}
+.Note{
+background:#f4f4f4;
+background:linear-gradient(90deg, #f4f4f4, #fff);
+color:#444;
+margin:0 0 1rem 0;
+padding:.5rem 1rem;
+border:#f0f0f0 1px solid;
+box-shadow: #ddd 1px 1px 6px;
+border-left:dotted 4px #ccc;
+
+}
+.Note small{
+    color:#888;
+    font-style: italic;
+}
+.Notes a.clickable{
+    text-decoration: underline;
+    text-underline-offset: .1rem;
+    cursor:pointer;
+    color:#444;
+}
+.FilaAddNotes{
+    margin-left:80px;
+}
 
 
 @media screen and (max-width:600px) {
@@ -536,6 +597,7 @@ font-size:1.2rem;
     grid-template-areas: "inv ed" "st st" "fi fi ";
     padding:5px 10px;
     border-bottom:#aaa 1px dashed;
+    margin-bottom:20px;
     font-size:1.1rem;
     gap:3px;
     }

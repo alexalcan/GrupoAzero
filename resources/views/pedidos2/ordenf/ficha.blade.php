@@ -1,5 +1,5 @@
 <?php
-$estatuses = [3=>"En Fabricación", 4=>"Fabricado", 7 => "Cancelado"];
+$estatuses = [1=>"Elaborada", 3=>"En Fabricación", 4=>"Fabricado", 7 => "Cancelado"];
 ?>
 <aside class="Subproceso">
 
@@ -23,15 +23,28 @@ $estatuses = [3=>"En Fabricación", 4=>"Fabricado", 7 => "Cancelado"];
 
     <div rel='fi'>
         <div class="alGridset">
-            
-            @if ($ob->status_3==1)   
+
+        @if ($ob->status_1==1)   
             <div class="alGridItem center">
-                <div class="MiniEstatus E3">En fabricación</div>
+                <div class="MiniEstatus E1">Elaborada</div>
                 @if (isset($ob->document))   
                 <div>
                 {{ view('pedidos2/view_storage_item',['path'=>$ob->document]) }}
                 </div>
                 @endif
+            </div>
+            @endif
+
+            @if ($ob->status_3==1)   
+            <div class="alGridItem center">
+                <div class="MiniEstatus E3">En fabricación</div>
+                {{--
+                @if (isset($ob->document))   
+                <div>
+                {{ view('pedidos2/view_storage_item',['path'=>$ob->document]) }}
+                </div>
+                @endif
+                --}}
             </div>
             @endif
 

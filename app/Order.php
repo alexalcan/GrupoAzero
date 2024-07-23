@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 class Order extends Model
 {
     protected $fillable = [
-        'office', 'invoice', 'invoice_number', 'client', 'credit', 'status_id', 'delete','origin'
+        'office', 'invoice', 'invoice_number', 'invoice_document','client', 'credit', 'status_id', 'delete','origin'
     ];
     
     public static function countAll(){
@@ -79,5 +79,10 @@ class Order extends Model
     public function shipments()
     {
         return $this->hasMany(Shipment::class);
+    }
+
+    public function quote()
+    {
+        return $this->hasOne(Quote::class,"order_id","id");
     }
 }

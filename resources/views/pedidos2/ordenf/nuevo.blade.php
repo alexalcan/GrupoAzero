@@ -1,5 +1,5 @@
 <?php
-$estatuses = ["3" => "En Fabricación", "4"=>"Fabricado"];
+$estatuses = [1=>"Elaborada", 3 => "En Fabricación", 4=>"Fabricado"];
 if($user->role_id == 1 ){
     $estatuses[7] = "Cancelado";
 }
@@ -35,7 +35,7 @@ if($user->role_id == 1 ){
 
  
     
-    <div class="Fila"><input type="submit" name="sb" class="form-control" value="Continuar" /> </div>
+    <div class="Fila" id="rowContinuar" style="display:none"><input type="submit" name="sb" class="form-control" value="Continuar" /> </div>
 
 </aside>
 

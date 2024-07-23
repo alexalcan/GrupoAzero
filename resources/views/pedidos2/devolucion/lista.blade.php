@@ -6,7 +6,7 @@ use App\Libraries\Tools;
 
 <aside class="Subproceso">
 
-    <span rel='inv'><b>Devolución por {{ isset($ob->reason) ? $ob->reason->reason : $ob->reason_id }} </b></span>
+    <span rel='inv'><b>Devolución</b>  {{ isset($ob->reason) ? $ob->reason->reason : $ob->reason_id }} </span>
 
     <div rel='st'>
     

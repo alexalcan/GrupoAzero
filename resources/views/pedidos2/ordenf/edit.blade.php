@@ -1,5 +1,5 @@
 <?php
-$estatuses = [3=>"En Fabricación", 4=>"Fabricado"];
+$estatuses = [1=>"Elaborada",3=>"En Fabricación", 4=>"Fabricado"];
 if($user->role_id == 1 ){
     $estatuses[7] = "Cancelado";
 }

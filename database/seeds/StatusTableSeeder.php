@@ -34,7 +34,7 @@ class StatusTableSeeder extends Seeder
         ]);
         // 5.- Sólo Embarques puede cambiar a en ruta
         DB::table('statuses')->insert([
-            'name' => 'En ruta',
+            'name' => 'En Puerta',
             'description' => 'El pedido se encuentra en ruta'
         ]);
         // 6.- Flotilla y embarques puede cambiar a entregado

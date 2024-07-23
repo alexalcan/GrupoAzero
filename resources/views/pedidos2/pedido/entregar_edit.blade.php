@@ -14,9 +14,9 @@
     </div>
     
 <label>Agregar Evidencias</label>
-<section class='attachList form-control' rel='ent' 
+<section class='attachList form-control' rel='entregar' 
 uploadto="{{ url('pedidos2/attachlist?catalog=pictures&event=entregar&order_id='.$order->id) }}" 
-href="{{ url('pedidos2/attachlist?rel=ent&event=entregar&catalog=pictures&order_id='.$order->id) }}"></section> 
+href="{{ url('pedidos2/attachlist?rel=entregar&event=entregar&catalog=pictures&order_id='.$order->id) }}"></section> 
 
-<div><input type="button" class="btn" value="Terminar" onclick="MiModal.exit()" /></div>
+<div id="filaTerminarEntrega" style="display: none;" ><input type="button" class="btn" value="Terminar" onclick="MiModal.exit()" /></div>
 </div>

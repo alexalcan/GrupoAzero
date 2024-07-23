@@ -37,6 +37,20 @@ a.pdf{
     height:104px;
 }
 
+.space-between{
+    display: flex;
+    justify-content: space-between;
+}
+.flex-start{
+    justify-content: flex-start;
+}
+.flex-wrap{
+    flex-wrap: wrap;
+}
+.gap5{
+    gap:5px;
+    row-gap:5px;
+}
 
 
 .Cuerpo{

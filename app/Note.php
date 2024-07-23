@@ -19,4 +19,12 @@ class Note extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+
+    public function getUserOf(int $node_id) : User {
+        $note = self::where("id",$node_id)->first();
+        if(empty($note)){return null;}
+        
+        return User::where("id",$note->user_id)->first();
+    }
 }

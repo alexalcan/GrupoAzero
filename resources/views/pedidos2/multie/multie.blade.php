@@ -4,8 +4,11 @@ use App\Libraries\Tools;
 
 $estatuses =[2=>"Recibido por embarques",3=>"En fabricación",4=>"Fabricado"];
 
+    if($user->role->id == 1 || $user->role->department == 9){
+        $estatuses[10]="Recibido por Auditoría";
+    }
 ?>
-@extends('layouts.app', ['activePage' => 'orders', 'titlePage' => __('Administrar Pedidos')])
+@extends('layouts.app', ['activePage' => 'orders', 'titlePage' => __('Pedidos y ordenes de fabricación')])
 
 @section('content')
 <?php
@@ -34,7 +37,7 @@ $statuses = Pedidos2::StatusesCat();
 
         <div class="card-header card-header-primary">
             <div class="Fila">
-                <h4 class="card-title">Asignar estatus multiple</h4>
+                <h4 class="card-title">Cambio de estatus masivo</h4>
             </div>
         </div>
 
@@ -66,14 +69,22 @@ $statuses = Pedidos2::StatusesCat();
                 <input type="text" class="" name="shipment" size="14" maxlength="16" href="{{ url('pedidos2/multie_lista') }}" />
                 <span class="buscar"></span>
                 </div>
+
+                <div id="ShipsListaDiv"></div>
+
             </div>
 
+            <div>
+                <center><h4><b>Elegidos</b></h4></center>
+            <div class="ResultsDiv">
 
-
-            
-            <td valign="top">
-
-            <div id="ShipsListaDiv"></div>
+            </div>
+                <div>
+                    <input type="button" href="<?= url("pedidos2/set_multistatus") ?>"
+                    class="form-control" id="confirmButton" value="Confirmar" />
+                    @csrf
+                </div>
+            </div>
 
 
         </section>
@@ -119,36 +130,31 @@ $(document).ready(function(){
     });
 
 
-    $("body").on("click", ".Pedido", function(){
+    $("body").on("click", ".SearchDiv .Pedido", function(){
         Enfoca(this);
-        setTimeout(AbrirConfirmacion, 100);
-        
+        setTimeout(AgregarALista, 100);        
     });
 
 
-    $("body").on("keyup", function(event){
-        console.log(event.keyCode);
-        if(event.keyCode == 38){
-            Sube();
-        }
-
-        if(event.keyCode == 40){
-            Baja();
-        }
-
-        if(event.keyCode == 13){
-            Enter();
-        }
-
-    });
 
     let valEstatus = $("[name='estatus']").val();
     if(valEstatus == ""){
         $(".Cuerpo").hide();
     }
 
+    $("body").on("click",".PedidoPar a.del",function(){
+        $(this).closest(".PedidoPar").remove();
+    });
 
-    $("[name='shipment']").change();
+    $("[name='shipgment']").on("click",function(){
+        $(".Pedido").removeClass("focus"); 
+    });
+  
+    
+    $("#confirmButton").click(function(){
+        Enviar();
+    });
+    $("#confirmButton").hide();
 
 });
 
@@ -157,53 +163,16 @@ $(document).ready(function(){
 function Enfoca(ob){
     $(".Pedido").removeClass("focus");
     $(ob).focus();
+
     $(ob).addClass("focus");
+   // $(ob).find(":radio").prop("checked",true);
 }
 
 
 function ActivaShipments(){
-   // $("#ShipsListaDiv .Pedido").eq(0).focus();
-    //$("#ShipsListaDiv .Pedido").eq(0).addClass("focus");
-    Enfoca($("#ShipsListaDiv .Pedido").eq(0));
-    $("[name='shipment']").blur();
-}
-
-function Sube(){
-    let currEq = $(".ShipsLista .Pedido.focus").index();
-
-    let nextEq = (currEq  > 0 ) ? currEq - 1 : 0;
-
-    //$(".ShipsLista .Pedido.focus").removeClass("focus");
-    //$(".ShipsLista .Pedido").eq(nextEq).addClass("focus").focus();
-    Enfoca($(".ShipsLista .Pedido").eq(nextEq));
-
-    let alto = $(".ShipsLista .Pedido").eq(nextEq).height();
-    let scrt = (alto + 34) * nextEq; 
-    console.log(scrt);
-   $(".ShipsLista").scrollTop(scrt);
-}
-
-function Baja(){
-    let currEq = $(".ShipsLista .Pedido.focus").index();
-    //console.log(currEq);
-    let max =  $(".Pedido").length-1;
-    let nextEq = (currEq  < max ) ? currEq + 1 : max;
-    //$(".ShipsLista .Pedido.focus").removeClass("focus");
-    //$(".ShipsLista .Pedido").eq(nextEq).addClass("focus");
-    Enfoca($(".ShipsLista .Pedido").eq(nextEq));
-    
-    let alto = $(".ShipsLista .Pedido").eq(nextEq).height();
-    let scrt = (alto + 34) * nextEq; 
-    console.log(scrt);
-   $(".ShipsLista").scrollTop(scrt);
-}
-
-function Enter(){
-let hay = $(".ShipsLista .Pedido.focus").length;
-let busIsFocus = $("[name='shipment']").is(":focus");
-
-    if(hay > 0 && !busIsFocus ){
-        setTimeout(AbrirConfirmacion, 500);
+    let cuantos = $("#ShipsListaDiv .Pedido").length;
+    if(cuantos == 1){
+        $("#ShipsListaDiv .Pedido").eq(0).click();
     }
 }
 
@@ -231,9 +200,71 @@ function AbrirConfirmacion(){
     }
 }
 
+
+
 function FocusBuscar(){
-    $("[name='shipment']").focus();
+    $(".SearchDiv [name='shipment']").focus();
 }
+
+
+function AgregarALista(){
+    let focused = $(".ShipsLista .Pedido.focus");
+    let href = $(focused).attr("del");
+    let rel = $(focused).attr("rel");
+    $(focused).removeClass("focus")
+
+    //let cont = $(focused).find(".Cont").html();
+    let strEstatus = $("[name='estatus']").find(":selected").text();
+    let idEstatus = $("[name='estatus']").val();
+
+    var item = "<div class='PedidoPar'>";
+    item += "<div class='pc' rel='"+rel+"'></div>";
+    item += "<div><a class='del'>X</a></div>";
+    item += "</div>";
+
+
+    $(".ResultsDiv").append(item);
+
+    $(".ResultsDiv .pc[rel='"+rel+"']").html(focused);
+
+    $("#confirmButton").show();
+
+    FocusBuscar();
+
+}
+
+
+function Enviar(){
+   var dd = new FormData();
+   let href = $("#confirmButton").attr("href");
+    let est = $("[name='estatus']").val();
+
+    $(".ResultsDiv .Pedido").each(function(){
+        dd.append("lista[]",$(this).attr("rel"));
+    });
+    
+    dd.append("catalogo", (est==2 || est==10) ? "order" :"morder");
+    dd.append("status_id", est);
+    dd.append("_token",$(":hidden[name='_token']").val());
+
+    $.ajax({
+        url: href,
+        data: dd,
+        processData: false,
+        contentType:false,
+        type: 'POST',
+        dataType:"json",
+        success: function ( json ) {
+            if(json.status==1){
+                alert(json.value + " registros cambiados");
+                $(".ResultsDiv").html("");
+            }else{
+                alert(json.errros);
+            }            
+        }
+    });
+}
+
 
 </script>
 

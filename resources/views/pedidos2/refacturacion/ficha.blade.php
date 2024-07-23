@@ -6,7 +6,7 @@ $reasonsCat = [];
 ?>
 <aside class="Subproceso">
 
-    <span rel='inv'><strong>Refacturación {{ !empty($ob->number) ? "#".$ob->number : ""; }}</strong></span>
+    <span rel='inv'><strong>Refacturación {{ !empty($ob->number) ? "#".$ob->number : "" }}</strong></span>
 
     <div rel='st'>
     <span>
