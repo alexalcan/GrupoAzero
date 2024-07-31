@@ -467,6 +467,38 @@ left:0;
 
 
 
+.Notes{
+    display: flex;
+    justify-content: flex-start;
+    column-gap: 16px;
+    row-gap: 8px;
+    flex-wrap: wrap;
+}
+.Note{
+background:#f4f4f4;
+background:linear-gradient(90deg, #f4f4f4, #fff);
+color:#444;
+margin:0 0 1rem 0;
+padding:.5rem 1rem;
+border:#f0f0f0 1px solid;
+box-shadow: #ddd 1px 1px 6px;
+border-left:dotted 4px #ccc;
+
+}
+.Note small{
+    color:#888;
+    font-style: italic;
+}
+.Notes a.clickable{
+    text-decoration: underline;
+    text-underline-offset: .1rem;
+    cursor:pointer;
+    color:#444;
+}
+
+
+
+
 
 @media screen and (max-width:700px) {
     

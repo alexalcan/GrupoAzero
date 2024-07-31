@@ -83,6 +83,6 @@ class Order extends Model
 
     public function quote()
     {
-        return $this->hasOne(Quote::class,"order_id","id");
+        return Quote::where("order_id",$this->id)->first(); 
     }
 }

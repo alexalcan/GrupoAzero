@@ -80,9 +80,9 @@ use App\Http\Controllers\Pedidos2Controller;
                         @endif 
                     <div class="checkpair parent" rel="{{ $k }}"><input type="checkbox" name="sp[]" value="{{ $k }}" id="sp_{{ $v }}"> <label for="sp_{{ $v }}">{{ ($k=="ordenc") ? "Requisición": $v }}</label></div>
                             @if ($k =="ordenc") 
-                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_1" id="spsub_{{$k}}_1"> <label for="spsub_{{$k}}_1">Elaborado</label></div>
-                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_3" id="spsub_{{$k}}_3"> <label for="spsub_{{$k}}_3">En fabricación</label></div>                            
-                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_4" id="spsub_{{$k}}_4"> <label for="spsub_{{$k}}_4">Fabricada</label></div>   
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_1" id="spsub_{{$k}}_1"> <label for="spsub_{{$k}}_1">Elaborada</label></div>
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_5" id="spsub_{{$k}}_5"> <label for="spsub_{{$k}}_5">En puerta</label></div>                            
+                            <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_6" id="spsub_{{$k}}_6"> <label for="spsub_{{$k}}_6">Entregada</label></div>   
                             <div class="checkpair sub" parent="{{$k}}"><input type="checkbox" name="spsub[]" value="{{$k}}_7" id="spsub_{{$k}}_7"> <label for="spsub_{{$k}}_7">Cancelada</label></div>   
                             
                             @elseif ($k =="ordenf") 
@@ -113,8 +113,11 @@ use App\Http\Controllers\Pedidos2Controller;
                         <div class="checkpair sub" parent="C"><input type="checkbox" name="orsub[]" value="C_1" id="orsub_C_1"> <label for="orsub_C_1">Con Factura</label></div>
                     
                     <div class="checkpair"><input type="checkbox" name="or[]" value="F" id="or_F"> <label for="or_F">Factura</label></div>
-                    <div class="checkpair"><input type="checkbox" name="or[]" value="R" id="or_R"> <label for="or_R">Requisición Stock</label></div>
-                    
+
+
+                    <div class="checkpair" ><input type="checkbox" name="or[]" value="R" id="or_R"> <label for="or_R">Requisición Stock</label></div>
+                
+
 
                     <legend>Recolección</legend>
                     <div class="checkpair"><input type="checkbox" name="rec[]" value="1" id="rec_1"> <label for="rec_1">Chofer Entrega</label></div>

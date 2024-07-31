@@ -24,4 +24,8 @@ class Log extends Model
     {
         return $this->belongsTo(Department::class);
     }
+
+    public function thisUser(){
+        return User::where("id",$this->user_id)->first();
+    }
 }

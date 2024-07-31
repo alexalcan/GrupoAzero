@@ -1,15 +1,15 @@
 <?php
 $estatuses = [1=>"Elaborada"];
-
+    if($user->role_id==1){
+        $estatuses[4]="Cancelada";
+    }
     if(in_array($user->department_id, [4,7]) || $user->role_id == 1){
         $estatuses[5]="En Puerta";
     }
     if(in_array($user->department_id, [4,7]) || $user->role_id == 1){
         $estatuses[6]="Entregada";
     }
-    if($user->role_id==1){
-        $estatuses[4]="Cancelada";
-    }
+
 ?>
 
 @if (!empty($error) )
@@ -38,18 +38,12 @@ $estatuses = [1=>"Elaborada"];
     </div>
 
 
-    <div class="Fila" id="rowFolioSM" style="display: none;"><label>Folio Salida de Materiales</label><input type="text" name="code_smaterial" class="form-control" maxlength="24" /></div>
-
-
-    @if ($user->role_id==1)
-    <!--
-    <div class="Fila"><label>Archivo Factura</label>
-        <div>
-        <input type="file" name="document" class="form-control" />
-        </div>
+    <div class="Fila" id="rowFolioSM" style="display: none;">
+        <label>Folio Salida de Materiales</label>
+        <input type="text" name="code_smaterial" class="form-control" maxlength="24" />
     </div>
-    -->
-    @endif
+
+
 
     @if ($user->role_id==1 || $user->department_id == 7)
     <div class="Fila"><label>Archivo Requisición</label>

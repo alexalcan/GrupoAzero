@@ -85,15 +85,29 @@ $statuses = Pedidos2::StatusesCat();
         </div>
         @endif 
 
+
+        @if ($pedido->origin != "R")
         <div class='FormRow'>
             <label>Cliente</label>
             <input type="text" class="form-control" name="client" value="{{$pedido->client}}" />
         </div>
+        @endif
+        
+        
+        @if ($pedido->origin == "R")
+        <div class='FormRow'>
+            <label>&nbsp;</label>
+            <span>Los pedidos con origen Requisición Stock no tienen información principal que cambiar.</span>
+        </div>
+        @endif
 
         <div class='FormRow'>
             <label></label>
             <span>
+                @if ($pedido->origin != "R")
                 <input type="submit" name="sb" class="form-control" value="Guardar" /> 
+                @endif
+
                 <input type="button" name="cn" class="form-control" value="Cancelar" onclick="EsconderMainInfo()" />
             </span></div>
         </fieldset>
@@ -102,7 +116,7 @@ $statuses = Pedidos2::StatusesCat();
 
         <fieldset class='MiniInfo'>
 
-        
+        @if ($pedido->origin != "R")
             <div>
                 <label># Factura</label><span>{{$pedido->invoice_number}}
                 <?php 
@@ -129,7 +143,7 @@ $statuses = Pedidos2::StatusesCat();
 
             <div><label>Cliente</label><span>{{$pedido->client}}</span></div>
 
-           
+           @endif
 
         </fieldset>
 
@@ -148,26 +162,6 @@ $statuses = Pedidos2::StatusesCat();
 $statusName = $pedido->status_name;
 $pedidoStatusId = $pedido->status_id;
 
-//if($pedido->origin =="R" && $pedido->status_id==5){
-//    $statusName="En Puerta";
-//}
-/*
-if(!$parciales->isEmpty()){   
-$parcialesNum = $parciales->count();
-$entregadosNum = 0;
-    foreach($parciales as $par){ 
-        if($par->status_id == 6){
-        $entregadosNum++;
-        }
-    }
-
-if($parcialesNum == $entregadosNum){
-    $pedidoStatusId=6;
-    $statusName = "Entregado";
-}
-    
-}
-*/
 ?>
 
     <div class="BigEstatusSet">
@@ -226,7 +220,7 @@ if($parcialesNum == $entregadosNum){
 
     ?>
         <div class="Eleccion">
-        @if ($pedido->status_id == 1 && $pedido->origin !="R")
+        @if ($pedido->status_id == 1 )
 
             @if ($user->role_id == 1 || $user->department_id == 4)
             <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=recibido') }}">Recibido por embarques</a>
@@ -284,7 +278,7 @@ if($parcialesNum == $entregadosNum){
 
         @endif
 
-        @if ($pedido->origin !="R" &&  $pedido->status_id < 6 &&  $smateriales_num < 1   )
+        @if (  $pedido->status_id < 6  )
 
         <a class="Accion entregado" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=entregar') }}">Entregado</a>
 
@@ -736,7 +730,8 @@ function FormaNuevoParcial2(){
 
             $("input[name='parcialterminar']").click(function(){
                 MiModal.exit();
-                CargarParciales();
+               // CargarParciales();
+               window.location.reload();
             });     
 
         }
@@ -1082,11 +1077,7 @@ function FormaEditarRequisicion(h){
             }
         }
     });
-    let hayArchivo = $("#fileDiv").length;
 
-    if(hayArchivo < 1){
-        $("#SubmitButtonRow").hide();
-    }
     
     $(".Fila.archivo").hide();
     $(".AccionForm  [name='status_id']").change(function(){
@@ -1094,10 +1085,27 @@ function FormaEditarRequisicion(h){
         if(val==1 || val==5 || val==6 | val==7){
             $(".Fila.archivo").hide();
             $(".Fila.archivo[rel='"+val+"']").show();
+
+            let hayArchivo = $(".Fila.archivo[rel='"+val+"'] a").length;
+
+            if(hayArchivo < 1){
+                $(".Fila.archivo[rel='"+val+"'] input[type='file']").change(function(){$("#SubmitButtonRow").show();});
+                $("#SubmitButtonRow").hide();
+            }else{
+                $("#SubmitButtonRow").show();
+            }
+
         }
     });
 
     $(".Fila.archivo[rel='"+ $(".AccionForm  [name='status_id']").val() +"']").show();
+
+    let hayArchivo = $("#fileDiv").length;
+
+    if(hayArchivo < 1){
+        $("#SubmitButtonRow").hide();
+    }
+
 
 }
 
@@ -1497,7 +1505,10 @@ function CargarParciales(){
 
     $.ajax({
         url:href,
-        error:function(err){alert(err.statusText);},
+        error:function(err){
+            $("#ParcialesDiv").html("<aside class='SubprocesoError'>Salidas Parciales no cargadas por error: "+err.statusText+". Si deseas verlas, por favor <a onclick='javascript:window.location.reload()'>recarga la página</a>.</aside>");
+
+        },
         success:function(h){
             $("#ParcialesDiv").html(h);
             $("#ParcialesDiv .attachList").each(function(){
@@ -1513,7 +1524,9 @@ function CargarSmateriales(){
 
     $.ajax({
         url:href,
-        error:function(err){alert(err.statusText);},
+        error:function(err){
+            $("#SmaterialDiv").html("<aside class='SubprocesoError'>Salidas de Material no cargadas por error: "+err.statusText+". Si deseas verlas, por favor <a onclick='javascript:window.location.reload()'>recarga la página</a>.</aside>");
+        },
         success:function(h){
             $("#SmaterialDiv").html(h);
             $("#SmaterialDiv .attachList").each(function(){
@@ -1529,14 +1542,11 @@ function CargarOrdenf(){
 
     $.ajax({
         url:href,
-        error:function(err){alert(err.statusText);},
+        error:function(err){
+            $("#OrdenfDiv").html("<aside class='SubprocesoError'>Ordenes de manufactura no cargadas por error: "+err.statusText+". Si deseas verlas, por favor <a onclick='javascript:window.location.reload()'>recarga la página</a>.</aside>");
+        },
         success:function(h){
-            $("#OrdenfDiv").html(h);
-            /*
-            $("#OrdenfDiv .attachList").each(function(){
-                AttachList($(this).attr("rel"));
-            });
-            */
+            $("#OrdenfDiv").html(h);            
         }
     });
     
@@ -1548,14 +1558,11 @@ function CargarRequisiciones(){
 
     $.ajax({
         url:href,
-        error:function(err){alert(err.statusText);},
+        error:function(err){
+        $("#RequisicionDiv").html("<aside class='SubprocesoError'>Requisiciones no cargadas por error: "+err.statusText+". Si deseas verlas, por favor <a onclick='javascript:window.location.reload()'>recarga la página</a>.</aside>");
+        },
         success:function(h){
             $("#RequisicionDiv").html(h);
-            /*
-            $("#OrdenfDiv .attachList").each(function(){
-                AttachList($(this).attr("rel"));
-            });
-            */
         }
     });
     
@@ -1566,7 +1573,9 @@ function CargarDevoluciones(){
 
     $.ajax({
         url:href,
-        error:function(err){alert(err.statusText);},
+        error:function(err){
+            $("#DevolucionDiv").html("<aside class='SubprocesoError'>Devoluciones no cargadas por error: "+err.statusText+". Si deseas verlas, por favor <a onclick='javascript:window.location.reload()'>recarga la página</a>.</aside>");
+        },
         success:function(h){
             $("#DevolucionDiv").html(h);
             

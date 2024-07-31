@@ -43,9 +43,11 @@ class Pedidos2 extends Model
             $wheres[]="(o.office LIKE '%$termino%' OR o.invoice LIKE '%$termino%' 
             OR o.invoice_number LIKE '%$termino%' OR o.client LIKE '%$termino%' 
             OR (SELECT COUNT(*) FROM purchase_orders p WHERE p.order_id = o.id AND p.number LIKE '%$termino%') > 0 
-            OR (SELECT COUNT(*) FROM partials pa WHERE pa.order_id = o.id AND pa.invoice LIKE '%$termino%') > 0 
+            OR (SELECT COUNT(*) FROM partials par WHERE par.order_id = o.id AND par.invoice LIKE '%$termino%') > 0 
+            OR (SELECT COUNT(*) FROM manufacturing_orders mo WHERE mo.order_id = o.id AND mo.number LIKE '%$termino%') > 0 
             OR (SELECT COUNT(*) FROM smaterial sm WHERE sm.order_id = o.id AND sm.code LIKE '%$termino%') > 0 
             OR (SELECT COUNT(*) FROM stockreq s WHERE s.order_id = o.id AND s.number LIKE '%$termino%') > 0 
+            OR (SELECT COUNT(*) FROM notes n WHERE n.order_id = o.id AND n.note LIKE '%$termino%') > 0 
             OR q.number LIKE '%$termino%')";
         }
         if(!empty($status)){
@@ -56,11 +58,17 @@ class Pedidos2 extends Model
                 $wheres[]="(SELECT COUNT(*) FROM debolutions WHERE debolutions.order_id = o.id) > 0";
             }
             if(in_array("ordenc",$subprocesos)){
-                $wheres[]="IF(LENGTH(o.invoice) > 0,1,0)  > 0";
+                $wheres[]="(SELECT COUNT(*) FROM purchase_orders po WHERE po.order_id = o.id) > 0";
+                
+                $lookSPO=[];
                 foreach($subpstatus as $sps){
                 $arr=explode("_",$sps);
-                    if($arr[0]=="ordenc"){$wheres[]="(SELECT COUNT(*) FROM purchase_orders po WHERE po.order_id = o.id AND po.status_id = '".$arr[1]."') > 0 ";}
+                    if($arr[0]=="ordenc"){$lookSPO[]=$arr[1];}
                 }
+                if(!empty($lookSPO)){
+                    $wheres[]="(SELECT COUNT(*) FROM purchase_orders po WHERE po.order_id = o.id AND po.status_id IN(".implode(",",$lookSPO).") ) > 0 ";
+                }
+                
                 
             }
             if(in_array("ordenf",$subprocesos)){     
@@ -75,12 +83,32 @@ class Pedidos2 extends Model
             
             if(in_array("parcial",$subprocesos)){
                 $wheres[]="(SELECT COUNT(*) FROM partials WHERE partials.order_id = o.id) > 0";
+
+                $lookIN=[];
+                foreach($subpstatus as $sps){
+                $arr=explode("_",$sps);
+                    if($arr[0]=="parcial"){$lookIN[]=$arr[1];}
+                }
+                if(!empty($lookIN)){
+                    $wheres[]="(SELECT COUNT(*) FROM partials pa WHERE pa.order_id = o.id AND pa.status_id IN(".implode(",",$lookIN).") ) > 0 ";
+                }
+
+               
             }
             if(in_array("refacturar",$subprocesos)){
                 $wheres[]="(SELECT COUNT(*) FROM rebillings WHERE rebillings.order_id = o.id) > 0";
             }
             if(in_array("sm",$subprocesos)){
                 $wheres[]="(SELECT COUNT(*) FROM smaterial WHERE smaterial.order_id = o.id) > 0";
+
+                $lookIN=[];
+                foreach($subpstatus as $sps){
+                $arr=explode("_",$sps);
+                    if($arr[0]=="sm"){$lookIN[]=$arr[1];}
+                }
+                if(!empty($lookIN)){
+                    $wheres[]="(SELECT COUNT(*) FROM smaterial sma WHERE sma.order_id = o.id AND sma.status_id IN(".implode(",",$lookIN).") ) > 0 ";
+                }
             }
 
         }
@@ -120,6 +148,7 @@ class Pedidos2 extends Model
         COUNT(*) AS tot 
         FROM orders o 
         LEFT JOIN quotes q ON q.order_id = o.id 
+        LEFT JOIN stockreq r ON r.order_id = o.id 
         WHERE ". $wherestring));
 
         self::$total = !empty($listt) ? $listt[0]->tot : 0 ;
@@ -142,9 +171,11 @@ class Pedidos2 extends Model
         FROM orders o 
         LEFT JOIN quotes q ON q.order_id = o.id 
         LEFT JOIN stockreq r ON r.order_id = o.id 
+
         WHERE 
         ". $wherestring  ." ORDER BY updated_at DESC LIMIT ".$ini.", ". self::$rpp;
     //echo $q;
+    
         $list = DB::select(DB::raw($q));
         
     return $list;
