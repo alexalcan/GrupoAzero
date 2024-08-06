@@ -19,7 +19,14 @@ ksort($estatuses);
 
     <h4>Salida de Material</h4>
     
-    <div class="Fila doscol"><label>Código</label> <span>{{$ob->code}}</span> </div>
+    <div class="Fila doscol"><label>Código</label> 
+
+    @if (empty($ob->code))
+    <input name="code" class="form-control" maxlength="24" />
+    @endif
+
+    <span>{{$ob->code}}</span> 
+    </div>
 
     <div class="Fila doscol"><label>Estatus</label>
     <select class="form-control" name="status_id">

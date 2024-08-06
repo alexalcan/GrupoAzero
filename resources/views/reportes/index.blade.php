@@ -11,7 +11,7 @@
                 <div class="row">
                     <div class="col-md-4 col-sm-12 col-xs-12 text-left">
                         <h4 class="card-title ">Reportes</h4>
-                        <p class="card-category"> Reportes de la plataforma</p>
+                        <p class="card-category"> Reportes adicionales de la plataforma</p>
                     </div>
                     <div class="col-md-8 col-sm-12 col-xs-12 ">
                         
@@ -32,39 +32,39 @@
             
             <div class="card-body">
 
-                  <form action="{{ route('reporte') }}" method='POST' style="display:flex;align-items:start;justify-content:flex-start">
+                  <form action="{{ route('reporte') }}" method='POST' >
                      @csrf
 
-                    
-                                                                        
-                        <div class="col-3" >
+                    <section class="FormularioCampos">
+                        <div class="Campo">
                             <select name='tipo' class="form-control">
                              	<option value=''>Elegir tipo</option>
-                             	<option value='Ordenes'>Reporte de Órdenes</option>
+                             	<option value='Tiempos'>Reporte de Tiempos</option>
                              	<!--  <option value='Requisiciones'>Reporte de Requisiciones</option>  -->
                              </select>
                              <br/>
                              <label>Tipo</label>
+
                         </div>
-                        <div class="col-2" style="display:inline-block">
-                        	
+                        <div class="Campo">
                             <input type="text" name="desde" class="form-control datetimepicker"  size='10' maxlength='10'  
                             value="<?php echo App\Libraries\Tools::valor("desde",$desdeDef); ?>">
                             <label>Desde</label>
+
                         </div>
-                        <div class="col-2" style="display:inline-block">
-                        	
+                        <div class="Campo">
+
                             <input type="text" name="hasta" class="form-control datetimepicker"  size='10' maxlength='10' 
                              value="<?php echo App\Libraries\Tools::valor("hasta",$hastaDef); ?>">
                              <label>Hasta</label>
-                        </div>
 
-                                        
-                       
-                     	<div class="col-2" style="display:inline-block">
+                        </div>
+                    </section>
+
+                    <br/>
+                    <div class="">
                      	<button class="bot" id="botConsultar" disabled="disabled">Consultar</button>
-                     	</div>
-                     
+                    </div>                     
                      
                      </form>  
 
@@ -75,7 +75,7 @@
 	</div>
 </div>
 
-
+<link rel="stylesheet" href="{{ url('/') }}/css/reportes.css">
 
 
 @endsection

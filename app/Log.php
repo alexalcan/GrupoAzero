@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Log extends Model
 {
     protected $fillable = [
-        'status', 'action', 'order_id', 'user_id', 'department_id', 'created_at'
+        'status', 'action', 'order_id', 'user_id', 'department_id', 'created_at','status_id'
     ];
 
     public function order()

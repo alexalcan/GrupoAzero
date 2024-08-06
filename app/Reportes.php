@@ -24,8 +24,8 @@ s.name AS `Estatus`,
 po.number AS `Requisicion`,
 (SELECT count(*) FROM shipments sh WHERE sh.order_id = o.id) AS Salidas,
 mo.number AS Fabricacion,
-DATE_FORMAT(o.created_at,'%d/%m/%Y') AS FechaFactura,
-DATE_FORMAT(po.created_at,'%d/%m/%Y') AS FechaCotizacion,
+o.created_at AS FechaFactura,
+po.created_at AS FechaCotizacion,
 (SELECT invoice FROM partials WHERE partials.order_id = o.id ORDER BY partials.created_at ASC LIMIT 0,1) AS `Parcial1`,
 (SELECT invoice FROM partials WHERE partials.order_id = o.id ORDER BY partials.created_at ASC LIMIT 1,1) AS `Parcial2`,
 (SELECT invoice FROM partials WHERE partials.order_id = o.id ORDER BY partials.created_at ASC LIMIT 2,1) AS `Parcial3`,
@@ -41,30 +41,50 @@ WHERE o.created_at BETWEEN '".$desde."' AND '".$hasta."'";
         return $list;
     }
     
-    public static function Requisiciones(string $desde, string $hasta) : array {
-        //$list = DB::table('purchase_orders')->where("created_at",$desde,">=")->where("created_at",$hasta,"<="->get();
-        $list = DB::select(DB::raw("SELECT p.*, 
-DATE_FORMAT(p.created_at,'%d/%m/%Y') AS creado,
-  o.office, o.invoice 
-FROM purchase_orders p 
-JOIN orders o ON o.id = p.order_id 
-WHERE p.created_at BETWEEN '$desde' AND '$hasta' "));
+    public static function Tiempos(string $desde, string $hasta) : array {
+        //Folio Factura	Folio Cotizac ion	Folio ReqStock	Creadoen	Estatus Actual	Fecha Este Estatus	Dias Duracion
+      $qGeneral = "SELECT *, 
+        DATEDIFF(status_at, created_at) AS daynum
+        FROM 
+        (SELECT 
+        o.id,
+        o.invoice_number,
+        o.invoice,
+        rs.number AS rsnumber,
+        o.office,
+        o.created_at,
+        o.status_id, 
+        s.name AS status_name,
+        (SELECT lo.created_at FROM logs AS lo WHERE lo.order_id = o.id AND lo.status_id = o.status_id ORDER BY lo.created_at DESC LIMIT 1) AS status_at
+        FROM orders o
+        LEFT JOIN stockreq rs ON rs.order_id = o.id
+        LEFT JOIN statuses s ON s.id = o.status_id         
+        WHERE o.created_at BETWEEN '$desde' AND '$hasta') sub ";
+
+        $qLog="SELECT *, 
+        DATEDIFF(status_at, created_at) AS daynum
+        FROM 
+        (SELECT 
+        o.id,
+        o.invoice_number,
+        o.invoice,
+        rs.number AS rsnumber,
+        o.office,
+        o.created_at,
+        o.status_id, 
+        s.name AS status_name,
+        (SELECT lo.created_at FROM logs AS lo WHERE lo.order_id = o.id AND lo.status != 'Nota' ORDER BY lo.created_at DESC LIMIT 1) AS status_at
+        FROM orders o
+        LEFT JOIN stockreq rs ON rs.order_id = o.id
+        LEFT JOIN statuses s ON s.id = o.status_id         
+        WHERE o.created_at BETWEEN '$desde' AND '$hasta') sub ";
+        $list = DB::select(DB::raw($qLog));        
 
         return $list;
     }
     
     
-    public static function Retrasos(string $desde, string $hasta) : array {
-        //$list = DB::table('purchase_orders')->where("created_at",$desde,">=")->where("created_at",$hasta,"<="->get();
-        $list = DB::select(DB::raw("SELECT p.*,
-DATE_FORMAT(p.created_at,'%d/%m/%Y') AS creado,
-  o.office, o.invoice
-FROM purchase_orders p
-JOIN orders o ON o.id = p.order_id
-WHERE p.created_at BETWEEN '$desde' AND '$hasta' "));
-        
-        return $list;
-    }
+
     
     
     

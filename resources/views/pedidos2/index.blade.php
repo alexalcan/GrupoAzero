@@ -26,6 +26,7 @@ use App\Http\Controllers\Pedidos2Controller;
 
     <form id="fbuscar" action="{{ url('pedidos2/lista') }}" method="get" enctype="multipart/form-data">
         <input type="hidden" name="p" value="{{ $pag }}" />
+        <input type="hidden" name="excel" value="0" />
         <section class="formaBuscar">
             <div class="terminoBox">
                 
@@ -130,7 +131,11 @@ use App\Http\Controllers\Pedidos2Controller;
                     <div class="checkpair"><input type="checkbox" name="suc[]" value="La Noria" id="suc_N"> <label for="suc_N">La Noria</label></div>
                 </fieldset>
                 </div>
-                <div class="Fila center"><input type="button" class="form-control btnGrande" value="Buscar" onclick="GetLista()" /> </div>
+                <div class="Fila center">
+                    <input type="button" class="form-control btnGrande" value="Buscar" onclick="GetLista()" /> 
+                    &nbsp;
+                    <input type="button" class="form-control btnGrande" value="Reporte en Excel" onclick="GetListaExcel()" /> 
+                </div>
             </aside>
             
             <div>&nbsp;</div>
@@ -432,10 +437,34 @@ console.log("GetLista");
     });
 
 
-    $("#Lista").tooltip();
+    //$("#Lista").tooltip();
 
   //  CuentaFiltros();
 }
+
+
+function GetListaExcel(){
+    
+    MuestraSimple();
+    $("#fbuscar [name='excel']").val(1);
+
+    $("#fbuscar").submit();
+
+    //Subfiltros
+    $(".checkpair.sub").hide();
+    $(".checkpair.parent").click(function(){
+        let ch = $(this).find(":checkbox").is(":checked");
+        let rel = $(this).attr("rel");
+        if(ch){
+            $(".checkpair.sub[parent='"+rel+"']").show();
+        }else{
+            $(".checkpair.sub[parent='"+rel+"']").hide();
+        }       
+    });
+    $("#fbuscar [name='excel']").val(0);
+}
+
+
 
 function GetListaPre(p){
     if(typeof(p)=="undefined"){p=0;}

@@ -45,14 +45,25 @@ $statuses = Pedidos2::StatusesCat();
 
         <fieldset class='MainInfo'>
         @if ($pedido->origin != "R" && ($user->role->id == 1 || in_array($user->department->id, [2,3,4,7,9]) ) )
+
+            
         <div class='FormRow'>
             <label>Folio Cotización</label>
-            <input type="text" class="form-control" name="invoice" value="{{$pedido->invoice}}" />
+            @if (empty($pedido->invoice) || $user->role->id == 1)
+                <input type="text" class="form-control" name="invoice" value="{{$pedido->invoice}}" />
+            @else
+                <span title="Sólo un administrador puede cambiar este dato">{{$pedido->invoice}}</span>
+            @endif
         </div>
+            
+
         <div class='FormRow'>
             <label>Archivo Cotización</label>
             <div class="flex-start">
-            <input type="file" class="form-control" name="cotizacion"  />  
+                @if (empty($quote->document) || $user->role->id == 1)
+                <input type="file" class="form-control" name="cotizacion"  />  
+                @endif
+                
                 @if (!empty($quote->document))
                 <span> &nbsp; &nbsp; Actual: 
                 &nbsp; <a class="pdf" target="_blank" href="{{ asset('storage/'.$quote->document) }}"></a>
@@ -61,16 +72,26 @@ $statuses = Pedidos2::StatusesCat();
                 
             </div>
         </div>
+
+
         <div class='FormRow'>
             <label># Factura</label>
-        <input type="text" class="form-control" name="invoice_number" value="{{$pedido->invoice_number}}" />
+            @if (empty($pedido->invoice_number) || $user->role->id == 1)
+            <input type="text" class="form-control" name="invoice_number" value="{{$pedido->invoice_number}}" />
+            @else 
+            <span title="Sólo un administrador puede cambiar este dato">{{$pedido->invoice_number}}</span>
+            @endif
         </div>
+
         <div class='FormRow'>
             <label>Archivo Factura</label>
             
                 <div class="flex-start">
+                @if (empty($pedido->invoice_document)|| $user->role_id == 1 )
                 <input type="file" class="form-control" name="factura" />
-                
+                @endif
+
+
                 @if (!empty($purchaseOrder) && !empty($purchaseOrder->document) )
                 <span>  &nbsp; &nbsp; Actual: 
                 &nbsp; <a class="pdf" target="_blank" href="{{ asset('storage/'.$purchaseOrder->document) }}"></a>
@@ -84,6 +105,7 @@ $statuses = Pedidos2::StatusesCat();
                 </div>
         </div>
         @endif 
+
 
 
         @if ($pedido->origin != "R")
@@ -101,6 +123,8 @@ $statuses = Pedidos2::StatusesCat();
         </div>
         @endif
 
+
+
         <div class='FormRow'>
             <label></label>
             <span>
@@ -109,7 +133,10 @@ $statuses = Pedidos2::StatusesCat();
                 @endif
 
                 <input type="button" name="cn" class="form-control" value="Cancelar" onclick="EsconderMainInfo()" />
-            </span></div>
+            </span>
+        </div>
+
+
         </fieldset>
 
         
@@ -149,7 +176,7 @@ $statuses = Pedidos2::StatusesCat();
 
     <div class="padded flex-float">
         <a class="powerLink modalShow" href="{{  url('pedidos2/historial/'.$pedido->id) }}">Historial</a>  
-        @if ($user->role->id == 1)    
+        @if ($user->role->id == 1  || in_array($user->department->id, [2,3,4,7,9]) )    
             <div class="block"><a class="powerLink" onclick="MostrarMainInfo()">Cambiar datos principales</a></div>
         @endif      
     </div>
@@ -233,9 +260,7 @@ $pedidoStatusId = $pedido->status_id;
         && $pedido->status_5==0 && $pedido->status_6==0 && $shipments->isEmpty()==true)  
             <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> 
        
-        @elseif ($pedido->origin =="R" && $pedido->status_id < 5 && $pedido->status_5==0)
 
-        <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> 
 
         @elseif (empty($pedido->invoice_number) && $parciales->isEmpty()==true && $pedido->origin !="R")
             <!-- <span>Falta # de Factura para sacar a puerta</span> -->
@@ -708,6 +733,7 @@ CargarDevoluciones();
 
 
 function FormaNuevoParcial(h){
+    MiModal.exitButton=true;
     MiModal.content(h);
     MiModal.show();
 
@@ -812,9 +838,10 @@ function MostrarNotasForm(){
 
 
 function FormaNuevoSmaterial(h){
-
+    MiModal.exitButton=true;
     MiModal.content(h);
     MiModal.show();
+    
 
     FormaNuevoSmaterial2();
 }
@@ -888,6 +915,7 @@ function FormaEditarSmaterial(h){
         success:function(json){
             if(json.status==1){
                 MiModal.exit();
+                MiModal.exitButton=true;
                 CargarSmateriales();
             }else{
                 console.log(json);
@@ -932,6 +960,7 @@ function FormaEditarSmaterial(h){
 
 
 function FormaNuevoOrdenf(h){
+    MiModal.exitButton=true;
     MiModal.content(h);
     MiModal.show();
 
@@ -1021,6 +1050,7 @@ function FormaEditarOrdenf(h){
 
 
 function FormaNuevoRequisicion(h){
+    MiModal.exitButton=true;
     MiModal.content(h);
     MiModal.show();
 
@@ -1160,6 +1190,7 @@ function FormaEditarProcesoGeneral(h){
 
 
 function FormaNuevoDevolucion(h){
+    MiModal.exitButton=true;
     MiModal.content(h);
     MiModal.show();
 
@@ -1221,6 +1252,7 @@ function FormaEditarDevolucion(h){
 
 
 function FormaNuevoRefacturacion(h){
+    MiModal.exitButton=true;
     MiModal.content(h);
     MiModal.show();
 
