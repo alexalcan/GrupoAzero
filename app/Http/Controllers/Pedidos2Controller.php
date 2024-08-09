@@ -205,7 +205,7 @@ class Pedidos2Controller extends Controller
             }
             //var_dump($pictures);
             //var_dump($events);
-            echo view("pedidos2/parcial/ficha",["parcial"=>$li,"estatuses"=>$estatuses, "pictures"=>$pictures,"events"=>$events]);
+            echo view("pedidos2/parcial/ficha",["parcial"=>$li,"estatuses"=>$estatuses, "pictures"=>$pictures,"events"=>$events,"user"=>$user]);
         }
 
     }
@@ -750,7 +750,7 @@ class Pedidos2Controller extends Controller
 //var_dump($pictures);
        // Pedidos2::Log($id,"Parcial", $user->name." registró un nuevo pedido #{$partial->id}", $status_id, $user);
 
-        return view("pedidos2/parcial/edit",compact("id","partial","events"));
+        return view("pedidos2/parcial/edit",compact("id","partial","events","user"));
     }
 
 
@@ -828,13 +828,14 @@ class Pedidos2Controller extends Controller
 
 
     public function smaterial_lista($order_id,Request $request){
+        $user = auth()->user();
         $order_id= intval($order_id);
 
         $list = Smaterial::where(['order_id' => $order_id])->orderBy("id","DESC")->get();
         $estatuses = Pedidos2::StatusesCat();    
 
         foreach($list as $li){
-            echo view("pedidos2/smaterial/ficha",["order_id"=>$order_id,"estatuses"=>$estatuses, "ob" => $li]);
+            echo view("pedidos2/smaterial/ficha",["order_id"=>$order_id,"estatuses"=>$estatuses, "ob" => $li, "user"=>$user]);
         }
     }
 
@@ -943,7 +944,7 @@ class Pedidos2Controller extends Controller
     
 
         foreach($list as $li){
-            echo view("pedidos2/ordenf/ficha",["order_id"=>$order_id,"estatuses"=>$estatuses, "ob" => $li]);
+            echo view("pedidos2/ordenf/ficha",["order_id"=>$order_id,"estatuses"=>$estatuses, "ob" => $li, "user"=>$user]);
         }
 
     }
@@ -1087,7 +1088,7 @@ class Pedidos2Controller extends Controller
 
 
         foreach($list as $li){
-            echo view("pedidos2/requisicion/ficha",["order_id"=>$order_id,"estatuses"=>$estatuses, "ob" => $li]);
+            echo view("pedidos2/requisicion/ficha",["order_id"=>$order_id,"estatuses"=>$estatuses, "ob" => $li, "user"=>$user]);
         }
 
     }
@@ -1211,7 +1212,7 @@ class Pedidos2Controller extends Controller
         $reasons = Tools::catalogo($reasonsres,"id","reason");
 
 
-        echo view("pedidos2/devolucion/lista",["order_id"=>$order_id,"reasons"=>$reasons, "lista" => $lista]);
+        echo view("pedidos2/devolucion/lista",["order_id"=>$order_id,"reasons"=>$reasons, "lista" => $lista, "user"=>$user]);
     }
 
 

@@ -55,6 +55,7 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
             'department_id' => $request->department,
             'role_id' => $request->role,
+            'office' => $request->office,
             'created_at' => now(),
         ]);
 
@@ -114,6 +115,7 @@ class UserController extends Controller
                     'email' => $request->email,
                     'department_id' => '1',
                     'role_id' => $request->role,
+                    'office' => $request->office,
                     'updated_at' => now()
                 ]);
             }else{
@@ -122,6 +124,7 @@ class UserController extends Controller
                     'email' => $request->email,
                     'department_id' => $request->department,
                     'role_id' => $request->role,
+                    'office' => $request->office,
                     'updated_at' => now()
                 ]);
             }

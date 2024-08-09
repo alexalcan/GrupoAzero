@@ -1,6 +1,16 @@
 <?php
 $estatuses = ["4"=>"Generado", "5" => "En Puerta", "6"=>"Entregado", "7"=>"Cancelado"];
 //var_dump($partial);
+
+if($user->department_id==6){
+    $estatuses = [6=>"Entregado"];
+}
+
+
+if($user->department_id == 8){
+    $estatuses=[5 => "En Puerta"];
+}
+
 ?>
 
 <form action="{{ url('pedidos2/parcial_update/'.$id) }}" id="FSetParcial" method="post">

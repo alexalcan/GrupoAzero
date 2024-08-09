@@ -30,6 +30,7 @@
                             <th>No</th>
                             <th>Nombre</th>
                             <th>Email</th>
+                            <th>Sucursal</th>
                             <th>Depto</th>
                             <th>Rol</th>
                             <th width="50px">&nbsp;</th>
@@ -42,6 +43,7 @@
                                 <td>{{ $user->id }}</td>
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
+                                <td>{{ $user->office }}</td>
                                 <td>{{ $user->department->name }}</td>
                                 <td>{{ $user->role->name }}</td>
                                 <td>

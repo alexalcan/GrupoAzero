@@ -66,6 +66,18 @@
                                     </div>
                                 </div>
 
+
+                                <div class="row">
+                                    <label class="col-sm-2 col-form-label">Sucursal</label>
+                                    <div class="col-sm-7">
+                                    <select name="office" id="inputOffice" class="form-control">                        
+                                        <option {{ ($user->office == "San Pablo")?"selected": "" }} value="San Pablo">San Pablo</option>                            
+                                        <option {{ ($user->office == "La Noria")?"selected": "" }} value="La Noria">La Noria</option>  
+                                    </select>
+                                    </div>
+                                </div>
+
+
                             </div>
                             <div class="card-footer ml-auto mr-auto">
                                 <button type="submit" class="btn btn-primary">Guardar</button>

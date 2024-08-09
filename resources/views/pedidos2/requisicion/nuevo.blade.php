@@ -1,15 +1,15 @@
 <?php
 $estatuses = [1=>"Elaborada"];
-    if($user->role_id==1){
-        $estatuses[4]="Cancelada";
-    }
+
     if(in_array($user->department_id, [4,7]) || $user->role_id == 1){
         $estatuses[5]="En Puerta";
     }
     if(in_array($user->department_id, [4,7]) || $user->role_id == 1){
         $estatuses[6]="Entregada";
     }
-
+    if($user->role_id==1 || in_array($user->department_id,[7])){
+        $estatuses[7]="Cancelada";
+    }
 ?>
 
 @if (!empty($error) )

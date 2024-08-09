@@ -17,7 +17,11 @@ $reasonsCat = [];
     </div>    
     
     <div rel='ed'>
+
+
+        @if ($user->role_id == 1 || in_array($user->department_id,[3,4]))
          <a class="btn editref" href="{{ url('pedidos2/refacturacion_edit/'.$ob->id) }}">Editar</a> 
+         @endif
 
     </div>
 

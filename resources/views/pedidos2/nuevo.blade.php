@@ -25,13 +25,26 @@
     <h3 class="center">Iniciar con </h3>
 
             <div class="Eleccion">
+            
+                @if ($user->role_id ==1 || in_array($user->department_id,[3,4,8]) )
                 <button class="Tipo" rel="F">Factura</button>
+                @endif
+
+
+                @if ($user->role_id ==1 || in_array($user->department_id,[3,4,8]) )
                 <button class="Tipo" rel="C">Cotización</button>
+                @endif
+
+
+
                 @if ($user->role_id ==1 || in_array($user->department_id,[4,7]) )
                 <button class="Tipo" rel="R">Requisición Stock</button>
                 @endif
+            
             </div>
-        </fieldset>
+
+    </fieldset>
+
         <input type="hidden" name="origin" value=""/>
         <div>&nbsp;</div>
 

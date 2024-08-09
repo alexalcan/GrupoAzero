@@ -14,7 +14,13 @@ $estatuses = ["4"=>"Generado", "5" => "En Puerta", "6"=>"Entregado", "7"=>"Cance
         @endif
     </div>
     
-    <div rel='ed' style="text-align: right;"><a class="btn editarparcial" href="{{ url('pedidos2/parcial_edit/'.$parcial->id) }}">Editar</a></div>
+    <div rel='ed' style="text-align: right;">
+
+    @if ($user->role_id == 1 || in_array($user->department_id,[4]) || ($user->department_id == 6 && $parcial->status_id < 6)  )    
+    <a class="btn editarparcial" href="{{ url('pedidos2/parcial_edit/'.$parcial->id) }}">Editar</a>
+    @endif 
+
+    </div>
 
     <div rel='fi'>
         <div class="alGridset">

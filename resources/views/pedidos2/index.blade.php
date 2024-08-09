@@ -23,7 +23,7 @@ use App\Http\Controllers\Pedidos2Controller;
     </div>
 
 
-
+    @if ($user->role_id== 1 || in_array($user->department_id,[3,4,5,7,9]) )
     <form id="fbuscar" action="{{ url('pedidos2/lista') }}" method="get" enctype="multipart/form-data">
         <input type="hidden" name="p" value="{{ $pag }}" />
         <input type="hidden" name="excel" value="0" />
@@ -144,25 +144,66 @@ use App\Http\Controllers\Pedidos2Controller;
         
         </section>
 
+
+
+
         </form>
+        
+        @else
+
+        <form id="fbuscar" action="{{ url('pedidos2/lista') }}" method="get" enctype="multipart/form-data">
+        <input type="hidden" name="p" value="{{ $pag }}" />
+        <input type="hidden" name="excel" value="0" />
+        <section class="formaBuscar">
+
+        <div class="fechasBox">
+                <label for="fechas"><span id="MuestraFecha"></span></label>
+                <?php
+                $desde = new DateTime();
+                $hoyf= $desde->format("Y-m-d");
+                $desde->modify("-7 month");
+                $desdef = $desde->format("Y-m-d");
+                ?>
+                <div class="divFechas"><input type="text" id="fechas" name="fechas" value="{{ $desdef}} - {{ $hoyf }}" /></div>
+                <div class="fechasNotas"><small>Selecciona PRIMERO la fecha inicial y DESPUES la fecha final</small></div>
+        </div>
+        <div class="Fila center">
+        <input type="button" class="form-control btnGrande" value="Buscar" onclick="GetLista()" /> 
+        </div>
+        </section>
+        </form>
+        @endif
+
+
+
+
 
 
 
 
     </div>
 
-    @if ($user->role_id == 1 || (in_array($user->department_id, [3, 4 , 8]) ) )
+
+
+
+
+    @if ($user->role_id == 1 || (in_array($user->department_id, [3, 4 ,5, 7, 8,9]) ) )
     <div class="container-fluid">
         <div class="BotsPrincipales">
         
+        @if ( !in_array($user->department_id,[3,7]))
         <button class="nuevo" href="{{ url('pedidos2/multie') }}">Cambio de Estatus Masivo </button>   
+        @endif
 
-
+        @if ( !in_array($user->department_id,[5,9]))
         <button class="nuevo" href="{{ url('pedidos2/nuevo') }}">Crear Nuevo Pedido</button>
-    
+        @endif
+
         </div>    
     </div>
     @endif
+
+
 
         <section id="Lista">
 

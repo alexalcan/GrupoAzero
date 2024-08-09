@@ -11,6 +11,10 @@ $estatuses = [6=>"Entregado"];
     }
 
     ksort($estatuses);
+
+    if($user->department_id == 8){
+        $estatuses=[5 => "En Puerta"];
+    }
     
 ?>
 

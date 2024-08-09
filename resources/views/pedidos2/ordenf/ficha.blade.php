@@ -13,9 +13,14 @@ $estatuses = [1=>"Elaborada", 3=>"En Fabricación", 4=>"Fabricado", 7 => "Cancel
     @endif
     </span>
     </div>    
+
+
     
     <div rel='ed'>
+
+        @if ($user->role_id == 1 || in_array($user->department_id,[4,5,7]))
          <a class="btn editof" href="{{ url('pedidos2/ordenf_edit/'.$ob->id) }}">Editar</a> 
+        @endif 
 
     </div>
 

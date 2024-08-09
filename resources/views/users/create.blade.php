@@ -65,6 +65,15 @@
                                     </div>
                                 </div>
                                 <div class="row">
+                                    <label class="col-sm-2 col-form-label">Sucursal</label>
+                                    <div class="col-sm-7">
+                                    <select name="office" id="inputOffice" class="form-control">                        
+                                        <option value="San Pablo">San Pablo</option>                            
+                                        <option  value="La Noria">La Noria</option>  
+                                    </select>
+                                    </div>
+                                </div>
+                                <div class="row">
                                     <label class="col-sm-2 col-form-label" for="input-password">Password</label>
                                     <div class="col-sm-7">
                                         <div class="form-group{{ $errors->has('password') ? ' has-danger' : '' }}">

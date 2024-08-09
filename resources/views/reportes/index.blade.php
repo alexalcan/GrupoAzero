@@ -39,7 +39,7 @@
                         <div class="Campo">
                             <select name='tipo' class="form-control">
                              	<option value=''>Elegir tipo</option>
-                             	<option value='Tiempos'>Reporte de Tiempos</option>
+                             	<option value='Tiempossub'>Tiempos en Subprocesos</option>
                              	<!--  <option value='Requisiciones'>Reporte de Requisiciones</option>  -->
                              </select>
                              <br/>

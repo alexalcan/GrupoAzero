@@ -4,6 +4,10 @@ if($user->role_id == 1 ){
     $estatuses[7] = "Cancelado";
 }
 
+if($user->department_id == 7){
+    $estatuses = [1=>"Elaborada"];
+}
+
 
 ?>
 

@@ -6,7 +6,7 @@ if(in_array($user->department_id, [4,7]) || $user->role_id == 1){
 if(in_array($user->department_id, [4,7]) || $user->role_id == 1){
     $estatuses[6]="Entregada";
 }
-if($user->role_id==1){
+if($user->role_id==1 || in_array($user->department_id,[7])){
     $estatuses[7]="Cancelada";
 }
 ?>

@@ -5,6 +5,14 @@ if($user->role_id == 1 || in_array($user->department_id,[4,5])){
 }
 ksort($estatuses);
 
+if($user->department_id==6){
+    $estatuses = [6=>"Entregado"];
+}
+
+if($user->department_id == 8){
+    $estatuses=[5 => "En Puerta"];
+}
+
 ?>
 <form action="{{ url('pedidos2/smaterial_update/'.$id) }}" id="FSetAccion" method="post">
 @csrf 

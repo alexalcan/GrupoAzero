@@ -108,7 +108,7 @@ $statuses = Pedidos2::StatusesCat();
 
 
 
-        @if ($pedido->origin != "R")
+        @if ($pedido->origin != "R" && !in_array($user->department_id,[4]))
         <div class='FormRow'>
             <label>Cliente</label>
             <input type="text" class="form-control" name="client" value="{{$pedido->client}}" />
@@ -176,9 +176,13 @@ $statuses = Pedidos2::StatusesCat();
 
     <div class="padded flex-float">
         <a class="powerLink modalShow" href="{{  url('pedidos2/historial/'.$pedido->id) }}">Historial</a>  
-        @if ($user->role->id == 1  || in_array($user->department->id, [2,3,4,7,9]) )    
+
+
+        @if ($user->role->id == 1  || in_array($user->department->id, [2,3,4,7]) )    
             <div class="block"><a class="powerLink" onclick="MostrarMainInfo()">Cambiar datos principales</a></div>
         @endif      
+
+
     </div>
         
     </form> 
@@ -257,9 +261,11 @@ $pedidoStatusId = $pedido->status_id;
 
         
         @if (!empty($pedido->invoice_number) && $parciales->isEmpty()==true && $pedido->origin !="R" 
-        && $pedido->status_5==0 && $pedido->status_6==0 && $shipments->isEmpty()==true)  
-            <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> 
-       
+        && $pedido->status_5==0 && $pedido->status_6==0 && $shipments->isEmpty()==true 
+        && ($user->role_id ==1 || in_array($user->department_id,[2,4,8]) )
+        )  
+
+            <a class="Accion enpuerta" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a>        
 
 
         @elseif (empty($pedido->invoice_number) && $parciales->isEmpty()==true && $pedido->origin !="R")
@@ -271,39 +277,9 @@ $pedidoStatusId = $pedido->status_id;
         <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
 
 
-        @if ( $pedido->origin == "R" && $pedido->status_5== 0 && $pedido->status_id < 5 && $pedido->status_id != 7 )
-        <!-- Requerimiento Stock 
-
-        <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=surters') }}">En Puerta</a> 
--->
-        @endif
-
-
-
-        @if ($pedido->status_id == 2 && $pedido->origin !="R")
-        <!-- Recibido por embarques -->
-
-        <!-- <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
-
-
-
-        @endif
-
-        @if ($pedido->status_id == 3 && $pedido->origin !="R")
-        <!-- En fabricación -->
-
-
-       <!--  <a class="Accion generico" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=fabricado') }}">Fabricado</a> -->
-        <!-- <a class="Accion" href="{{ url('pedidos2/parcial_accion/'.$pedido->id.'?a=enpuerta') }}">En Puerta</a> -->
-        @endif
-
-        @if ($pedido->status_id == 4 && $pedido->origin !="R")
-        <!-- Fabricado -->
- 
-
-        @endif
-
-        @if (  $pedido->status_id < 6  )
+        @if (  $pedido->status_id < 6 && 
+            ($user->role_id ==1 || in_array($user->department_id,[3,4,6,8]))
+          )
 
         <a class="Accion entregado" href="{{ url('pedidos2/accion/'.$pedido->id.'?a=entregar') }}">Entregado</a>
 
@@ -340,7 +316,11 @@ $pedidoStatusId = $pedido->status_id;
              {{ Tools::fechaMedioLargo($ship->created_at) }}
             </span>
             <span class="last">
+
+            @if ($user->role_id==1 || in_array($user->department_id,[2,4,8]))    
                 <a class="btn  editapg" href="{{ url('pedidos2/shipment_edit/'.$ship->id) }}">Editar</a>
+            @endif 
+
             </span>
         </div>
     
@@ -361,7 +341,11 @@ $pedidoStatusId = $pedido->status_id;
             &nbsp;
             </span>
             <span class="last">
-                <a class="btn  editapg" href="{{ url('pedidos2/entregar_edit/'.$pedido->id) }}">Editar</a>
+
+            @if ($user->role_id==1 || in_array($user->department_id,[2,4,8]))    
+            <a class="btn  editapg" href="{{ url('pedidos2/entregar_edit/'.$pedido->id) }}">Editar</a>
+            @endif
+
             </span>
         </div>
 
@@ -400,7 +384,11 @@ $pedidoStatusId = $pedido->status_id;
             @endif
             
             <div class="last">
+
+            @if ($user->role_id==1 || in_array($user->department_id,[2,4,8]))    
                 <a class="btn  editapg" href="{{ url('pedidos2/stockreq_edit/'.$stockreq->id) }}">Editar</a>
+            @endif
+
             </div>
         </div>    
     </aside>
@@ -422,41 +410,46 @@ $pedidoStatusId = $pedido->status_id;
 <div class="card">
 
     <div class="headersub">
-     Sub Procesos
+     Sub Procesos 
     </div>
 
+    
     <div class="Eleccion ">
 
-    @if ( $user->role_id == 1 || ( in_array($user->departamento_id, [2,4] ) && !in_array($pedido->status_id,[6,7]) )  )
+    @if ( $user->role_id == 1 || ( in_array($user->department_id, [2,4] ) && !in_array($pedido->status_id,[6,7]) )  )
         <a class="Candidato" rel="smaterial" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=smaterial') }}">+ Salida de Materiales</a>
     @endif
 
 
-    @if ( ($user->role_id == 1 || ( !in_array($pedido->status_id,[6,7]) && !isset($purchaseOrder->id)  ) ) && $pedido->origin != "R" )
+    @if ( $pedido->origin != "R" && ($user->role_id == 1 || 
+        ( in_array($user->department_id,[2,4,7]) &&  !in_array($pedido->status_id,[6,7]) && !isset($purchaseOrder->id)  ) ) 
+      )
         <a class="Candidato" rel="requisicion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=requisicion') }}">+ Requisición</a>
     @endif
 
 
-        @if ( $user->role_id == 1 || ( !in_array($pedido->status_id, [6,7]) ||  in_array($user->departamento_id, [4,5] ) ) )  
+    @if ( $user->role_id == 1 || (in_array($user->department_id, [4,5, 7]) && !in_array($pedido->status_id, [6,7]) ) )  
         <a class="Candidato" rel="ordenf" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=ordenf') }}">+ Orden de fábricación</a>
-        @endif
+    @endif
 
 
-        @if ( 
+    @if ( 
             !empty($pedido->invoice_number) && $pedido->origin != "R" && 
-            ( $user->role_id == 1 || ( !in_array($pedido->status_id,[6,7]) && !empty($pedido->invoice_number) ) ) 
+            ( $user->role_id == 1 || (in_array($user->department_id,[2,4,5,6,7]) &&  !in_array($pedido->status_id,[6,7]) && !empty($pedido->invoice_number) ) ) 
             )
         <a class="NParcial Candidato subp" href="{{ url('pedidos2/parcial_nuevo/'.$pedido->id) }}">+ Salida Parcial</a>
-        @endif
+    @endif
 
        
+    @if ($user->role_id == 1 || (in_array($user->department_id,[2,4,8])) )
         <a class="Candidato" rel="devolucion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=devolucion') }}">Devolución</a> 
+     @endif 
 
 
-        @if ($pedido->status_id == 7 && !isset($rebilling->id) ) 
+    @if ($user->role_id == 1 || (in_array($user->department_id,[3,7]) && $pedido->status_id == 7 && !isset($rebilling->id)) )
 
         <a class="Candidato" rel="refacturacion" href="{{ url('pedidos2/subproceso_nuevo/'.$pedido->id.'?a=refacturacion') }}">Refacturación</a>
-        @endif
+    @endif
     
     </div>
 
@@ -491,18 +484,29 @@ $pedidoStatusId = $pedido->status_id;
 
 
 
-@if ( in_array($user->department->id,[2, 3, 5, 7]))
+@if ($user->role_id == 1 || in_array($user->department->id,[2, 3, 5])  
+    || ($user->department_id==7 && $pedido->origin == "R" )
+)
 
     <div class="card">
 
         <div class='center Fila'>
-            @if ($pedido->status_id != 7)
+        
+        
+        @if ($pedido->status_id != 7)
+
             <a class="cancelar" title="¿Confirma que desea cancelar este pedido?" 
             href="{{ url('pedidos2/cancelar/'.$pedido->id) }}">Cancelar</a>
-            @elseif ($pedido->status_id == 7 && $role->name == "Administrador")
+        
+            
+        @elseif ($pedido->status_id == 7 && $user->role_id== 1 )
+
             <a class="cancelar" title="¿Confirma que desea quitar la cancelación de este pedido?" 
             href="{{ url('pedidos2/descancelar/'.$pedido->id) }}">Deshacer cancelación</a>
-            @endif
+
+        @endif
+
+
         </div>
 
     </div>
@@ -995,6 +999,7 @@ function FormaNuevoOrdenf2(){
         if(sid==4){$(".Fila[rel='archivo']").hide();}
         else{$(".Fila[rel='archivo']").show();}
     });
+
 
     let sid = $("#FSetAccion [name='status_id']").val();
     $(".monitor").text(monTexts[sid]);

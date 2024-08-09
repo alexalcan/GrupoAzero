@@ -13,7 +13,13 @@ use App\Libraries\Tools;
         <div class="">{{ Tools::fechaMedioLargo($ob->created_at)  }}</div>
     </div>    
     
-    <div rel='ed'><a class="btn editapg" href="{{ url('pedidos2/devolucion_edit/'.$ob->id) }}">Editar</a></div>
+    <div rel='ed'>
+    
+    @if ($user->role_id == 1 || in_array($user->department_id,[3,4,8]))   
+    <a class="btn editapg" href="{{ url('pedidos2/devolucion_edit/'.$ob->id) }}">Editar</a>
+    @endif
+
+    </div>
 
     <div rel='fi'>
     @if (isset($ob->file))

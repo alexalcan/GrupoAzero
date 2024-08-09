@@ -4,9 +4,22 @@ use App\Libraries\Tools;
 
 $estatuses =[2=>"Recibido por embarques",3=>"En fabricación",4=>"Fabricado"];
 
-    if($user->role->id == 1 || $user->role->department == 9){
-        $estatuses[10]="Recibido por Auditoría";
+
+
+    if($user->role_id != 1 && $user->department_id == 4){
+        $estatuses = [2=>"Recibido por embarques"];
     }
+
+    if($user->role_id != 1 && $user->department_id == 5){
+        $estatuses = [3=>"En fabricación",4=>"Fabricado"];
+    }
+
+    if($user->department_id == 9){
+        $estatuses=[10=>"Recibido por Auditoría"];
+    }
+
+ 
+
 ?>
 @extends('layouts.app', ['activePage' => 'orders', 'titlePage' => __('Pedidos y ordenes de fabricación')])
 

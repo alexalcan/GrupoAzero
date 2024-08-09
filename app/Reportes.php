@@ -82,6 +82,30 @@ WHERE o.created_at BETWEEN '".$desde."' AND '".$hasta."'";
 
         return $list;
     }
+
+
+
+    public static function PedidosPeriodo(string $desde, string $hasta) : array {
+        //Folio Factura	Folio Cotizac ion	Folio ReqStock	Creadoen	Estatus Actual	Fecha Este Estatus	Dias Duracion
+      $qGeneral = "SELECT 
+        o.id,
+        o.origin,
+        o.invoice_number,
+        o.invoice,
+        rs.number AS rsnumber,
+        o.office,
+        o.created_at,
+        o.status_id, 
+        s.name AS status_name,
+        o.updated_at       
+        FROM orders o       
+        LEFT JOIN stockreq rs ON rs.order_id = o.id
+        LEFT JOIN statuses s ON s.id = o.status_id    
+        WHERE o.created_at BETWEEN '$desde' AND '$hasta'";
+        $list = DB::select(DB::raw($qGeneral));        
+
+        return $list;
+    }
     
     
 
